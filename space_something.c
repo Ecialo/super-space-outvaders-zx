@@ -15,6 +15,21 @@ enum State {
     VICTORY,
 };
 
+enum ShipType {
+    INTERCEPTOR,
+    BOMBER,
+    DESTROYER,
+    SUPPORT,
+    BOSS,
+    NOT_A_SHIP,
+};
+
+enum ShipMods {
+    NO_MODS = 0,
+    TORPEDO = 1,
+    REMTECH = 2,
+};
+
 enum Result {
     OK,
     ERROR,
@@ -53,21 +68,132 @@ unsigned char rnd() {
     return RANDOM[RANDOM_HEAD];
 }
 
+char monus(char a, char b) {
+    if (a > b) {
+        return a - b;
+    } else {
+        return 0;
+    }
+}
+
 
 // SHIP
 typedef struct Spacehip
 {
     char name[11];
+    char type;
+
     char max_health;
     char health;
+
     char attack;
+    char special;
+
+    char mods;
+    char is_alive;
 } ship;
 
-int init_ship(ship *ship, char *name, char health, char attack) {
-    ship->attack = attack;
+int init_ship(
+    ship *ship, 
+    char *name,
+    char type, 
+    char health, 
+    char attack,
+    char special,
+    char mods
+) {
+    strcpy(ship->name, name);
     ship->max_health = health;
     ship->health = health;
-    strcpy(ship->name, name);
+    ship->attack = attack;
+    ship->special = special;
+    ship->mods = mods;
+    ship->is_alive = True;
+    return OK;
+}
+
+int init_interceptor(ship *ship, char *name) {
+    init_ship(
+        ship,
+        name,
+        INTERCEPTOR,
+        10,
+        3,
+        1,
+        NO_MODS
+    );
+    return OK;
+}
+
+int init_bomber(ship *ship, char *name) {
+    init_ship(
+        ship,
+        name,
+        BOMBER,
+        8,
+        2,
+        3,
+        NO_MODS
+    );
+    return OK;
+}
+
+int init_destroyer(ship *ship, char *name) {
+    init_ship(
+        ship,
+        name,
+        DESTROYER,
+        12,
+        2,
+        1,
+        NO_MODS
+    );
+    return OK;
+}
+
+int init_support(ship *ship, char *name) {
+    init_ship(
+        ship,
+        name,
+        SUPPORT,
+        8,
+        1,
+        3,
+        NO_MODS
+    );
+    return OK;
+}
+
+int take_damage(ship *ship, char amount, char multipler, char source_type) {
+    char total_damage;
+    char type = ship->type;
+    total_damage = amount * multipler;
+    if (type == INTERCEPTOR && source_type == DESTROYER) {
+        total_damage = total_damage + amount;
+    } else if (type == BOMBER && source_type == INTERCEPTOR) {
+        total_damage = total_damage + amount;
+    } else if (type == DESTROYER) {
+        if (source_type == BOMBER) {
+            total_damage = total_damage + amount;
+        } 
+        total_damage = total_damage - ship->special;
+    }
+    ship->health = monus(ship->health, total_damage);
+    if (ship->health == 0) {
+        ship->is_alive = False;
+    }
+    return OK;
+}
+
+int heal(ship *ship, char amount) {
+    char result_health;
+    result_health = ship->health + amount;
+    if (result_health > ship->max_health) {
+        ship->health = ship->max_health;
+    }
+    else {
+        ship->health = result_health;
+    }
     return OK;
 }
 
@@ -79,28 +205,57 @@ typedef struct Wing
     char arrange[MAX_WING_SIZE];
     char size;
     char head;
+    char heal;
+    char missile;
 } wing;
 
 int init_wing(wing *wing) {
     wing->size = 0;
     wing->head = 0;
+    wing->heal = 0;
+    wing->missile = 0;
     return OK;
 }
 
-int add_ship(wing *wing, char *name, char health, char attack) {
+int add_ship(wing *wing, char *name, char type) {
     char old_size = wing->size;
+    ship *ship;
     if (old_size == MAX_WING_SIZE) {
         return ERROR;
     }
     wing->size = old_size + 1;
     wing->arrange[old_size] = old_size;
+    ship = &(wing->ships[old_size]);
     
-    init_ship(
-        &(wing->ships[old_size]), 
-        name, 
-        health, 
-        attack
-    );
+    if (type == INTERCEPTOR) { init_interceptor(ship, name); }
+    else if (type == BOMBER) { init_bomber(ship, name); }
+    else if (type == DESTROYER) { init_destroyer(ship, name); }
+    else if (type == SUPPORT) { init_support(ship, name); }
+    else { return ERROR; }
+    
+    return OK;
+}
+
+int init_enemy_wing(wing *wing) {
+    return OK;
+}
+
+int swap_ships(wing *wing, char left_ship_i, char right_ship_i) {
+    char tmp;
+    tmp = wing->arrange[left_ship_i];
+    wing->arrange[left_ship_i] = wing->arrange[right_ship_i];
+    wing->arrange[right_ship_i] = tmp;
+    return OK;
+}
+
+int cycle_ships(wing *wing) {
+    char tmp, i, wing_size;
+    tmp = wing->arrange[0];
+    wing_size = wing->size - 1;
+    for (i = 0; i < wing_size; i++) {
+        wing->arrange[i] = wing->arrange[i+1];
+    }
+    wing->arrange[wing_size] = tmp;
     return OK;
 }
 
@@ -110,12 +265,14 @@ typedef struct GameState
     char state;
     char current_world;
     wing player_wing;
+    char combat_round;
 } state;
 
 int init_state(state *state) {
-    state->state = FLY;
+    state->state = IDLE;
     state->current_world = 0;
     init_wing(&state->player_wing);
+    state->combat_round = 0;
     return OK;
 }
 
@@ -210,6 +367,7 @@ int generate_world() {
     return OK;
 }
 
+// RENDER
 int render_just_content(just_content *content) {
     char v = content->value;
     if (v < 0) { 
@@ -234,7 +392,6 @@ int render_world_content(world_content *content) {
     }
 }
 
-// RENDER
 int render_world(world_node *node) {
     printf("World{%d}", node->id);
     if (node->is_terminate) {
@@ -261,6 +418,14 @@ int render_victory() {
     return OK;
 }
 
+
+// READ
+char read_action() {
+    int a;
+    printf("0 -- shoot, 1 -- retreat, 2 -- special");
+    scanf("%d", &a);
+    return (char) a;
+}
 
 // ACTIONS
 int perform_fly(state *state) {
@@ -291,8 +456,83 @@ int perform_fly(state *state) {
     return OK;
 }
 
-int perform_fight() {
-    printf("BOOP\n");
+int perform_round(
+    wing *player, 
+    wing *enemy, 
+    char damage_multipler,
+    char player_action,
+    char enemy_action
+) {
+    char i, wing_size, result_effect;
+    wing_size = player->size;
+    for (i = 1; i < wing_size; i++) {
+        heal(
+            &(player->ships[player->arrange[i]]), 
+            player->heal
+        );
+    }
+    wing_size = enemy->size;
+    for (i = 1; i < wing_size; i++) {
+        heal(
+            &(enemy->ships[enemy->arrange[i]]), 
+            enemy->heal
+        );
+    }
+
+    result_effect = player->heal - (enemy->missile) * 2;
+    if (result_effect > 0) {
+        heal(
+            &(player->ships[player->arrange[0]]), 
+            result_effect
+        );
+    } else if (result_effect < 0) {
+        take_damage(
+            &(player->ships[player->arrange[0]]), 
+            result_effect,
+            damage_multipler,
+            NOT_A_SHIP
+        );
+    }
+
+    result_effect = enemy->heal - (player->missile) * 2;
+    if (result_effect > 0) {
+        heal(
+            &(enemy->ships[enemy->arrange[0]]), 
+            result_effect
+        );
+    } else if (result_effect < 0) {
+        take_damage(
+            &(enemy->ships[enemy->arrange[0]]), 
+            result_effect,
+            damage_multipler,
+            NOT_A_SHIP
+        );
+    }
+
+    // TODO COMPLETE PERFORMER
+}
+
+int perform_fight(state *state) {
+
+    char action;
+    wing player_wing = state->player_wing;
+    wing enemy_wing;
+    init_enemy_wing(&enemy_wing);
+
+    printf("You wing");
+    render_wing(&player_wing);
+    printf("Enemy wing");
+    render_wing(&enemy_wing);
+
+    action = read_action();
+
+
+    return OK;
+}
+
+int perform_idle(state *state) {
+    world_node node = world[state->current_world];
+    render_world(&node);
     return OK;
 }
 
@@ -338,6 +578,7 @@ int main() {
     for (a = 0; a < 10; a++) {
         if (state.state == FLY) { perform_fly(&state); }
         else if (state.state == FIGHT) { perform_fight(&state); }
+        else if (state.state == IDLE) { perform_idle(&state); }
         else if (state.state = VICTORY) {
             render_victory();
             break;
