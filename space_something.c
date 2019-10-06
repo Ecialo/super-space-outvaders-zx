@@ -7,22 +7,24 @@
 #define MAX_WING_SIZE 5
 #define MAX_NEXT_WORLDS 3
 #define WORLD_SIZE 5
+#define NO_SLOT 5
 
 enum State {
     IDLE,
     FLY,
     FIGHT,
     VICTORY,
+    DEFEAT,
 };
 
-enum ShipType {
+typedef enum ShipType {
     INTERCEPTOR,
     BOMBER,
     DESTROYER,
     SUPPORT,
     BOSS,
     NOT_A_SHIP,
-};
+} ship_type;
 
 enum ShipMods {
     NO_MODS = 0,
@@ -37,6 +39,18 @@ enum Result {
 
 enum ContentType {
     JUST,
+};
+
+enum Actions {
+    ATTACK,
+    RETREAT,
+    SPECIAL,
+};
+
+enum FightResults {
+    CONTINUE,
+    THEM,
+    WE,
 };
 
 
@@ -78,10 +92,10 @@ char monus(char a, char b) {
 
 
 // SHIP
-typedef struct Spacehip
+typedef struct SpaceShip
 {
     char name[11];
-    char type;
+    ship_type type;
 
     char max_health;
     char health;
@@ -96,7 +110,7 @@ typedef struct Spacehip
 int init_ship(
     ship *ship, 
     char *name,
-    char type, 
+    ship_type type, 
     char health, 
     char attack,
     char special,
@@ -109,6 +123,7 @@ int init_ship(
     ship->special = special;
     ship->mods = mods;
     ship->is_alive = True;
+    ship->type = type;
     return OK;
 }
 
@@ -199,40 +214,94 @@ int heal(ship *ship, char amount) {
 
 
 // WING
+typedef union ShipSlot
+{
+    ship ship;
+    char next_empty_slot;
+} ship_slot;
+
+
 typedef struct Wing
 {
-    ship ships[MAX_WING_SIZE];
+    ship_slot ships[MAX_WING_SIZE];
     char arrange[MAX_WING_SIZE];
     char size;
+    char first_empty_slot;
+
     char head;
     char heal;
     char missile;
 } wing;
 
 int init_wing(wing *wing) {
+    wing->ships[0].next_empty_slot = 1;
+    wing->ships[1].next_empty_slot = 2;
+    wing->ships[2].next_empty_slot = 3;
+    wing->ships[3].next_empty_slot = 4;
+    wing->ships[4].next_empty_slot = NO_SLOT;
     wing->size = 0;
+    wing->first_empty_slot = 0;
+
     wing->head = 0;
     wing->heal = 0;
     wing->missile = 0;
     return OK;
 }
 
-int add_ship(wing *wing, char *name, char type) {
+ship* get_ship(wing *wing, char inwing_pos) {
+    assert(wing->size > inwing_pos);
+    return &wing->ships[wing->arrange[inwing_pos]].ship;
+}
+
+int add_ship(wing *wing, char *name, ship_type ship_type) {
+    char slot;
     char old_size = wing->size;
     ship *ship;
-    if (old_size == MAX_WING_SIZE) {
-        return ERROR;
-    }
-    wing->size = old_size + 1;
-    wing->arrange[old_size] = old_size;
-    ship = &(wing->ships[old_size]);
+    assert(old_size < MAX_WING_SIZE);
     
-    if (type == INTERCEPTOR) { init_interceptor(ship, name); }
-    else if (type == BOMBER) { init_bomber(ship, name); }
-    else if (type == DESTROYER) { init_destroyer(ship, name); }
-    else if (type == SUPPORT) { init_support(ship, name); }
+    // size
+    wing->size = old_size + 1;
+    
+    // ship slot
+    slot = wing->first_empty_slot;
+    wing->first_empty_slot = wing->ships[slot].next_empty_slot;
+
+    // arrange
+    wing->arrange[old_size] = slot;
+
+    // ship init
+    ship = &(wing->ships[slot].ship);
+    if (ship_type == INTERCEPTOR) { init_interceptor(ship, name); }
+    else if (ship_type == BOMBER) { init_bomber(ship, name); }
+    else if (ship_type == DESTROYER) { init_destroyer(ship, name); }
+    else if (ship_type == SUPPORT) { init_support(ship, name); }
     else { return ERROR; }
     
+    return OK;
+}
+
+int remove_ship(wing *wing, char inwing_pos) {
+    char slot, i, size;
+    char ship_i;
+    char old_size = wing->size;
+    assert(wing->size > inwing_pos);
+
+    ship_i = wing->arrange[inwing_pos];
+
+    // size
+    size = old_size - 1;
+    wing->size = size;
+
+    // ship slot
+    slot = wing->first_empty_slot;
+    wing->ships[ship_i].next_empty_slot = slot;
+    wing->first_empty_slot = ship_i;
+
+    // arrange
+    for (i = inwing_pos; i < size; i++) {
+        wing->arrange[i] =wing->arrange[i + 1];
+    }
+
     return OK;
 }
 
@@ -256,6 +325,10 @@ int cycle_ships(wing *wing) {
         wing->arrange[i] = wing->arrange[i+1];
     }
     wing->arrange[wing_size] = tmp;
+    return OK;
+}
+
+int check_ships_status(wing *wing) {
     return OK;
 }
 
@@ -404,13 +477,32 @@ int render_world(world_node *node) {
     return OK;
 }
 
-int render_wing(wing *wing) {
-    printf("wing contain %d ships", wing->size);
+int render_ship(ship *ship) {
+    ship_type type;
+    printf("SHIP\n");
+    printf("NAME: %s\n", ship->name);
+    printf("TYPE: ");
+    type = ship->type;
+    // printf("RAW TYPE %d\n", (int)type);
+    if (type == INTERCEPTOR) { printf("ITERCEPTOR\n"); }
+    else if (type == BOMBER) { printf("BOMBER\n"); }
+    else if (type == DESTROYER) { printf("DESTROYER\n"); }
+    else if (type == SUPPORT) { printf("SUPPORT\n"); }
+    else { printf("UNKNOWN TYPE\n"); }
+    printf("ATTACK %d\n", ship->attack);
+    printf("HEALTH %d/%d\n", ship->health, ship->max_health);
+    printf("---\n");
     return OK;
 }
 
-int render_ship(ship *ship) {
-    return OK;
+int render_wing(wing *wing) {
+    char i;
+    printf("WING\n");
+    printf("Size %d fempty %d\n", wing->size, wing->first_empty_slot);
+    for (i = 0; i < wing->size; i++) {
+        render_ship(get_ship(wing, i));
+    }
+    printf("-----\n");
 }
 
 int render_victory() {
@@ -456,6 +548,10 @@ int perform_fly(state *state) {
     return OK;
 }
 
+char check_fight_result() {
+    return WE;
+}
+
 int perform_round(
     wing *player, 
     wing *enemy, 
@@ -464,6 +560,8 @@ int perform_round(
     char enemy_action
 ) {
     char i, wing_size, result_effect;
+    ship player_leader, enemy_leader;
+
     wing_size = player->size;
     for (i = 1; i < wing_size; i++) {
         heal(
@@ -508,13 +606,42 @@ int perform_round(
             NOT_A_SHIP
         );
     }
+    player_leader = player->ships[player->arrange[0]].ship;
+    enemy_leader = enemy->ships[enemy->arrange[0]].ship;
 
+    if (player_action == ATTACK) {
+        take_damage(
+            &enemy_leader, 
+            player_leader.attack, 
+            damage_multipler, 
+            player_leader.type
+        );
+    } else if (player_action == RETREAT) {
+        cycle_ships(player);
+    } else if (player_action == SPECIAL) {
+        // TODO ADD SPECIAL
+    }
+
+    if (enemy_action == ATTACK) {
+        take_damage(
+            &player_leader, 
+            enemy_leader.attack, 
+            damage_multipler, 
+            enemy_leader.type
+        );
+    } else if (enemy_action == RETREAT) {
+        cycle_ships(enemy);
+    } else if (enemy_action == SPECIAL) {
+        // TODO ADD SPECIAL
+    }
     // TODO COMPLETE PERFORMER
 }
 
 int perform_fight(state *state) {
 
-    char action;
+    char player_action;
+    char enemy_action;
+    char fight_result;
     wing player_wing = state->player_wing;
     wing enemy_wing;
     init_enemy_wing(&enemy_wing);
@@ -524,9 +651,27 @@ int perform_fight(state *state) {
     printf("Enemy wing");
     render_wing(&enemy_wing);
 
-    action = read_action();
+    player_action = read_action();
+    enemy_action = (char) rnd();
 
-
+    perform_round(
+        &player_wing,
+        &init_enemy_wing,
+        (state->combat_round / 10) + 1,
+        player_action,
+        enemy_action
+    );
+    check_ships_status(&player_wing);
+    check_ships_status(&enemy_wing);
+    fight_result = check_fight_result();
+    if (fight_result == CONTINUE) {
+        state->combat_round++;
+    } else if (fight_result == WE) {
+        state->state = IDLE;
+    } else if (fight_result == THEM) {
+        state->state = DEFEAT;
+    }
+    // TODO COMPLETE PERFORMER
     return OK;
 }
 
@@ -551,8 +696,148 @@ int test_random() {
     return OK;
 }
 
+int test_wing_ship_add() {
+    wing wing1;
+    ship s0, s1, s2, s3, s4;
+    char a0, a1, a2, a3, a4;
+    init_wing(&wing1);
+
+    // render_wing(&wing1);    // [[*], [], [], [], []]
+    assert(wing1.size == 0);
+    assert(wing1.first_empty_slot == 0);
+    
+    add_ship(&wing1, "OLOLO", INTERCEPTOR); // [O, [*], [], [], []]
+    // render_wing(&wing1);
+    assert(wing1.size == 1);
+    assert(wing1.first_empty_slot == 1);
+
+    add_ship(&wing1, "KEKEKE", BOMBER); // [O, B, [*], [], []]
+    // render_wing(&wing1);
+    assert(wing1.size == 2);
+    assert(wing1.first_empty_slot == 2);
+
+    add_ship(&wing1, "1488", DESTROYER); // [O, B, 1, [*], []]
+    // render_wing(&wing1);
+    assert(wing1.size == 3);
+    assert(wing1.first_empty_slot == 3);
+
+    add_ship(&wing1, "666", SUPPORT); // [O, B, 1, 6, [*]]
+    // render_wing(&wing1);
+    assert(wing1.size == 4);
+    assert(wing1.first_empty_slot == 4);
+
+    add_ship(&wing1, "HITLER", INTERCEPTOR); // [O, B, 1, 6, H]
+    // render_wing(&wing1);
+    assert(wing1.size == 5);
+    assert(wing1.first_empty_slot == NO_SLOT);
+
+    remove_ship(&wing1, 1); // [O, [*], 1, 6, H] [O, 1, 6, H]
+    // render_wing(&wing1);
+    assert(wing1.size == 4);
+    assert(wing1.first_empty_slot == 1);
+    
+    remove_ship(&wing1, 1); // [O, [], [*], 6, H] [O 6, H]
+    // render_wing(&wing1);
+    assert(wing1.size == 3);
+    assert(wing1.first_empty_slot == 2);
+    assert(wing1.ships[2].next_empty_slot == 1);
+
+    remove_ship(&wing1, 2); // [O, [], [], 6, [*]] [O, 6]
+    // render_wing(&wing1);
+    assert(wing1.size == 2);
+    assert(wing1.first_empty_slot == 4);
+    assert(wing1.ships[4].next_empty_slot == 2);
+    assert(wing1.ships[2].next_empty_slot == 1);
+    assert(wing1.ships[1].next_empty_slot == NO_SLOT);
+
+    add_ship(&wing1, "1488", DESTROYER); // [O, [], [*], 6, 1] [O, 6, 1]
+    // render_wing(&wing1);
+    assert(wing1.size == 3);
+    assert(wing1.first_empty_slot == 2);
+
+    remove_ship(&wing1, 0); // [[*], [], [], 6, 1] [6, 1]
+    assert(wing1.size == 2);
+    assert(wing1.first_empty_slot == 0);
+    assert(wing1.ships[0].next_empty_slot == 2);
+    
+    remove_ship(&wing1, 0); // [[], [], [], [*], 1] [1]
+    assert(wing1.size == 1);
+    assert(wing1.first_empty_slot == 3);
+    assert(wing1.ships[3].next_empty_slot == 0);
+
+    remove_ship(&wing1, 0); // [[], [], [], [], [*]]
+    assert(wing1.size == 0);
+    assert(wing1.first_empty_slot == 4);
+    assert(wing1.ships[4].next_empty_slot == 3);
+    
+}
+
+int test_wing_swap_ships() {
+    wing wing;
+    init_wing(&wing);
+    add_ship(&wing, "OLOLO", INTERCEPTOR);
+    add_ship(&wing, "KEKEKE", BOMBER);
+    add_ship(&wing, "1488", DESTROYER);
+    add_ship(&wing, "666", SUPPORT);
+
+    swap_ships(&wing, 0, 1); // [B, I, D, S]
+    assert(get_ship(&wing, 0)->type == BOMBER);
+    assert(get_ship(&wing, 1)->type == INTERCEPTOR);
+
+    swap_ships(&wing, 0, 0);
+    assert(get_ship(&wing, 0)->type == BOMBER);
+
+    swap_ships(&wing, 3, 0); // [S, I, D, B]
+    assert(get_ship(&wing, 0)->type == SUPPORT);
+    assert(get_ship(&wing, 1)->type == INTERCEPTOR);
+    assert(get_ship(&wing, 2)->type == DESTROYER);
+    assert(get_ship(&wing, 3)->type == BOMBER);
+}
+
+int test_wing_cycle_ships() {
+    wing wing;
+    init_wing(&wing);
+    add_ship(&wing, "OLOLO", INTERCEPTOR);
+    add_ship(&wing, "KEKEKE", BOMBER);
+    add_ship(&wing, "1488", DESTROYER);
+    add_ship(&wing, "666", SUPPORT);
+    // [I, B, D, S]
+
+    cycle_ships(&wing); // [B, D, S, I]
+    assert(get_ship(&wing, 0)->type == BOMBER);
+    assert(get_ship(&wing, 1)->type == DESTROYER);
+    assert(get_ship(&wing, 2)->type == SUPPORT);
+    assert(get_ship(&wing, 3)->type == INTERCEPTOR);
+
+    cycle_ships(&wing); // [D, S, I, B]
+    assert(get_ship(&wing, 0)->type == DESTROYER);
+    assert(get_ship(&wing, 1)->type == SUPPORT);
+    assert(get_ship(&wing, 2)->type == INTERCEPTOR);
+    assert(get_ship(&wing, 3)->type == BOMBER);
+
+    cycle_ships(&wing); // [S, I, B, D]
+    assert(get_ship(&wing, 0)->type == SUPPORT);
+    assert(get_ship(&wing, 1)->type == INTERCEPTOR);
+    assert(get_ship(&wing, 2)->type == BOMBER);
+    assert(get_ship(&wing, 3)->type == DESTROYER);
+
+    cycle_ships(&wing); // [I, B, D, S]
+    assert(get_ship(&wing, 0)->type == INTERCEPTOR);
+    assert(get_ship(&wing, 1)->type == BOMBER);
+    assert(get_ship(&wing, 2)->type == DESTROYER);
+    assert(get_ship(&wing, 3)->type == SUPPORT);
+
+    cycle_ships(&wing); // [B, D, S, I]
+    assert(get_ship(&wing, 0)->type == BOMBER);
+    assert(get_ship(&wing, 1)->type == DESTROYER);
+    assert(get_ship(&wing, 2)->type == SUPPORT);
+    assert(get_ship(&wing, 3)->type == INTERCEPTOR);
+}
+
 int run_tests() {
     test_random();
+    test_wing_ship_add();
+    test_wing_swap_ships();
     // wing wing1;
     
     // init_wing(&wing1);
@@ -570,19 +855,19 @@ int main() {
     }
 
     // init
-    state state;
-    init_state(&state);
-    generate_world();
+    // state state;
+    // init_state(&state);
+    // generate_world();
 
-    // main game loop
-    for (a = 0; a < 10; a++) {
-        if (state.state == FLY) { perform_fly(&state); }
-        else if (state.state == FIGHT) { perform_fight(&state); }
-        else if (state.state == IDLE) { perform_idle(&state); }
-        else if (state.state = VICTORY) {
-            render_victory();
-            break;
-        }
-        printf("\n");
-    }
+    // // main game loop
+    // for (a = 0; a < 10; a++) {
+    //     if (state.state == FLY) { perform_fly(&state); }
+    //     else if (state.state == FIGHT) { perform_fight(&state); }
+    //     else if (state.state == IDLE) { perform_idle(&state); }
+    //     else if (state.state = VICTORY) {
+    //         render_victory();
+    //         break;
+    //     }
+    //     printf("\n");
+    // }
 }
