@@ -4,18 +4,30 @@
 
 #define True 1
 #define False 0
+
+#define OK 0
+#define ERROR 1
+
 #define MAX_WING_SIZE 5
-#define MAX_NEXT_WORLDS 3
-#define WORLD_SIZE 5
 #define NO_SLOT 5
 
-enum State {
+#define MAX_NEXT_WORLDS 3
+#define WORLD_SIZE 5
+
+#define NO_MODS 0
+#define TORPEDO 1
+#define REMTECH 2
+
+#define NUM_OF_ACTIONS 3
+#define NO_CHOICE 7
+
+typedef enum State {
     IDLE,
     FLY,
     FIGHT,
     VICTORY,
     DEFEAT,
-};
+} state;
 
 typedef enum ShipType {
     INTERCEPTOR,
@@ -26,32 +38,21 @@ typedef enum ShipType {
     NOT_A_SHIP,
 } ship_type;
 
-enum ShipMods {
-    NO_MODS = 0,
-    TORPEDO = 1,
-    REMTECH = 2,
-};
-
-enum Result {
-    OK,
-    ERROR,
-};
-
-enum ContentType {
+typedef enum ContentType {
     JUST,
-};
+} content_type;
 
-enum Actions {
+typedef enum Action {
     ATTACK,
     RETREAT,
     SPECIAL,
-};
+} action;
 
-enum FightResults {
+typedef enum FightResults {
     CONTINUE,
-    THEM,
+    THEY,
     WE,
-};
+} fight_result;
 
 
 // TOOLS
@@ -179,10 +180,10 @@ int init_support(ship *ship, char *name) {
     return OK;
 }
 
-int take_damage(ship *ship, char amount, char multipler, char source_type) {
+int take_damage(ship *ship, char amount, char multiplier, ship_type source_type) {
     char total_damage;
-    char type = ship->type;
-    total_damage = amount * multipler;
+    ship_type type = ship->type;
+    total_damage = amount * multiplier;
     if (type == INTERCEPTOR && source_type == DESTROYER) {
         total_damage = total_damage + amount;
     } else if (type == BOMBER && source_type == INTERCEPTOR) {
@@ -251,6 +252,10 @@ int init_wing(wing *wing) {
 ship* get_ship(wing *wing, char inwing_pos) {
     assert(wing->size > inwing_pos);
     return &wing->ships[wing->arrange[inwing_pos]].ship;
+}
+
+ship* get_leader(wing *wing) {
+    return get_ship(wing, 0);
 }
 
 int add_ship(wing *wing, char *name, ship_type ship_type) {
@@ -328,8 +333,17 @@ int cycle_ships(wing *wing) {
     return OK;
 }
 
-int check_ships_status(wing *wing) {
-    return OK;
+int scrap_dead_ships(wing *wing) {
+    char i = 0;
+    char size = wing->size;
+    while (i < wing->size)
+    {
+        if (get_ship(wing, i)->is_alive) {
+            i++;
+        } else {
+            remove_ship(wing, i);
+        }
+    }
 }
 
 // GLOBAL GAME STATE
@@ -339,9 +353,9 @@ typedef struct GameState
     char current_world;
     wing player_wing;
     char combat_round;
-} state;
+} game_state;
 
-int init_state(state *state) {
+int init_state(game_state *state) {
     state->state = IDLE;
     state->current_world = 0;
     init_wing(&state->player_wing);
@@ -500,6 +514,7 @@ int render_wing(wing *wing) {
     printf("WING\n");
     printf("Size %d fempty %d\n", wing->size, wing->first_empty_slot);
     for (i = 0; i < wing->size; i++) {
+        printf("Ship #%d\n", i);
         render_ship(get_ship(wing, i));
     }
     printf("-----\n");
@@ -519,8 +534,16 @@ char read_action() {
     return (char) a;
 }
 
+char read_ship_i(wing *wing) {
+    int a;
+    printf("Choose ship from \n");
+    render_wing(wing);
+    scanf("%d", &a);
+    return a;
+}
+
 // ACTIONS
-int perform_fly(state *state) {
+int perform_fly(game_state *state) {
 
     world_node node = world[state->current_world];
 
@@ -548,16 +571,82 @@ int perform_fly(state *state) {
     return OK;
 }
 
-char check_fight_result() {
-    return WE;
+fight_result check_fight_result(wing *player, wing *enemy) {
+    if (player->size == 0) {
+        return THEY;
+    } else if (enemy->size == 0) {
+        return WE;
+    } else {
+        return CONTINUE;
+    }
+}
+
+int perform_action(wing *you, wing *oppose, action action, char choice, char damage_multiplier) {
+    ship *you_leader = get_leader(you);
+    ship *oppose_leader = get_leader(oppose);
+    
+    switch (action) {
+        case ATTACK:
+            take_damage(
+                oppose_leader, 
+                you_leader->attack, 
+                damage_multiplier,
+                you_leader->type
+            );
+            break;
+        case RETREAT:
+            cycle_ships(you);
+            if (you_leader->type == INTERCEPTOR) {
+                take_damage(
+                    oppose_leader, 
+                    you_leader->special, 
+                    damage_multiplier,
+                    NOT_A_SHIP
+                );  
+            }
+            break;
+        case SPECIAL:
+            switch (you_leader->type) {
+                case INTERCEPTOR:
+                    swap_ships(oppose, 0, choice);
+                    break;
+                case BOMBER:
+                    take_damage(
+                        get_ship(oppose, choice), 
+                        you_leader->special, 
+                        damage_multiplier,
+                        NOT_A_SHIP
+                    );
+                    break;
+                case DESTROYER:
+                    swap_ships(you, 0, 1);
+                    // TODO RAISE DESTROYER SHIELD
+                    break;  
+                case SUPPORT:
+                    heal(
+                        get_ship(you, choice),
+                        you_leader->special
+                    );
+                    break;
+                default:
+                    assert(0);
+                    break;
+            }
+            break;
+        default:
+            assert(0);
+            break;
+    }
 }
 
 int perform_round(
     wing *player, 
     wing *enemy, 
-    char damage_multipler,
-    char player_action,
-    char enemy_action
+    char damage_multiplier,
+    action player_action,
+    char player_choice,
+    action enemy_action,
+    char enemy_choice
 ) {
     char i, wing_size, result_effect;
     ship player_leader, enemy_leader;
@@ -565,14 +654,16 @@ int perform_round(
     wing_size = player->size;
     for (i = 1; i < wing_size; i++) {
         heal(
-            &(player->ships[player->arrange[i]]), 
+            // &(player->ships[player->arrange[i]]),
+            get_ship(player, i), 
             player->heal
         );
     }
     wing_size = enemy->size;
     for (i = 1; i < wing_size; i++) {
         heal(
-            &(enemy->ships[enemy->arrange[i]]), 
+            // &(enemy->ships[enemy->arrange[i]]), 
+            get_ship(enemy, i), 
             enemy->heal
         );
     }
@@ -580,14 +671,16 @@ int perform_round(
     result_effect = player->heal - (enemy->missile) * 2;
     if (result_effect > 0) {
         heal(
-            &(player->ships[player->arrange[0]]), 
+            // &(player->ships[player->arrange[0]]), 
+            get_leader(player), 
             result_effect
         );
     } else if (result_effect < 0) {
         take_damage(
-            &(player->ships[player->arrange[0]]), 
+            // &(player->ships[player->arrange[0]]), 
+            get_leader(player), 
             result_effect,
-            damage_multipler,
+            damage_multiplier,
             NOT_A_SHIP
         );
     }
@@ -595,87 +688,106 @@ int perform_round(
     result_effect = enemy->heal - (player->missile) * 2;
     if (result_effect > 0) {
         heal(
-            &(enemy->ships[enemy->arrange[0]]), 
+            // &(enemy->ships[enemy->arrange[0]]), 
+            get_leader(enemy), 
             result_effect
         );
     } else if (result_effect < 0) {
         take_damage(
-            &(enemy->ships[enemy->arrange[0]]), 
+            // &(enemy->ships[enemy->arrange[0]]), 
+            get_leader(enemy), 
             result_effect,
-            damage_multipler,
+            damage_multiplier,
             NOT_A_SHIP
         );
     }
-    player_leader = player->ships[player->arrange[0]].ship;
-    enemy_leader = enemy->ships[enemy->arrange[0]].ship;
+    player_leader = *get_leader(player);
+    enemy_leader = *get_leader(enemy);
 
-    if (player_action == ATTACK) {
-        take_damage(
-            &enemy_leader, 
-            player_leader.attack, 
-            damage_multipler, 
-            player_leader.type
-        );
-    } else if (player_action == RETREAT) {
-        cycle_ships(player);
-    } else if (player_action == SPECIAL) {
-        // TODO ADD SPECIAL
-    }
-
-    if (enemy_action == ATTACK) {
-        take_damage(
-            &player_leader, 
-            enemy_leader.attack, 
-            damage_multipler, 
-            enemy_leader.type
-        );
-    } else if (enemy_action == RETREAT) {
-        cycle_ships(enemy);
-    } else if (enemy_action == SPECIAL) {
-        // TODO ADD SPECIAL
-    }
+    perform_action(player, enemy, player_action, player_choice, damage_multiplier);
+    perform_action(enemy, player, enemy_action, enemy_choice, damage_multiplier);
     // TODO COMPLETE PERFORMER
 }
 
-int perform_fight(state *state) {
+int perform_fight(game_state *state) {
 
-    char player_action;
-    char enemy_action;
-    char fight_result;
+    action player_action, enemy_action; 
+    char player_choice, enemy_choice;
+    fight_result fight_result;
     wing player_wing = state->player_wing;
+    
     wing enemy_wing;
     init_enemy_wing(&enemy_wing);
 
-    printf("You wing");
-    render_wing(&player_wing);
-    printf("Enemy wing");
-    render_wing(&enemy_wing);
+    for(;;) {
 
-    player_action = read_action();
-    enemy_action = (char) rnd();
+        printf("You wing");
+        render_wing(&player_wing);
+        printf("Enemy wing");
+        render_wing(&enemy_wing);
 
-    perform_round(
-        &player_wing,
-        &init_enemy_wing,
-        (state->combat_round / 10) + 1,
-        player_action,
-        enemy_action
-    );
-    check_ships_status(&player_wing);
-    check_ships_status(&enemy_wing);
-    fight_result = check_fight_result();
-    if (fight_result == CONTINUE) {
-        state->combat_round++;
-    } else if (fight_result == WE) {
-        state->state = IDLE;
-    } else if (fight_result == THEM) {
-        state->state = DEFEAT;
+        player_action = read_action();
+        if (player_action == SPECIAL) {
+            switch (get_leader(&player_wing)->type) {
+                case BOMBER:
+                case INTERCEPTOR:
+                    player_choice = read_ship_i(&enemy_wing);
+                    break;
+                case SUPPORT:
+                    player_choice = read_ship_i(&player_wing);
+                    break;
+                default:
+                    player_choice = NO_CHOICE;
+                    break;
+            }
+        } else {
+            player_choice = NO_CHOICE;
+        }
+
+        enemy_action = (action) (rnd() % NUM_OF_ACTIONS);
+        if (enemy_action == SPECIAL) {
+            switch (get_leader(&player_wing)->type) {
+                case BOMBER:
+                    player_choice = (char) (rnd() % player_wing.size);
+                    break;
+                case SUPPORT:
+                case INTERCEPTOR:
+                    enemy_choice = (char) (rnd() % enemy_wing.size);
+                    break;
+                default:
+                    enemy_choice = NO_CHOICE;
+                    break;
+            }
+        } else {
+            enemy_choice = NO_CHOICE;
+        }
+
+        perform_round(
+            &player_wing,
+            &enemy_wing,
+            (state->combat_round / 10) + 1,
+            player_action,
+            player_choice,
+            enemy_action,
+            enemy_choice
+        );
+        scrap_dead_ships(&player_wing);
+        scrap_dead_ships(&enemy_wing);
+        fight_result = check_fight_result(&player_wing, &enemy_wing);
+        if (fight_result == CONTINUE) {
+            state->combat_round++;
+        } else if (fight_result == WE) {
+            state->state = IDLE;
+            break;
+        } else if (fight_result == THEY) {
+            state->state = DEFEAT;
+            break;
+        }
     }
-    // TODO COMPLETE PERFORMER
     return OK;
 }
 
-int perform_idle(state *state) {
+int perform_idle(game_state *state) {
     world_node node = world[state->current_world];
     render_world(&node);
     return OK;
@@ -834,10 +946,118 @@ int test_wing_cycle_ships() {
     assert(get_ship(&wing, 3)->type == INTERCEPTOR);
 }
 
+int test_scrap_ships() {
+    wing wing;
+    init_wing(&wing);
+    add_ship(&wing, "OLOLO", INTERCEPTOR);
+    add_ship(&wing, "KEKEKE", BOMBER);
+    add_ship(&wing, "1488", DESTROYER);
+    add_ship(&wing, "666", SUPPORT);
+
+    get_ship(&wing, 1)->is_alive = False;
+    get_ship(&wing, 3)->is_alive = False;
+
+    scrap_dead_ships(&wing);
+
+    assert(wing.size == 2);
+    assert(get_ship(&wing, 0)->type == INTERCEPTOR);
+    assert(get_ship(&wing, 1)->type == DESTROYER);
+
+    scrap_dead_ships(&wing);
+
+    assert(wing.size == 2);
+    assert(get_ship(&wing, 0)->type == INTERCEPTOR);
+    assert(get_ship(&wing, 1)->type == DESTROYER);
+}
+
+int test_take_damage() {
+    ship i, b, d, s;
+
+    init_interceptor(&i, "Int");
+    take_damage(&i, 1, 1, DESTROYER);
+    assert(i.health == i.max_health - 2);
+    init_interceptor(&i, "Int");
+    take_damage(&i, 1, 1, INTERCEPTOR);
+    assert(i.health == i.max_health - 1);
+    init_interceptor(&i, "Int");
+    take_damage(&i, 1, 1, BOMBER);
+    assert(i.health == i.max_health - 1);
+    init_interceptor(&i, "Int");
+    take_damage(&i, 1, 1, SUPPORT);
+    assert(i.health == i.max_health - 1);
+
+    init_bomber(&b, "Bom");
+    take_damage(&b, 1, 1, DESTROYER);
+    assert(b.health == b.max_health - 1);
+    init_bomber(&b, "Bom");
+    take_damage(&b, 1, 1, INTERCEPTOR);
+    assert(b.health == b.max_health - 2);
+    init_bomber(&b, "Bom");
+    take_damage(&b, 1, 1, BOMBER);
+    assert(b.health == b.max_health - 1);
+    init_bomber(&b, "Bom");
+    take_damage(&b, 1, 1, SUPPORT);
+    assert(b.health == b.max_health - 1);
+
+    init_destroyer(&d, "Des");
+    take_damage(&d, 3, 1, DESTROYER);
+    assert(d.health == d.max_health - (3 - d.special));
+    init_destroyer(&d, "Des");
+    take_damage(&d, 3, 1, INTERCEPTOR);
+    assert(d.health == d.max_health - (3 - d.special));
+    init_destroyer(&d, "Des");
+    take_damage(&d, 3, 1, BOMBER);
+    assert(d.health == d.max_health - (6 - d.special));
+    init_destroyer(&d, "Des");
+    take_damage(&d, 3, 1, SUPPORT);
+    assert(d.health == d.max_health - (3 - d.special));
+
+    init_support(&s, "Sup");
+    take_damage(&s, 1, 1, DESTROYER);
+    assert(s.health == s.max_health - 1);
+    init_support(&s, "Sup");
+    take_damage(&s, 1, 1, INTERCEPTOR);
+    assert(s.health == s.max_health - 1);
+    init_support(&s, "Sup");
+    take_damage(&s, 1, 1, BOMBER);
+    assert(s.health == s.max_health - 1);
+    init_support(&s, "Sup");
+    take_damage(&s, 1, 1, SUPPORT);
+    assert(s.health == s.max_health - 1);
+
+    init_bomber(&b, "Bom");
+    take_damage(&b, 2, 2, DESTROYER);
+    assert(b.health == b.max_health - 4);
+    init_bomber(&b, "Bom");
+    take_damage(&b, 2, 2, INTERCEPTOR);
+    assert(b.health == b.max_health - 6);
+
+    init_bomber(&b, "Bom");
+    assert(b.is_alive);
+    take_damage(&b, 100, 1, DESTROYER);
+    assert(b.health == 0);
+    assert(!b.is_alive);
+
+}
+
+int test_heal() {
+    ship a;
+    init_interceptor(&a, "Int");
+    take_damage(&a, 3, 1, INTERCEPTOR);
+    heal(&a, 1);
+    assert(a.health == a.max_health - 2);
+    heal(&a, 5);
+    assert(a.health == a.max_health);
+}
+
 int run_tests() {
     test_random();
     test_wing_ship_add();
     test_wing_swap_ships();
+    test_wing_cycle_ships();
+    test_scrap_ships();
+    test_take_damage();
+    test_heal();
     // wing wing1;
     
     // init_wing(&wing1);
