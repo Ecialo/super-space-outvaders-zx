@@ -311,6 +311,8 @@ int remove_ship(wing *wing, char inwing_pos) {
 }
 
 int init_enemy_wing(wing *wing) {
+    init_wing(wing);
+    add_ship(wing, "KEK", INTERCEPTOR);
     return OK;
 }
 
@@ -1067,12 +1069,22 @@ int run_tests() {
 
 
 // MAIN
+
+int just_fight() {
+    game_state state;
+    init_state(&state);
+    add_ship(&state.player_wing, "KUKAREK", INTERCEPTOR);
+    perform_fight(&state);
+}
+
 int main() {
     int a;
     int tests_result = run_tests();
+    printf("Test result %d\n", tests_result);
     if (tests_result == ERROR) {
         return ERROR;
     }
+    just_fight();
 
     // init
     // state state;
