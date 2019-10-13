@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+//#include "glyph_drawing.c"
 
 #define True 1
 #define False 0
@@ -547,7 +548,8 @@ char read_ship_i(wing *wing) {
 // ACTIONS
 int perform_fly(game_state *state) {
 
-    world_node node = world[state->current_world];
+    world_node node;
+    node = world[state->current_world];
 
     if (node.is_terminate) {
         state->state = VICTORY;
@@ -716,16 +718,17 @@ int perform_fight(game_state *state) {
     action player_action, enemy_action; 
     char player_choice, enemy_choice;
     fight_result fight_result;
-    wing player_wing = state->player_wing;
+    wing player_wing;
+    player_wing = state->player_wing;
     
     wing enemy_wing;
     init_enemy_wing(&enemy_wing);
 
     for(;;) {
 
-        printf("You wing");
+        // printf("You wing");
         render_wing(&player_wing);
-        printf("Enemy wing");
+        // printf("Enemy wing");
         render_wing(&enemy_wing);
 
         player_action = read_action();
@@ -750,7 +753,7 @@ int perform_fight(game_state *state) {
         if (enemy_action == SPECIAL) {
             switch (get_leader(&player_wing)->type) {
                 case BOMBER:
-                    player_choice = (char) (rnd() % player_wing.size);
+                    enemy_choice = (char) (rnd() % player_wing.size);
                     break;
                 case SUPPORT:
                 case INTERCEPTOR:
@@ -790,7 +793,8 @@ int perform_fight(game_state *state) {
 }
 
 int perform_idle(game_state *state) {
-    world_node node = world[state->current_world];
+    world_node node;
+    node = world[state->current_world];
     render_world(&node);
     return OK;
 }

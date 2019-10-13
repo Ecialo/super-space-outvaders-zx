@@ -521,6 +521,10 @@ int render_ship(ship *ship, uch in_wing_pos) {
     return OK;
 }
 
+void render_ship_stats(ship *ship, uch side) {
+    
+}
+
 int render_wing(wing *wing, uch side) {
     char i;
     // printf("WING\n");
