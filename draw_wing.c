@@ -48,10 +48,9 @@ void init_ship_sprites(void) {
     char i;
     struct sp1_ss *s;
     for(i = 0; i < 10; i++) {
-        wing_sprites[i] = s = sp1_CreateSpr(SP1_DRAW_MASK2LB, SP1_TYPE_2BYTE, 3, 0, 0);
-        sp1_AddColSpr(s, SP1_DRAW_MASK2, 0, 48, 0);
-        sp1_AddColSpr(s, SP1_DRAW_MASK2, 0, 48, 0);
-        sp1_AddColSpr(s, SP1_DRAW_MASK2, 0, 48, 0);
+        wing_sprites[i] = s = sp1_CreateSpr(SP1_DRAW_MASK2LB, SP1_TYPE_2BYTE, 4, 48, 0);
+        sp1_AddColSpr(s, SP1_DRAW_MASK2, 0, 96, 0);
+        sp1_AddColSpr(s, SP1_DRAW_MASK2, 0, 144, 0);
         // sp1_AddColSpr(s, SP1_DRAW_MASK2, 0, 48, 0);
         sp1_AddColSpr(s, SP1_DRAW_MASK2RB, 0, 0, 0);
         // sp1_AddColSpr(s, SP1_DRAW_MASK2, 0, 48, 0);
