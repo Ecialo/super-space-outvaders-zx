@@ -11,17 +11,6 @@
 #define TABLE_ADDR             ((void*)(TABLE_HIGH_BYTE*UI_256))
 #define JUMP_POINT             ((unsigned char*)( (unsigned int)(JUMP_POINT_HIGH_BYTE*UI_256) + JUMP_POINT_HIGH_BYTE ))
 
-
-
-#define True 1
-#define False 0
-
-#define OK 0
-#define ERROR 1
-
-#define MAX_WING_SIZE 5
-#define NO_SLOT 5
-
 #define MAX_NEXT_WORLDS 3
 #define WORLD_SIZE 5
 
