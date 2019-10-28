@@ -25,10 +25,12 @@
 
 // draw_ship
 
-extern unsigned char sprite1[];
+extern unsigned char ship21[];
+extern unsigned char ship22[];
+extern unsigned char ship23[];
 // #include "data/alien.h"
-#include "data/ship2.h"
-#include "data/interceptor.h"
+// #include "data/ship2.h"
+// #include "data/interceptor.h"
 
 struct sp1_Rect cr = {0, 0, 32, 24};
 struct sp1_ss *wing_sprites[10];
@@ -48,12 +50,15 @@ void init_ship_sprites(void) {
     char i;
     struct sp1_ss *s;
     for(i = 0; i < 10; i++) {
-        wing_sprites[i] = s = sp1_CreateSpr(SP1_DRAW_MASK2LB, SP1_TYPE_2BYTE, 3, 0, 0);
-        sp1_AddColSpr(s, SP1_DRAW_MASK2, 0, 48, 0);
-        sp1_AddColSpr(s, SP1_DRAW_MASK2, 0, 48, 0);
-        sp1_AddColSpr(s, SP1_DRAW_MASK2, 0, 48, 0);
+        wing_sprites[i] = s = sp1_CreateSpr(SP1_DRAW_MASK2LB, SP1_TYPE_2BYTE, 4, (int)ship21, 0);
+        sp1_AddColSpr(s, SP1_DRAW_MASK2, SP1_TYPE_2BYTE, (int)ship22, 0);
+        sp1_AddColSpr(s, SP1_DRAW_MASK2, SP1_TYPE_2BYTE, (int)ship23, 0);
+        sp1_AddColSpr(s, SP1_DRAW_MASK2RB, SP1_TYPE_2BYTE, 0, 0);
+        // sp1_AddColSpr(s, SP1_DRAW_MASK2RB, 0, 144, 0);
         // sp1_AddColSpr(s, SP1_DRAW_MASK2, 0, 48, 0);
-        sp1_AddColSpr(s, SP1_DRAW_MASK2RB, 0, 0, 0);
+        // sp1_AddColSpr(s, SP1_DRAW_MASK2, 0, 48, 0);
+        // sp1_AddColSpr(s, SP1_DRAW_MASK2RB, 0, 144, 0);    
+        // sp1_AddColSpr(s, SP1_DRAW_MASK2RB, 0, 0, 0);    
         // sp1_AddColSpr(s, SP1_DRAW_MASK2, 0, 48, 0);
         // sp1_AddColSpr(s, SP1_DRAW_MASK2, 0, 48, 0);
     }
@@ -103,7 +108,8 @@ void render_wing(wing *wing, char side) {
             sp1_MoveSprPix(
                 wing_sprites[i + offset], 
                 &cr, 
-                ship2, 
+                // ship2, 
+                0, 
                 our_wing_pos_x[i], 
                 our_wing_pos_y[i]
             );
@@ -112,7 +118,8 @@ void render_wing(wing *wing, char side) {
                 wing_sprites[i + offset], 
                 &cr, 
                 // interceptor, 
-                ship2, 
+                // ship2, 
+                0, 
                 their_wing_pos_x[i], 
                 their_wing_pos_y[i]
             );
