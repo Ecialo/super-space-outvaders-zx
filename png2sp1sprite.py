@@ -30,7 +30,7 @@ __version__ = "1.0.1"
 from argparse import ArgumentParser
 from PIL import Image
 
-INK = (255, 255, 255)
+INK = (205, 205, 205)
 PAPER = (205, 0, 0)
 MASK = (0, 0, 0)
 
@@ -44,8 +44,7 @@ def get_value(rgb, animated=False):
     :param animated: It is a WTF from SP1. If I do animation it requires me to invert the values...
     :return:
     """
-
-    if rgb[0] > 0 or rgb[1] > 0 or rgb[2] > 0:
+    if rgb[0] > 0 and rgb[1] > 0 and rgb[2] > 0:
         return "1" if not animated else "0"
     else:
         return "0" if not animated else "1"
@@ -58,11 +57,12 @@ def get_mask_value(rgb, animated=False):
         :param animated: It is a WTF from SP1. If I do animation it requires me to invert the values...
         :return:
         """
-
-    if rgb[0] > 0 or rgb[1] > 0 or rgb[2] > 0:
-        return "0" if not animated else "1"
-    else:
+    # return "0"
+    # if rgb[0] > 0 or rgb[1] > 0 or rgb[2] > 0:
+    if rgb[0] == 0 and rgb[1] == 0 and rgb[2] == 0:
         return "1" if not animated else "0"
+    else:
+        return "0" if not animated else "1"
 
 
 def binary_formatted(column):
