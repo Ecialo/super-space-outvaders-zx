@@ -44,7 +44,7 @@ def get_value(rgb, animated=False):
     :param animated: It is a WTF from SP1. If I do animation it requires me to invert the values...
     :return:
     """
-    if rgb[0] > 0 and rgb[1] > 0 and rgb[2] > 0:
+    if rgb[0] > 100 and rgb[1] > 100 and rgb[2] > 100:
         return "1" if not animated else "0"
     else:
         return "0" if not animated else "1"
