@@ -1,6 +1,8 @@
 #ifndef __SUP_SP_SHIPS__
 #define __SUP_SP_SHIPS__
 
+#include "utils.c"
+
 #define OK 0
 #define ERROR 1
 
@@ -106,4 +108,38 @@ int init_support(ship *ship, char *name) {
     );
     return OK;
 }
+
+int take_damage(ship *ship, char amount, char multiplier, ship_type source_type) {
+    char total_damage;
+    ship_type type = ship->type;
+    total_damage = amount * multiplier;
+    if (type == INTERCEPTOR && source_type == DESTROYER) {
+        total_damage = total_damage + amount;
+    } else if (type == BOMBER && source_type == INTERCEPTOR) {
+        total_damage = total_damage + amount;
+    } else if (type == DESTROYER) {
+        if (source_type == BOMBER) {
+            total_damage = total_damage + amount;
+        } 
+        total_damage = total_damage - ship->special;
+    }
+    ship->health = monus(ship->health, total_damage);
+    if (ship->health == 0) {
+        ship->is_alive = False;
+    }
+    return OK;
+}
+
+int heal(ship *ship, char amount) {
+    char result_health;
+    result_health = ship->health + amount;
+    if (result_health > ship->max_health) {
+        ship->health = ship->max_health;
+    }
+    else {
+        ship->health = result_health;
+    }
+    return OK;
+}
+
 #endif

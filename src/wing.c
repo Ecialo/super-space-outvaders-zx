@@ -10,7 +10,6 @@
 #define MAX_WING_SIZE 5
 #define NO_SLOT 5
 
-#include <assert.h>
 #include "ship.c"
 
 typedef union ShipSlot
@@ -18,7 +17,6 @@ typedef union ShipSlot
     ship ship;
     char next_empty_slot;
 } ship_slot;
-
 
 typedef struct Wing
 {
@@ -32,7 +30,7 @@ typedef struct Wing
     char missile;
 } wing;
 
-int init_wing(wing *wing) {
+void init_wing(wing *wing) {
     wing->ships[0].next_empty_slot = 1;
     wing->ships[1].next_empty_slot = 2;
     wing->ships[2].next_empty_slot = 3;
@@ -44,11 +42,10 @@ int init_wing(wing *wing) {
     wing->head = 0;
     wing->heal = 0;
     wing->missile = 0;
-    return OK;
 }
 
 ship* get_ship(wing *wing, char inwing_pos) {
-    assert(wing->size > inwing_pos);
+    // assert(wing->size > inwing_pos);
     return &wing->ships[wing->arrange[inwing_pos]].ship;
 }
 
@@ -56,11 +53,11 @@ ship* get_leader(wing *wing) {
     return get_ship(wing, 0);
 }
 
-int add_ship(wing *wing, char *name, ship_type ship_type) {
+void add_ship(wing *wing, char *name, ship_type ship_type) {
     char slot;
     char old_size = wing->size;
     ship *ship;
-    assert(old_size < MAX_WING_SIZE);
+    // assert(old_size < MAX_WING_SIZE);
     
     // size
     wing->size = old_size + 1;
@@ -78,16 +75,14 @@ int add_ship(wing *wing, char *name, ship_type ship_type) {
     else if (ship_type == BOMBER) { init_bomber(ship, name); }
     else if (ship_type == DESTROYER) { init_destroyer(ship, name); }
     else if (ship_type == SUPPORT) { init_support(ship, name); }
-    else { return ERROR; }
-    
-    return OK;
+    // else { return ERROR; }
 }
 
-int remove_ship(wing *wing, char inwing_pos) {
+void remove_ship(wing *wing, char inwing_pos) {
     char slot, i, size;
     char ship_i;
     char old_size = wing->size;
-    assert(wing->size > inwing_pos);
+    // assert(wing->size > inwing_pos);
 
     ship_i = wing->arrange[inwing_pos];
 
@@ -104,25 +99,22 @@ int remove_ship(wing *wing, char inwing_pos) {
     for (i = inwing_pos; i < size; i++) {
         wing->arrange[i] =wing->arrange[i + 1];
     }
-
-    return OK;
 }
 
-int init_enemy_wing(wing *wing) {
+void init_enemy_wing(wing *wing) {
     init_wing(wing);
     add_ship(wing, "KEK", INTERCEPTOR);
-    return OK;
+    add_ship(wing, "KEK4", SUPPORT);
 }
 
-int swap_ships(wing *wing, char left_ship_i, char right_ship_i) {
+void swap_ships(wing *wing, char left_ship_i, char right_ship_i) {
     char tmp;
     tmp = wing->arrange[left_ship_i];
     wing->arrange[left_ship_i] = wing->arrange[right_ship_i];
     wing->arrange[right_ship_i] = tmp;
-    return OK;
 }
 
-int cycle_ships(wing *wing) {
+void cycle_ships(wing *wing) {
     char tmp, i, wing_size;
     tmp = wing->arrange[0];
     wing_size = wing->size - 1;
@@ -130,10 +122,9 @@ int cycle_ships(wing *wing) {
         wing->arrange[i] = wing->arrange[i+1];
     }
     wing->arrange[wing_size] = tmp;
-    return OK;
 }
 
-int scrap_dead_ships(wing *wing) {
+void scrap_dead_ships(wing *wing) {
     char i = 0;
     char size = wing->size;
     while (i < wing->size)
