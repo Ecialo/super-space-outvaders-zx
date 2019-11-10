@@ -50,7 +50,7 @@ int main() {
     render_wing(&their, 1);
     // sp1_Invalidate(&full_screen);
     sp1_UpdateNow();
-    // select_from_wing(&our, 0);
+    select_from_wing(&our, 0);
     // select_from_wing(&our, 1);
     while(1);
     return 0;

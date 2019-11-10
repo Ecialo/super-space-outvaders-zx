@@ -7,10 +7,6 @@
 #include "src/ship.c"
 #include "src/wing.c"
 
-
-#define MAX_NEXT_WORLDS 3
-#define WORLD_SIZE 5
-
 #define NO_MODS 0
 #define TORPEDO 1
 #define REMTECH 2
@@ -29,10 +25,6 @@ typedef enum State {
     VICTORY,
     DEFEAT,
 } state;
-
-typedef enum ContentType {
-    JUST,
-} content_type;
 
 typedef enum Action {
     RETREAT,
