@@ -111,6 +111,7 @@ void select_destination() {
     x = nodes_x[nwi] * 3 + 3;
     y = nodes_y[nwi] * 2 + 3;
     draw_ramka_at(y, x, 2, 2);
+    // sp1_PrintAtInv(10, 10, INK_BLACK | PAPER_RED, '0' + nwi);
     sp1_UpdateNow();
     while(1) {
         in_wait_nokey();
@@ -141,11 +142,11 @@ int main() {
     init_icons();
     generate_world();
     draw_map();
-    // sp1_UpdateNow();
+    sp1_UpdateNow();
     select_destination();
 
     // sp1_UpdateNow();
 
-    // while(1);
+    while(1);
     return 0;
 }
