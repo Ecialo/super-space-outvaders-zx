@@ -13,43 +13,11 @@
 # define IN_DOWN 4
 
 typedef enum ContentType {
-    JUST,
+    ENEMY,
+    SHOP,
     NO_NODE,
     SKIP_NODE,
 } content_type;
-
-
-typedef struct JustContent
-{
-    char value;
-} just_content;
-
-void init_just_content(just_content *content, char value) {
-    content->value = value;
-    // return OK;
-}
-
-typedef union Content {
-    just_content just;
-} content;
-
-typedef struct WorldContent
-{
-    char content_type;
-    content content;
-} world_content;
-
-
-void init_world_content(world_content *content, char content_type, char param) {
-    content->content_type = content_type;
-    if (content_type == JUST) {
-        init_just_content(&content->content.just, param);
-        // return OK;
-    } else {
-        // return ERROR;
-    }
-}
-
 
 // WORLD
 typedef struct WorldNode {
@@ -59,7 +27,6 @@ typedef struct WorldNode {
     char num_of_next_worlds;
     char is_terminate;
     
-    world_content content;
 } world_node;
 
 
@@ -98,11 +65,6 @@ void init_world_node(world_node *node, char id) {
     node->id = id;
     node->num_of_next_worlds = 0;
     node->is_terminate = 0;
-    init_world_content(
-        &node->content,
-        nodes_content[id],
-        node_args[id]
-    );
     // return OK;
 }
 

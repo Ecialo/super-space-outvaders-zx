@@ -26,6 +26,7 @@ char node_args[] = {node_args};
 
 skip_node = '='
 no_node = 'n'
+shop = "$"
 # just node [0-9]
 
 up = "Г".lower()
@@ -38,7 +39,7 @@ all_ = "E".lower()
 alt_all = "Е".lower() # cyr e
 
 char2inflag = {
-    ' ': InFlag.no,
+    '.': InFlag.no,
     up: InFlag.top,
     straight: InFlag.mid,
     down: InFlag.bot,
@@ -51,10 +52,12 @@ char2inflag = {
 
 (
     JUST,
+    SHOP,
     NO, 
     SKIP,
 ) = (
-    "JUST",
+    "ENEMY",
+    "SHOP",
     "NO_NODE",
     "SKIP_NODE"
 )
@@ -68,12 +71,16 @@ char2inflag = {
 #    11 08 05
 
 world_0 = """
-n   0 b 0 L n
+n . 0 b 0 L n
 0 E = - 0 - 0
-n   0 Г n   n
+n . 0 Г n . n
 """
 
-
+world_1 = """
+n . 2 - = - $ L n . 6 L n
+0 E 3 b 4 - 1 - 0 K n . 9
+n . = - 8 p 5 Г n . $ Г n
+"""
 
 
 
@@ -148,6 +155,8 @@ def generate_world_struct(world: str) -> (dict, list):
                 world_d[(x, y)] = Node(SKIP, 0)
             elif world_type == no_node:
                 world_d[(x, y)] = Node(NO, 0)
+            elif world_type == shop:
+                world_d[(x, y)] = Node(SHOP, 0)
             else:
                 raise ValueError(f"Unknown char {world_type} at {(x, y)}")
     return world_d, all_links
@@ -228,7 +237,8 @@ def format_world(world_d):
 
 
 if __name__ == "__main__":
-    world_c = world_0
+    # world_c = world_0
+    world_c = world_1
     world_d, links = generate_world_struct(world_c)
     post_proc_world_struct(world_d, links)
     format_world(world_d)

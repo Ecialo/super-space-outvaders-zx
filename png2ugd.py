@@ -123,7 +123,7 @@ def main():
 
     if not asm:
         print("// len(ugds) == ", sum(len(ugd) for ugd in blocks))
-        print("const uint8_t " + name + "[] = {" + fmt + "};")
+        print("const uint8_t " + args.id + "[] = {" + fmt + "};")
     else:
         print("SECTION rodata_user")
         print("PUBLIC _{}".format(name))

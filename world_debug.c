@@ -24,9 +24,13 @@ void init_tileset(uint8_t *tileset, uint16_t offset, char size) {
 }
 
 void init_map_tiles() {
-    init_tileset(credit, CREDIT_TILES, 4);
+    init_tileset(money_ic, CREDIT_TILES, 4);
     init_tileset(compact_arr, COMPACT_ARR_TILES, 16);
     init_tileset(skip_node, SKIP_NODE_TILES, 4);
+    init_tileset(easy, EASY_NODE_TILES, 4);
+    init_tileset(hard, HARD_NODE_TILES, 4);
+    init_tileset(norm, NORM_NODE_TILES, 4);
+    init_tileset(boss, BOSS_NODE_TILES, 4);
 }
 
 void print_big_at_inv(uint16_t row, uint16_t col, uint16_t colour, uint16_t tile) {
@@ -41,6 +45,14 @@ void print_big_empty(uint16_t row, uint16_t col, uint16_t colour) {
     sp1_PrintAtInv(row, col + 1, colour, ' ');
     sp1_PrintAtInv(row + 1, col, colour, ' ');
     sp1_PrintAtInv(row + 1, col + 1, colour, ' ');
+}
+
+char compute_node_x(char node_i) {
+    return nodes_x[node_i] * 3 + 3;
+}
+
+char compute_node_y(char node_i) {
+    return nodes_y[node_i] * 3 + 3;
 }
 
 void print_arr(uint16_t row, uint16_t col, uint16_t colour, char in_arr, char out_arr) {
@@ -70,7 +82,7 @@ void print_arr(uint16_t row, uint16_t col, uint16_t colour, char in_arr, char ou
 
 void draw_map() {
     char i;
-    char x, y;
+    char x, y, power;
     char color;
     for (i = 0; i < WORLD_SIZE; i++) {
         if (i == current_world) {
@@ -78,21 +90,43 @@ void draw_map() {
         } else {
             color = INK_BLACK | PAPER_RED;
         }
-        x = nodes_x[i] * 3 + 3;
-        y = nodes_y[i] * 2 + 3;
+        x = compute_node_x(i);
+        y = compute_node_y(i);
         switch (nodes_content[i]) {
-            case JUST:
-                print_big_at_inv(y, x, color, CREDIT_TILES);
+            case ENEMY:
+                power = node_args[i]; 
+                if (power < 3) {
+                    print_big_at_inv(y, x, color, EASY_NODE_TILES);
+                } else if (power < 6) {
+                    print_big_at_inv(y, x, color, NORM_NODE_TILES);
+                } else if (power < 9) {
+                    print_big_at_inv(y, x, color, HARD_NODE_TILES);
+                } else {
+                    print_big_at_inv(y, x, color, BOSS_NODE_TILES);
+                }
                 break;
             case SKIP_NODE:
                 print_big_at_inv(y, x, color, SKIP_NODE_TILES);
+                break;
+            case SHOP:
+                print_big_at_inv(y, x, color, CREDIT_TILES);
                 break;
             default:
                 print_big_empty(y, x, color);
                 break;
         }
+        if (nodes_y[i] == 1) {
+            sp1_PrintAtInv(y - 1, x, color, ' ');
+            sp1_PrintAtInv(y + 2, x, color, ' ');
+            sp1_PrintAtInv(y - 1, x + 1, color, ' ');
+            sp1_PrintAtInv(y + 2, x + 1, color, ' ');
+        }
         if (nodes_x[i]) {
             print_arr(y, x - 1, INK_BLACK | PAPER_RED, nodes_in[i], nodes_out[i]);
+            if (nodes_y[i] == 1) {
+                sp1_PrintAtInv(y - 1, x - 1, color, NO_BOT + NO_OUT);
+                sp1_PrintAtInv(y + 2, x - 1, color, NO_BOT + NO_OUT);
+            }
         }
     }
 
@@ -108,8 +142,8 @@ void select_destination() {
     
     s = cwn.num_of_next_worlds - 1;
     nwi = cwn.next_worlds[CURSOR_POS];
-    x = nodes_x[nwi] * 3 + 3;
-    y = nodes_y[nwi] * 2 + 3;
+    x = compute_node_x(nwi);
+    y = compute_node_y(nwi);
     draw_ramka_at(y, x, 2, 2);
     // sp1_PrintAtInv(10, 10, INK_BLACK | PAPER_RED, '0' + nwi);
     sp1_UpdateNow();
@@ -124,8 +158,8 @@ void select_destination() {
             break;
         }
         nwi = cwn.next_worlds[CURSOR_POS];
-        x = nodes_x[nwi] * 3 + 3;
-        y = nodes_y[nwi] * 2 + 3;
+        x = compute_node_x(nwi);
+        y = compute_node_y(nwi);
         draw_ramka_at(y, x, 2, 2);
         // // render_wing(wing, side);
         // // draw_ramka_at(wing_sprites[CURSOR_POS + offset]);

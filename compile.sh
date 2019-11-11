@@ -69,13 +69,10 @@ case $1 in
         python3 ./png2ugd.py data/grph/credit.png -i money_ic > data/money_tile.h
         python3 ./png2ugd.py data/grph/compact_arr.png -i compact_arr > data/compact_arr_tile.h
         python3 ./png2ugd.py data/grph/skip_node.png -i skip_node > data/skip_node_tile.h
-        # python3 ./png2ugd.py data/grph/con_arr.png -i con_arr > data/con_arr_tile.h
-        # python3 ./png2ugd.py data/grph/down_arr.png -i down_arr > data/down_arr_tile.h
-        # python3 ./png2ugd.py data/grph/down_mid_arr.png -i down_mid_arr > data/down_mid_arr_tile.h
-        # python3 ./png2ugd.py data/grph/hb_mid_arr.png -i hb_mid_arr > data/hb_mid_arr_tile.h
-        # python3 ./png2ugd.py data/grph/ht_mid_arr.png -i ht_mid_arr > data/ht_mid_arr_tile.h
-        # python3 ./png2ugd.py data/grph/up_mid_arr.png -i up_mid_arr > data/up_mid_arr_tile.h
-        # python3 ./png2ugd.py data/grph/up_arr.png -i up_arr > data/up_arr_tile.h
+        python3 ./png2ugd.py data/grph/boss.png -i boss > data/boss_tile.h
+        python3 ./png2ugd.py data/grph/morbid-humour.png -i easy > data/easy_tile.h
+        python3 ./png2ugd.py data/grph/piece-skull.png -i norm > data/norm_tile.h
+        python3 ./png2ugd.py data/grph/pirate-skull.png -i hard > data/hard_tile.h
         zcc +zx -vn -SO2 -startup=31 -clib=sdcc_iy --max-allocs-per-node200000 \
             world_debug.c \
             data/attack_icon.asm \
