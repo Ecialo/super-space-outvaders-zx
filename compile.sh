@@ -70,8 +70,8 @@ case $1 in
         python3 ./png2ugd.py data/grph/compact_arr.png -i compact_arr > data/compact_arr_tile.h
         python3 ./png2ugd.py data/grph/skip_node.png -i skip_node > data/skip_node_tile.h
         python3 ./png2ugd.py data/grph/boss.png -i boss > data/boss_tile.h
-        python3 ./png2ugd.py data/grph/morbid-humour.png -i easy > data/easy_tile.h
-        python3 ./png2ugd.py data/grph/piece-skull.png -i norm > data/norm_tile.h
+        python3 ./png2ugd.py data/grph/morbid-humour.png -i norm > data/norm_tile.h
+        python3 ./png2ugd.py data/grph/piece-skull.png -i easy > data/easy_tile.h
         python3 ./png2ugd.py data/grph/pirate-skull.png -i hard > data/hard_tile.h
         zcc +zx -vn -SO2 -startup=31 -clib=sdcc_iy --max-allocs-per-node200000 \
             world_debug.c \
