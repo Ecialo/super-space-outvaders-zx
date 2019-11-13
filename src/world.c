@@ -44,15 +44,6 @@ void link_nodes(world_node *from, world_node *to) {
 // WORLD INIT
 char WORLD_INITED = False;
 
-// char max_map_depth = 2;
-// //                  0  1  2  3  4  5  6  7  8
-// char nodes_x[]   = {0, 1, 1, 2, 2, 0, 0, 1, 2};
-// char nodes_y[]   = {1, 0, 2, 0, 1, 2, 0, 1, 2};
-// char nodes_out[] = {0, 0, 0, 1, 1, 0, 0, 1, 0};
-// char nodes_in[]  = {0, IN_MID, IN_MID, IN_UP, IN_MID | IN_DOWN, 0, 0, IN_MID, 0};
-// #define num_of_links 666;
-// char links[] = {};
-// content_type nodes_content[] = {JUST, JUST, JUST, JUST, JUST, NO_NODE, NO_NODE, SKIP_NODE, NO_NODE};
 #include "../data/world_0.h"
 
 
@@ -61,18 +52,16 @@ char current_world = 1;
 world_node world[WORLD_SIZE];
 
 void init_world_node(world_node *node, char id) {
-    // char v = (id % 3) - 1; 
     node->id = id;
     node->num_of_next_worlds = 0;
     node->is_terminate = 0;
-    // return OK;
 }
 
 
 void generate_world() {
     char i;
     if (WORLD_INITED) {
-        // return ERROR;
+        return;
     }
 
     for (i = 0; i < WORLD_SIZE; i++) {
@@ -84,57 +73,14 @@ void generate_world() {
             &world[links[2*i + 1]]
         );
     }
-    /*    5 0 6
-           /|\
-          2 7 1
-           \|/|
-          8 4 3
-    */
-    // link_nodes(&world[0], &world[1]);
-    // link_nodes(&world[0], &world[2]);
-    // link_nodes(&world[0], &world[4]);
-    // link_nodes(&world[1], &world[3]);
-    // link_nodes(&world[1], &world[4]);
-    // link_nodes(&world[2], &world[4]);
     
     WORLD_INITED = True;
 }
 
-// RENDER
-// int render_just_content(just_content *content) {
-//     char v;
-//     v = content->value;
-//     if (v < 0) { 
-//         printf("(-)"); 
-//     }
-//     else if (v > 0) { 
-//         printf("(+)"); 
-//     }
-//     else { 
-//         printf("(0)"); 
-//     }
-//     return OK;
-// }
+char collect_money() {
+    if (nodes_content[current_world] == ENEMY) {
+        return node_args[current_world] + 1;
+    }
+}
 
-// int render_world_content(world_content *content) {
-//     if (content->content_type == JUST) {
-//         render_just_content(&content->content.just);
-//         return OK;
-//     }
-//     else {
-//         return ERROR;
-//     }
-// }
-
-// int render_world(world_node *node) {
-//     printf("World{%d}", node->id);
-//     if (node->is_terminate) {
-//         printf("[x]");
-//     } else {
-//         printf("[>]");
-//     }
-//     render_world_content(&node->content);
-//     printf("\n");
-//     return OK;
-// }
 #endif

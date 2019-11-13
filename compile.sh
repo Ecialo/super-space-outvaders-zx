@@ -41,6 +41,20 @@ case $1 in
             -Cz--screen=data/grph/load_screen.scr \
             -o mvp -create-app && fuse mvp.tap
     ;;
+    fight)
+        zcc +zx -vn -SO2 -startup=31 -clib=sdcc_iy --max-allocs-per-node200000 \
+            mvp.c \
+            data/attack_icon.asm \
+            data/flee_icon.asm \
+            data/special_icon.asm \
+            data/ship2.asm \
+            data/ramka_lb.asm \
+            data/ramka_rb.asm \
+            data/ramka_lt.asm \
+            data/ramka_rt.asm \
+            -Cz--screen=data/grph/load_screen.scr \
+            -o mvp -create-app && fuse mvp.tap
+    ;;
     wing)
         zcc +zx -vn -SO2 -startup=0 -clib=sdcc_iy --max-allocs-per-node200000 draw_wing_debug.c data/ship2.asm  -o draw_wing -create-app && fuse draw_wing.tap
     ;;

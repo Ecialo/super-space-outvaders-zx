@@ -124,6 +124,25 @@ void cycle_ships(wing *wing) {
     wing->arrange[wing_size] = tmp;
 }
 
+char SCRAP = 0;
+char collect_scrap() {
+    char scrap = SCRAP;
+    SCRAP = 0;
+    return scrap;
+}
+
+void scrap_ship(ship *ship) {
+    char i;
+    if (ship->tier == 1) {
+        SCRAP = SCRAP + TIER_1_SCRAP;
+    }
+    for (i = 1; i <= REMTECH; i = i*2) {
+        if (i & ship->mods) {
+            SCRAP = SCRAP + MOD_SCRAP;
+        }
+    }
+}
+
 void scrap_dead_ships(wing *wing) {
     char i = 0;
     char size = wing->size;
@@ -132,6 +151,7 @@ void scrap_dead_ships(wing *wing) {
         if (get_ship(wing, i)->is_alive) {
             i++;
         } else {
+            scrap_ship(get_ship(wing, i));
             remove_ship(wing, i);
         }
     }

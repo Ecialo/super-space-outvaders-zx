@@ -42,9 +42,9 @@ typedef enum FightResults {
 typedef struct GameState
 {
     char state;
-    char current_world;
     wing player_wing;
     char combat_round;
+    unsigned char money;
 } game_state;
 
 int init_state(game_state *state) {
@@ -52,44 +52,9 @@ int init_state(game_state *state) {
     state->current_world = 0;
     init_wing(&state->player_wing);
     state->combat_round = 0;
+    state->money = 0;
     return OK;
 }
-
-// int render_ship(ship *ship, char in_wing_pos) {
-//     ship_type type;
-//     char i, casted_type;
-    
-//     i = in_wing_pos;
-//     type = ship->type;
-//     // casted_type = (char) type;
-//     // wing_sprites_i_to_render[i] = casted_type;
-//     return OK;
-// }
-
-// void render_ship_stats(ship *ship, char side) {
-    
-// }
-
-// int render_wing(wing *wing, char side) {
-//     char i;
-//     // printf("WING\n");
-//     // printf("Size %d fempty %d\n", wing->size, wing->first_empty_slot);
-    
-    
-//     for (i = 0 + side; i < wing->size + side; i++) {
-//         // wing_sprites_i_to_render[i] = 1;
-//         render_ship(get_ship(wing, i - side), i);
-//     }
-//     for (; i < MAX_WING_SIZE + side; i++) {
-//         wing_sprites_i_to_render[i] = NOT_A_SHIP;
-//     }
-// }
-
-// int render_victory() {
-//     // printf("HOORAY!\n");
-//     return OK;
-// }
-
 
 // // READ
 char read_action() {
@@ -102,35 +67,7 @@ char read_ship_i(wing *wing, char side) {
     return CURSOR_POS;
 }
 
-// // ACTIONS
-// int perform_fly(game_state *state) {
-
-//     world_node node;
-//     node = world[state->current_world];
-
-//     if (node.is_terminate) {
-//         state->state = VICTORY;
-//         return OK;
-//     }
-
-//     char i, num_of_next_worlds;
-//     int d;
-//     num_of_next_worlds = node.num_of_next_worlds;
-//     printf("Currently we are in ");
-//     render_world(&node);
-//     printf("We can fly to:\n");
-//     for (i = 0; i < num_of_next_worlds; i++) {
-//         printf("%d - ", i);
-//         render_world(&world[node.next_worlds[i]]);
-//     }
-//     printf("Choose\n");
-//     scanf("%i", &d);
-//     // d = d - '0';
-//     if (d >= 0 && d < num_of_next_worlds) {
-//         state->current_world = node.next_worlds[d];
-//     }
-//     return OK;
-// }
+// ACTIONS
 
 fight_result check_fight_result(wing *player, wing *enemy) {
     if (player->size == 0) {
@@ -215,7 +152,6 @@ int perform_round(
     wing_size = player->size;
     for (i = 1; i < wing_size; i++) {
         heal(
-            // &(player->ships[player->arrange[i]]),
             get_ship(player, i), 
             player->heal
         );
@@ -223,7 +159,6 @@ int perform_round(
     wing_size = enemy->size;
     for (i = 1; i < wing_size; i++) {
         heal(
-            // &(enemy->ships[enemy->arrange[i]]), 
             get_ship(enemy, i), 
             enemy->heal
         );
@@ -232,13 +167,11 @@ int perform_round(
     result_effect = player->heal - (enemy->missile) * 2;
     if (result_effect > 0) {
         heal(
-            // &(player->ships[player->arrange[0]]), 
             get_leader(player), 
             result_effect
         );
     } else if (result_effect < 0) {
         take_damage(
-            // &(player->ships[player->arrange[0]]), 
             get_leader(player), 
             result_effect,
             damage_multiplier,
@@ -249,13 +182,11 @@ int perform_round(
     result_effect = enemy->heal - (player->missile) * 2;
     if (result_effect > 0) {
         heal(
-            // &(enemy->ships[enemy->arrange[0]]), 
             get_leader(enemy), 
             result_effect
         );
     } else if (result_effect < 0) {
         take_damage(
-            // &(enemy->ships[enemy->arrange[0]]), 
             get_leader(enemy), 
             result_effect,
             damage_multiplier,
@@ -346,13 +277,6 @@ void perform_fight(game_state *state) {
         }
     }
 }
-
-// int perform_idle(game_state *state) {
-//     world_node node;
-//     node = world[state->current_world];
-//     render_world(&node);
-//     return OK;
-// }
 
 // MAIN
 
