@@ -11,6 +11,7 @@
 #define NO_SLOT 5
 
 #include "ship.c"
+#include "utils.c"
 
 typedef union ShipSlot
 {
@@ -53,6 +54,20 @@ ship* get_leader(wing *wing) {
     return get_ship(wing, 0);
 }
 
+ship* get_most_damaged_ship(wing *wing) {
+    char i, min_hp;
+    min_hp = 50;
+    ship *most_damaged, *current;
+    for (i = 0; i < wing->size; i++) {
+        current = get_ship(wing, i);
+        if (current->health < min_hp) {
+            min_hp = current->health;
+            most_damaged = current;
+        }
+    }
+    return most_damaged;
+}
+
 void add_ship(wing *wing, char *name, ship_type ship_type) {
     char slot;
     char old_size = wing->size;
@@ -78,6 +93,42 @@ void add_ship(wing *wing, char *name, ship_type ship_type) {
     // else { return ERROR; }
 }
 
+char install_mod(wing *wing, ship *ship, char mod) {
+    if (mod & ship->mods) {
+        return ERROR;
+    } else {
+        if (mod == TORPEDO) {
+            wing->missile++;
+        } else if (mod == REMTECH) {
+            wing->heal++;
+        }
+        ship->mods = ship->mods | mod;
+        return OK;
+    }
+}
+
+
+void fill_wing_with_rand_ships(wing *wing, char tier1, char tier2, char mods) {
+    ship_type t;
+    unsigned char i;
+    char mod;
+    for (i = 0; i < tier1; i++) {
+        t = (ship_type) (rnd() % 4);
+        add_ship(wing, "LOL", t);
+    }
+    while (mods > 0)
+    {
+        i = rnd() % 7;  // 7 types of mods
+        mod = ALL_MODS[i];
+        i = rnd() % wing->size;
+        if (install_mod(wing, get_ship(wing, i), mod) == OK) {
+            mods--;
+        }
+    }
+    
+}
+
+
 void remove_ship(wing *wing, char inwing_pos) {
     char slot, i, size;
     char ship_i;
@@ -99,12 +150,55 @@ void remove_ship(wing *wing, char inwing_pos) {
     for (i = inwing_pos; i < size; i++) {
         wing->arrange[i] =wing->arrange[i + 1];
     }
+
+    // TODO remove bonuses from mods
 }
 
-void init_enemy_wing(wing *wing) {
+void init_enemy_wing(wing *wing, char power) {
     init_wing(wing);
-    add_ship(wing, "KEK", INTERCEPTOR);
-    add_ship(wing, "KEK4", SUPPORT);
+    switch (power) {
+        case 0:
+            // fill_wing_with_rand_ships(wing, 2, 0, 0);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 1:
+            // fill_wing_with_rand_ships(wing, 2, 0, 2);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 2:
+            // fill_wing_with_rand_ships(wing, 3, 0, 2);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 3:
+            // fill_wing_with_rand_ships(wing, 0, 2, 3);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 4:
+            // fill_wing_with_rand_ships(wing, 4, 1, 0);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 5:
+            // fill_wing_with_rand_ships(wing, 5, 0, 4);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 6:
+            // fill_wing_with_rand_ships(wing, 5, 0, 7);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 7:
+            // fill_wing_with_rand_ships(wing, 3, 2, 5);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 8:
+            // fill_wing_with_rand_ships(wing, 0, 4, 5);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 9:
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        default:
+            break;
+    }
 }
 
 void swap_ships(wing *wing, char left_ship_i, char right_ship_i) {

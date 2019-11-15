@@ -8,7 +8,7 @@ function generate_graphics {
     python3 ./png2sp1sprite.py data/grph/flee.png -i flee_ic > data/flee_icon.asm
     python3 ./png2sp1sprite.py data/grph/special.png -i special_ic > data/special_icon.asm
     
-    python3 ./png2ugd.py data/grph/boss.png -a -i boss_ic > data/boss_tile.asm
+    # python3 ./png2ugd.py data/grph/boss.png -a -i boss_ic > data/boss_tile.asm
     # python3 ./png2ugd.py data/grph/credit.png -a -i money_ic > data/money_tile.asm
     
     python3 ./png2sp1sprite.py data/grph/ramka_lb.png -i ramka_lb > data/ramka_lb.asm
@@ -43,7 +43,7 @@ case $1 in
     ;;
     fight)
         zcc +zx -vn -SO2 -startup=31 -clib=sdcc_iy --max-allocs-per-node200000 \
-            mvp.c \
+            fight_debug.c \
             data/attack_icon.asm \
             data/flee_icon.asm \
             data/special_icon.asm \

@@ -21,6 +21,16 @@
 #define TIER_1_SCRAP 7
 #define MOD_SCRAP 3
 
+char ALL_MODS[] = {
+    EXTRA_SHIELD, 
+    EXTRA_GUNS, 
+    EXTRA_COMP, 
+    ARMOR, 
+    REBIRTH, 
+    TORPEDO, 
+    REMTECH
+};
+
 typedef enum ShipType {
     INTERCEPTOR,
     BOMBER,
@@ -151,15 +161,6 @@ int heal(ship *ship, char amount) {
         ship->health = result_health;
     }
     return OK;
-}
-
-char install_mod(ship *ship, char mod) {
-    if (mod & ship->mods) {
-        return ERROR;
-    } else {
-        ship->mods = ship->mods | mod;
-        return OK;
-    }
 }
 
 char upgrade_ship(ship *ship) {

@@ -80,6 +80,8 @@ void generate_world() {
 char collect_money() {
     if (nodes_content[current_world] == ENEMY) {
         return node_args[current_world] + 1;
+    } else {
+        return 0;
     }
 }
 

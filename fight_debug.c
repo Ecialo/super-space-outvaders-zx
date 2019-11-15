@@ -6,12 +6,10 @@
 #include "src/utils.c"
 #include "src/ship.c"
 #include "src/wing.c"
-#include "src/map.c"
-#include "src/world.c"
 
-// #define NO_MODS 0
-// #define TORPEDO 1
-// #define REMTECH 2
+#define NO_MODS 0
+#define TORPEDO 1
+#define REMTECH 2
 
 #define NUM_OF_ACTIONS 3
 #define NO_CHOICE 7
@@ -51,10 +49,8 @@ typedef struct GameState
 
 int init_state(game_state *state) {
     state->state = IDLE;
-    // state->current_world = 0;
+    state->current_world = 0;
     init_wing(&state->player_wing);
-    // fill_wing_with_rand_ships(&state->player_wing, 3, 0, 0);
-    fill_wing_with_rand_ships(&state->player_wing, 5, 0, 0);
     state->combat_round = 0;
     state->money = 0;
     return OK;
@@ -213,7 +209,7 @@ void perform_fight(game_state *state) {
     player_wing = state->player_wing;
     
     wing enemy_wing;
-    init_enemy_wing(&enemy_wing, node_args[current_world]);
+    init_enemy_wing(&enemy_wing);
 
     for(;;) {
         render_wing(&player_wing, OUR_SIDE);
@@ -222,6 +218,7 @@ void perform_fight(game_state *state) {
         inspect_ship(get_leader(&enemy_wing), 18, 3);
 
         player_action = (action) read_action();
+//         printf("%d", (int) player_action);
         if (player_action == SPECIAL) {
             switch (get_leader(&player_wing)->type) {
                 case BOMBER:
@@ -281,40 +278,39 @@ void perform_fight(game_state *state) {
     }
 }
 
-char read_next_node() {
-    select_destination();
-    return world[current_world].next_worlds[CURSOR_POS];
-}
-
-void perform_flight() {
-    draw_map();
-    sp1_UpdateNow();
-    current_world = read_next_node();
-}
-
 // MAIN
 
-int main() {
+void just_fight() {
     game_state state;
     init_state(&state);
-    generate_world();
+    add_ship(&state.player_wing, "KUKAREK", DESTROYER);
+    add_ship(&state.player_wing, "KUKARE2", BOMBER);
+    perform_fight(&state);
+}
 
+int main() {
     init_sp1();
-    init_map_tiles();
     init_icons();
     init_cursor();
     init_ship_sprites();
     init_inspector();
 
+    just_fight();
 
-    while (!world[current_world].is_terminate) {
-        perform_flight();
-        if (nodes_content[current_world] == ENEMY) {
-            perform_fight(&state);
-            if (state.state == DEFEAT) {
-                break;
-            }
-        }
-    }
+    // init
+    // state state;
+    // init_state(&state);
+    // generate_world();
 
+    // // main game loop
+    // for (a = 0; a < 10; a++) {
+    //     if (state.state == FLY) { perform_fly(&state); }
+    //     else if (state.state == FIGHT) { perform_fight(&state); }
+    //     else if (state.state == IDLE) { perform_idle(&state); }
+    //     else if (state.state = VICTORY) {
+    //         render_victory();
+    //         break;
+    //     }
+    //     printf("\n");
+    // }
 }

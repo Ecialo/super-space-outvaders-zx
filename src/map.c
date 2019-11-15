@@ -1,3 +1,7 @@
+#ifndef __SUP_SP_MAP__
+#define __SUP_SP_MAP__
+
+
 #include <arch/zx.h>
 #include <arch/zx/sp1.h>
 #include <input.h>
@@ -7,11 +11,10 @@
 #include <intrinsic.h>         // for intrinsic_di()
 #include <sound.h>             // for bit_beepfx()
 
-#include "src/world.c"
-#include "src/base_sp1.c"
-#include "src/map_tiles.h"
-#include "src/cursor.c"
-#include "src/map.c"
+#include "world.c"
+#include "base_sp1.c"
+#include "map_tiles.h"
+#include "cursor.c"
 
 // extern unsigned char credit[];
 
@@ -162,21 +165,4 @@ void select_destination() {
         sp1_UpdateNow();
     }
 }
-
-
-int main() {
-    // char i;
-    init_sp1();
-    init_map_tiles();
-    init_cursor();
-    init_icons();
-    generate_world();
-    draw_map();
-    sp1_UpdateNow();
-    select_destination();
-
-    // sp1_UpdateNow();
-
-    while(1);
-    return 0;
-}
+#endif
