@@ -56,8 +56,9 @@ ship* get_leader(wing *wing) {
 
 ship* get_most_damaged_ship(wing *wing) {
     char i, min_hp;
+    ship *most_damaged;
+    ship *current;
     min_hp = 50;
-    ship *most_damaged, *current;
     for (i = 0; i < wing->size; i++) {
         current = get_ship(wing, i);
         if (current->health < min_hp) {

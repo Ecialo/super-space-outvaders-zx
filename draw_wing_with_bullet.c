@@ -62,13 +62,14 @@ void init_bullet(void) {
 
 }
 
-void vsync(){
-    volatile int i = 1000;
+void vsync(int wait){
+    volatile int i = wait;
     while (i)
         --i;
 }
 
-#define BULLET_STEP_COUNT 6
+#define BULLET_STEP_COUNT 10
+#define WAIT 1500
 void shoot_bullet(char our, char their, int reverse)
 {
     int x[BULLET_STEP_COUNT];
@@ -97,7 +98,7 @@ void shoot_bullet(char our, char their, int reverse)
                 y[i]
             );
             sp1_UpdateNow();
-            vsync();
+            vsync(WAIT);
         }
     } else
     {
@@ -109,7 +110,7 @@ void shoot_bullet(char our, char their, int reverse)
                 y[i]
             );
             sp1_UpdateNow();
-            vsync();
+            vsync(WAIT);
         }
     }
     
@@ -230,7 +231,7 @@ int main() {
     b[0] = 0;
     b[1] = 2;
     while(1){
-        shoot_bullet(b[0], b[1], True);
+        shoot_bullet(b[0], b[1], False);
         b[0] = (b[0] + 2) % 5;
       //  b[1] = (b[1] + 3) % 5;
         
