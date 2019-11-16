@@ -30,7 +30,7 @@ __version__ = "1.0.1"
 from argparse import ArgumentParser
 from PIL import Image
 from os.path import basename
-import itertools as it
+import sys
 
 INK = (255, 255, 255)
 PAPER = (205, 0, 0)
@@ -102,22 +102,28 @@ def main():
     rows = []
     blocks = []
     fmt = ""
+    print("SIZE: ", w, h, file=sys.stderr)
     for bloque in range(0, w, 8):
         for hy in range(0, h, 8):
             for y in range(hy, hy + 8):
                 col = []
                 # vamos al bloque de 8 que toca (ej: 0 al 8, 8 al 16, 16 al 24, 24 al 32)
+    
                 for x in range(bloque, bloque + 8):
                     pixel = image.getpixel((x, y))
                     v = get_value(pixel, animated=False)
                     col.append(v)
                 rows.append(do_formatted(col, asm=asm))
+    
+            print("BLOCK: ", bloque, hy, file=sys.stderr)
         blocks.append(rows)
+    
     udgs = ["{}".format(', '.join(udg)) for udg in blocks]
     fmt = "{}".format(', '.join(udgs))
 
     if not asm:
-        print("const uint8_t " + name + "[] = {" + fmt + "};")
+        print("// len(ugds) == ", sum(len(ugd) for ugd in blocks))
+        print("const uint8_t " + args.id + "[] = {" + fmt + "};")
     else:
         print("SECTION rodata_user")
         print("PUBLIC _{}".format(name))

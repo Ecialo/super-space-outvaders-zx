@@ -10,8 +10,26 @@
 #define False 0
 
 #define NO_MODS 0
-#define TORPEDO 1
-#define REMTECH 2
+#define EXTRA_SHIELD 1
+#define EXTRA_GUNS 2
+#define EXTRA_COMP 4
+#define ARMOR 8
+#define REBIRTH 16
+#define TORPEDO 32
+#define REMTECH 64
+
+#define TIER_1_SCRAP 7
+#define MOD_SCRAP 3
+
+char ALL_MODS[] = {
+    EXTRA_SHIELD, 
+    EXTRA_GUNS, 
+    EXTRA_COMP, 
+    ARMOR, 
+    REBIRTH, 
+    TORPEDO, 
+    REMTECH
+};
 
 typedef enum ShipType {
     INTERCEPTOR,
@@ -26,6 +44,7 @@ typedef struct SpaceShip
 {
     char name[11];
     ship_type type;
+    char tier;
 
     char max_health;
     char health;
@@ -40,7 +59,8 @@ typedef struct SpaceShip
 int init_ship(
     ship *ship, 
     char *name,
-    ship_type type, 
+    ship_type type,
+    // char tier, 
     char health, 
     char attack,
     char special,
@@ -54,6 +74,7 @@ int init_ship(
     ship->mods = mods;
     ship->is_alive = True;
     ship->type = type;
+    ship->tier = 1;
     return OK;
 }
 
@@ -140,6 +161,16 @@ int heal(ship *ship, char amount) {
         ship->health = result_health;
     }
     return OK;
+}
+
+char upgrade_ship(ship *ship) {
+    // char old_mods;
+    // old_mods = ship->mods;
+    if (ship->tier > 1) {
+        return ERROR;
+    } else {
+        return OK;
+    }
 }
 
 #endif

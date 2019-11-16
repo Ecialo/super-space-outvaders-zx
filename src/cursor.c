@@ -106,6 +106,37 @@ void draw_options(cursor_option *options) {
     }
 }
 
+void draw_ramka_at(uint16_t row, uint16_t col, uint16_t w, uint16_t h) {
+    sp1_MoveSprAbs(
+        cursor_sprites[0], &full_screen, 
+        ramka_lt1, 
+        row, 
+        col, 
+        0, 0
+    );
+    sp1_MoveSprAbs(
+        cursor_sprites[1], &full_screen, 
+        ramka_lb1, 
+        row + h - 1, 
+        col, 
+        0, 0
+    );
+    sp1_MoveSprAbs(
+        cursor_sprites[2], &full_screen, 
+        ramka_rt1, 
+        row, 
+        col + w - 1, 
+        0, 0
+    );
+    sp1_MoveSprAbs(
+        cursor_sprites[3], &full_screen, 
+        ramka_rb1, 
+        row + h - 1, 
+        col + w - 1, 
+        0, 0
+    );
+}
+
 void draw_ramka_around(struct sp1_ss *target) {
     sp1_MoveSprAbs(
         cursor_sprites[0], &full_screen, 

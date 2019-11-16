@@ -11,7 +11,7 @@
 #include <sound.h>   
 
 #pragma output REGISTER_SP           = 0xd000    // place stack at $d000 at startup
-#pragma output CLIB_MALLOC_HEAP_SIZE = 8000      // create a 3000-byte heap in BSS section
+#pragma output CLIB_MALLOC_HEAP_SIZE = 5000      // create a 3000-byte heap in BSS section
 
 #pragma output CRT_ORG_CODE          = 32768     // org 32768
 #pragma output CLIB_EXIT_STACK_SIZE  = 0         // no atexit() functions
@@ -40,5 +40,6 @@ void init_sp1() {
 void update_screen() {
     sp1_UpdateNow();
 }
+
 
 #endif
