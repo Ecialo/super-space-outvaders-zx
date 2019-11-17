@@ -13,7 +13,7 @@
 
 #include "world.c"
 #include "base_sp1.c"
-#include "map_tiles.h"
+#include "tiles.h"
 #include "cursor.c"
 
 // extern unsigned char credit[];
@@ -26,6 +26,9 @@ void init_tileset(uint8_t *tileset, uint16_t offset, char size) {
 }
 
 void init_map_tiles() {
+    init_tileset(attack_ic, ATTACK_TILES, 4);
+    init_tileset(retreat_ic, RETREAT_TILES, 4);
+    init_tileset(special_ic, SPECIAL_TILES, 4);
     init_tileset(money_ic, CREDIT_TILES, 4);
     init_tileset(compact_arr, COMPACT_ARR_TILES, 16);
     init_tileset(skip_node, SKIP_NODE_TILES, 4);
@@ -86,6 +89,7 @@ void draw_map() {
     char i;
     char x, y, power;
     char color;
+    sp1_GetTiles(&env_rect, env_tiles);
     for (i = 0; i < WORLD_SIZE; i++) {
         if (i == current_world) {
             color = INK_MAGENTA | PAPER_RED;
@@ -132,6 +136,10 @@ void draw_map() {
         }
     }
 
+}
+
+void clear_screen_from_map() {
+    sp1_PutTilesInv(&env_rect, env_tiles);
 }
 
 void select_destination() {

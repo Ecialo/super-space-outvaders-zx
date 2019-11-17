@@ -4,11 +4,14 @@
 #define True 1
 #define False 0
 
-#define OK 0
-#define ERROR 1
+#define OK 1
+#define ERROR 0
 
 #define MAX_WING_SIZE 5
 #define NO_SLOT 5
+
+#define OUR_SIDE 0
+#define THEIR_SIDE 1
 
 #include "ship.c"
 #include "utils.c"
@@ -54,15 +57,15 @@ ship* get_leader(wing *wing) {
     return get_ship(wing, 0);
 }
 
-ship* get_most_damaged_ship(wing *wing) {
-    char i, min_hp;
+char get_most_damaged_ship_i(wing *wing) {
+    char i, min_hp, most_damaged;
+    ship *current;
     min_hp = 50;
-    ship *most_damaged, *current;
     for (i = 0; i < wing->size; i++) {
         current = get_ship(wing, i);
         if (current->health < min_hp) {
             min_hp = current->health;
-            most_damaged = current;
+            most_damaged = i;
         }
     }
     return most_damaged;
@@ -113,14 +116,14 @@ void fill_wing_with_rand_ships(wing *wing, char tier1, char tier2, char mods) {
     unsigned char i;
     char mod;
     for (i = 0; i < tier1; i++) {
-        t = (ship_type) (rnd() % 4);
+        t = (ship_type) (rand() % 4);
         add_ship(wing, "LOL", t);
     }
     while (mods > 0)
     {
-        i = rnd() % 7;  // 7 types of mods
+        i = rand() % 7;  // 7 types of mods
         mod = ALL_MODS[i];
-        i = rnd() % wing->size;
+        i = rand() % wing->size;
         if (install_mod(wing, get_ship(wing, i), mod) == OK) {
             mods--;
         }
@@ -248,6 +251,16 @@ void scrap_dead_ships(wing *wing) {
             scrap_ship(get_ship(wing, i));
             remove_ship(wing, i);
         }
+    }
+}
+
+void heal(wing *wing, char portion) {
+    // heal max_health/portion
+    char i;
+    ship *ship;
+    for (i = 0; i < wing->size; i++) {
+        ship = get_ship(wing, i);
+        heal(ship, ship->max_health / portion);
     }
 }
 #endif

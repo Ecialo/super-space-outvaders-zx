@@ -151,7 +151,7 @@ int take_damage(ship *ship, char amount, char multiplier, ship_type source_type)
     return OK;
 }
 
-int heal(ship *ship, char amount) {
+void heal(ship *ship, char amount) {
     char result_health;
     result_health = ship->health + amount;
     if (result_health > ship->max_health) {
@@ -160,7 +160,6 @@ int heal(ship *ship, char amount) {
     else {
         ship->health = result_health;
     }
-    return OK;
 }
 
 char upgrade_ship(ship *ship) {
