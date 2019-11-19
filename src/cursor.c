@@ -18,33 +18,10 @@
 #include "tiles.c"
 // #include "src/utils.c"
 
-// typedef enum CursorOption {
-//     ATTACK_OPTION,
-//     FLEE_OPTION,
-//     SPECIAL_OPTION
-// } cursor_option;
-
-struct sp1_ss *options_sprites[3];
 struct sp1_ss *cursor_sprites[4];
 
 uint16_t battle_options[] = {RETREAT_TILES, ATTACK_TILES, SPECIAL_TILES};
 char CURSOR_POS;
-
-// void color_icons(unsigned int count, struct sp1_cs *cs) {
-//      cs->attr = INK_MAGENTA | PAPER_WHITE;
-// }
-
-
-// void init_icons() {
-//     char i;
-//     struct sp1_ss *s;
-//     for (i = 0; i < 3; i++) {
-//         options_sprites[i] = s = sp1_CreateSpr(SP1_DRAW_MASK2LB, SP1_TYPE_2BYTE, 3, 0, 1);
-//         sp1_AddColSpr(s, SP1_DRAW_MASK2, SP1_TYPE_2BYTE, icon_offset, 1);
-//         sp1_AddColSpr(s, SP1_DRAW_MASK2RB, SP1_TYPE_2BYTE, 0, 1);
-//         sp1_IterateSprChar(s, color_icons);
-//     }
-// }
 
 void init_cursor() {
     char i;
@@ -64,8 +41,8 @@ void clear_screen_from_cursor() {
 
 void clear_screen_from_options() {
     char i;
-    for (i = 0; i < 3; i++) {
-        sp1_MoveSprAbs(options_sprites[i], &full_screen, NULL, 0, 34, 0, 0);
+    for (i = 0; i < 5; i++) {
+        print_big_empty(8, 2 + 2 * i, INK_MAGENTA | PAPER_WHITE);
     }
 }
 
@@ -76,40 +53,8 @@ void draw_options(uint16_t *options, char num_of_options) {
             8,
             2 + 2 * i,
             INK_MAGENTA | PAPER_WHITE,
-            options_sprites[i],
+            options[i]
         );
-        // switch(options[i]) {
-        //     case ATTACK_OPTION:
-        //         sp1_MoveSprPix(
-        //             options_sprites[i], 
-        //             &full_screen, 
-        //             attack_ic1, 
-        //             // 0, 
-        //             16 + 16*i, 
-        //             64
-        //         );
-        //         break;
-        //     case FLEE_OPTION:
-        //         sp1_MoveSprPix(
-        //             options_sprites[i], 
-        //             &full_screen, 
-        //             flee_ic1, 
-        //             // 0, 
-        //             16 + 16*i, 
-        //             64
-        //         );
-        //         break;
-        //     case SPECIAL_OPTION:
-        //         sp1_MoveSprPix(
-        //             options_sprites[i], 
-        //             &full_screen, 
-        //             special_ic1, 
-        //             // 0, 
-        //             16 + 16*i, 
-        //             64
-        //         );
-        //         break;
-        // }
     }
 }
 
@@ -175,9 +120,11 @@ void draw_ramka_around(struct sp1_ss *target) {
     );
 }
 
-void select_from_options(cursor_option *options, char num_of_options) {
+void select_from_options(uint16_t *options, char num_of_options) {
+    char s;
     CURSOR_POS = 1;
-    draw_options(options);
+    s = num_of_options - 1;
+    draw_options(options, num_of_options);
     draw_ramka_at(8, 2 + 2 * CURSOR_POS, 2, 2);
     // draw_ramka_around(options_sprites[CURSOR_POS]);
     sp1_UpdateNow();
@@ -188,7 +135,7 @@ void select_from_options(cursor_option *options, char num_of_options) {
 
         if (in_key_pressed(IN_KEY_SCANCODE_a) && CURSOR_POS > 0) {
             CURSOR_POS--;
-        } else if (in_key_pressed(IN_KEY_SCANCODE_d) && CURSOR_POS < num_of_options) {
+        } else if (in_key_pressed(IN_KEY_SCANCODE_d) && CURSOR_POS < s) {
             CURSOR_POS++;
         } else if (in_key_pressed(IN_KEY_SCANCODE_SPACE)) {
             break;
@@ -197,6 +144,7 @@ void select_from_options(cursor_option *options, char num_of_options) {
         // draw_ramka_around(options_sprites[CURSOR_POS]);
         sp1_UpdateNow();
     }
+    clear_screen_from_options();
 }
 
 void select_from_battle_options() {

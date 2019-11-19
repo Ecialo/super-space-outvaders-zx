@@ -82,6 +82,7 @@ void init_all_tilesets() {
     init_tileset(easy, EASY_NODE_TILES, 4);
     init_tileset(norm, NORM_NODE_TILES, 4);
     init_tileset(hard, HARD_NODE_TILES, 4);
+    init_tileset(compact_arr, COMPACT_ARR_TILES, 16);
 
     // mods and bonuses
     init_tileset(torpedo_ic, TORPEDO_MOD_TILES, 4);

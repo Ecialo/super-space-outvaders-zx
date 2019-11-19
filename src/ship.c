@@ -3,8 +3,8 @@
 
 #include "utils.c"
 
-#define OK 0
-#define ERROR 1
+#define OK 1
+#define ERROR 0
 
 #define True 1
 #define False 0

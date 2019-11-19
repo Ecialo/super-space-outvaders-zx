@@ -131,4 +131,15 @@ case $1 in
             data/ramka_rt.asm \
             -o gallery -create-app && fuse gallery.tap
     ;;
+    shop)
+        generate_tiles
+        zcc +zx -vn -SO2 -DWFRAMES=3 -startup=31 -clib=sdcc_iy --max-allocs-per-node200000 \
+            shop_debug.c \
+            data/ship2.asm \
+            data/ramka_lb.asm \
+            data/ramka_rb.asm \
+            data/ramka_lt.asm \
+            data/ramka_rt.asm \
+            -o shop -create-app && fuse shop.tap
+    ;;
 esac

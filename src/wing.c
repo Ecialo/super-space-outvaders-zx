@@ -254,7 +254,7 @@ void scrap_dead_ships(wing *wing) {
     }
 }
 
-void heal(wing *wing, char portion) {
+void heal_wing(wing *wing, char portion) {
     // heal max_health/portion
     char i;
     ship *ship;
