@@ -91,7 +91,7 @@ def main():
     try:
         image = Image.open(args.image)
     except IOError:
-        parser.error("failed to open the image")
+        parser.error(f"failed to open the image {args.image}")
         exit(1)
 
     (w, h) = image.size

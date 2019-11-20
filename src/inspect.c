@@ -13,11 +13,6 @@ void init_inspector() {
     ps0.visit = 0;
 }
 
-void to_string(char s, char *out) {
-    out[0] = s / 10 + '0';
-    out[1] = s % 10 + '0';
-}
-
 void inspect_ship(ship *ship, char x, char y) {
     char num_holder[3];
     num_holder[2] = '\0';

@@ -54,7 +54,6 @@ void init_ship_sprites(void) {
         sp1_AddColSpr(s, SP1_DRAW_MASK2, SP1_TYPE_2BYTE, (int)ship23 - (int)ship21, 3);
         sp1_AddColSpr(s, SP1_DRAW_MASK2RB, SP1_TYPE_2BYTE, 0, 1);
     }
-
 }
 
 
@@ -77,7 +76,7 @@ void color_bomber(unsigned int count, struct sp1_cs *cs) {
 
 void render_wing(wing *wing, char side) {
     char i;
-    int offset = side * 5;
+    char offset = side * 5;
     // char offset = 0;
     ship_type st;
     for (i = 0; i < wing->size; i++) {
@@ -124,4 +123,18 @@ void render_wing(wing *wing, char side) {
         }
     }
 }
+
+void clear_screen_from_wing(char side) {
+    char i;
+    char offset = side * 5;
+    for (i = 0; i < 5; i++) {
+        sp1_MoveSprAbs(
+            wing_sprites[i + offset],
+            &full_screen,
+            NULL,
+            0, 34, 0, 0
+        );
+    }
+}
+
 #endif

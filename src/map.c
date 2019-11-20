@@ -13,41 +13,8 @@
 
 #include "world.c"
 #include "base_sp1.c"
-#include "map_tiles.h"
+#include "tiles.c"
 #include "cursor.c"
-
-// extern unsigned char credit[];
-
-void init_tileset(uint8_t *tileset, uint16_t offset, char size) {
-    char i;
-    for (i = 0; i < size; i++) {
-        sp1_TileEntry(offset + i, tileset + i*8);
-    }
-}
-
-void init_map_tiles() {
-    init_tileset(money_ic, CREDIT_TILES, 4);
-    init_tileset(compact_arr, COMPACT_ARR_TILES, 16);
-    init_tileset(skip_node, SKIP_NODE_TILES, 4);
-    init_tileset(easy, EASY_NODE_TILES, 4);
-    init_tileset(hard, HARD_NODE_TILES, 4);
-    init_tileset(norm, NORM_NODE_TILES, 4);
-    init_tileset(boss, BOSS_NODE_TILES, 4);
-}
-
-void print_big_at_inv(uint16_t row, uint16_t col, uint16_t colour, uint16_t tile) {
-    sp1_PrintAtInv(row, col, colour, tile + LEFT_TOP_TILE);
-    sp1_PrintAtInv(row, col + 1, colour, tile + RIGHT_TOP_TILE);
-    sp1_PrintAtInv(row + 1, col, colour, tile + LEFT_BOT_TILE);
-    sp1_PrintAtInv(row + 1, col + 1, colour, tile + RIGHT_BOT_TILE);
-}
-
-void print_big_empty(uint16_t row, uint16_t col, uint16_t colour) {
-    sp1_PrintAtInv(row, col, colour, ' ');
-    sp1_PrintAtInv(row, col + 1, colour, ' ');
-    sp1_PrintAtInv(row + 1, col, colour, ' ');
-    sp1_PrintAtInv(row + 1, col + 1, colour, ' ');
-}
 
 char compute_node_x(char node_i) {
     return nodes_x[node_i] * 3 + 3;
@@ -86,6 +53,7 @@ void draw_map() {
     char i;
     char x, y, power;
     char color;
+    sp1_GetTiles(&env_rect, env_tiles);
     for (i = 0; i < WORLD_SIZE; i++) {
         if (i == current_world) {
             color = INK_MAGENTA | PAPER_RED;
@@ -132,6 +100,10 @@ void draw_map() {
         }
     }
 
+}
+
+void clear_screen_from_map() {
+    sp1_PutTilesInv(&env_rect, env_tiles);
 }
 
 void select_destination() {
