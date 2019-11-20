@@ -12,7 +12,7 @@
 
 
 #pragma output REGISTER_SP           = 0xd000    // place stack at $d000 at startup
-#pragma output CLIB_MALLOC_HEAP_SIZE = 10000      // create a 3000-byte heap in BSS section
+#pragma output CLIB_MALLOC_HEAP_SIZE = 7000      // create a 3000-byte heap in BSS section
 
 #pragma output CRT_ORG_CODE          = 32768     // org 32768
 #pragma output CLIB_EXIT_STACK_SIZE  = 0         // no atexit() functions
@@ -59,7 +59,6 @@ void render_ship(ship *ship, struct sp1_ss *sprite, int x, int y) {
 void init_bullet(void) {
   bullet_sp = sp1_CreateSpr(SP1_DRAW_LOAD1LB, SP1_TYPE_1BYTE, 2, (int) (bullet_sprite + 7), 11);
   sp1_AddColSpr(bullet_sp, SP1_DRAW_LOAD1RB, SP1_TYPE_1BYTE, 0, 0);
-
 }
 
 void vsync(int wait){
@@ -68,53 +67,100 @@ void vsync(int wait){
         --i;
 }
 
-#define BULLET_STEP_COUNT 10
-#define WAIT 1500
+
+void move_sprite(struct sp1_ss *sp, int x1, int x2, int y1, int y2, int pause, int steps)
+{
+    int dx, dy;
+    int i;
+    dx = (x2 - x1) / steps;
+    dy = (y2 - y1) / steps;
+    for (i = 0; i < steps - 1; ++i){
+        sp1_MoveSprPix(sp, 
+            &cr, 
+            0, 
+            x1 + i * dx, 
+            y1 + i * dy
+        );
+        sp1_UpdateNow();
+        vsync(pause);
+    }
+    sp1_MoveSprPix(sp, 
+        &cr, 
+        0, 
+        x2, 
+        y2
+       );
+    sp1_UpdateNow();
+    vsync(pause);
+}
+
 void shoot_bullet(char our, char their, int reverse)
 {
-    int x[BULLET_STEP_COUNT];
-    int y[BULLET_STEP_COUNT];
-    int dx, dy;
-    x[0] = our_wing_pos_x[our] + 8;
-    y[0] = our_wing_pos_y[our] + 24;  
+    int x1,y1,x2,y2;
+    x1 = our_wing_pos_x[our] + 8;
+    y1 = our_wing_pos_y[our] + 24;  
 
-    x[BULLET_STEP_COUNT - 1] = their_wing_pos_x[their] + 8;
-    y[BULLET_STEP_COUNT - 1] = their_wing_pos_y[their] - 8;
+    x2 = their_wing_pos_x[their] + 8;
+    y2 = theirgi_wing_pos_y[their] - 8;
 
-    dx = their_wing_pos_x[their] - our_wing_pos_x[our];
-    dy = their_wing_pos_y[their] - our_wing_pos_y[our];
-
-    for (int i = 0; i < BULLET_STEP_COUNT - 1; ++i) {
-        x[i] = x[0] +  (dx * i) / BULLET_STEP_COUNT;
-        y[i] = y[0] +  (dy * i) / BULLET_STEP_COUNT;
-    }
-
-    if (reverse){
-        for (int i = BULLET_STEP_COUNT - 1; i >= 0; --i) {
-            sp1_MoveSprPix(bullet_sp, 
-                &cr, 
-                0, 
-                x[i], 
-                y[i]
-            );
-            sp1_UpdateNow();
-            vsync(WAIT);
-        }
-    } else
-    {
-        for (int i = 0; i < BULLET_STEP_COUNT; ++i){
-            sp1_MoveSprPix(bullet_sp, 
-                &cr, 
-                0, 
-                x[i], 
-                y[i]
-            );
-            sp1_UpdateNow();
-            vsync(WAIT);
-        }
-    }
+    if (reverse)
+        move_sprite(bullet_sp, x2, x1, y2, y1, 1500, 10);
+    else
+        move_sprite(bullet_sp, x1, x2, y1, y2, 1500, 10);
+        
+    sp1_MoveSprPix(bullet_sp, 
+        &cr, 
+        0, 
+        256,
+        256
+    );
+    sp1_UpdateNow();
     
 }
+
+#define SWAP_VSYNC 800
+void swap_ships_sprites(char side, int a, int b) { 
+    uint16_t y_upper, y_lower;
+ 
+    struct sp1_ss **sp;
+    uint16_t *wing_pos_x;
+    uint16_t *wing_pos_y;
+
+    struct sp1_ss *tptr;
+
+    y_upper = 64;
+    y_lower = 96;
+
+    if (side) {
+        sp = wing_sprites + 5;
+        wing_pos_x = our_wing_pos_x;
+        wing_pos_y = our_wing_pos_y;
+    }
+    else {
+        sp = wing_sprites;
+        wing_pos_x = their_wing_pos_x;
+        wing_pos_y = their_wing_pos_y;
+    }
+    move_sprite(sp[a], wing_pos_x[a], wing_pos_x[a], wing_pos_y[a], y_upper, SWAP_VSYNC, 4);
+    move_sprite(sp[b], wing_pos_x[b], wing_pos_x[b], wing_pos_y[b], y_lower, SWAP_VSYNC, 4);
+
+    move_sprite(sp[a], wing_pos_x[a], wing_pos_x[b], y_upper, y_upper, SWAP_VSYNC, 4);
+    move_sprite(sp[b], wing_pos_x[b], wing_pos_x[a], y_lower, y_lower, SWAP_VSYNC, 4);
+
+    move_sprite(sp[a], wing_pos_x[b], wing_pos_x[b], y_upper, wing_pos_y[b], SWAP_VSYNC, 4);
+    move_sprite(sp[b], wing_pos_x[a], wing_pos_x[a], y_lower, wing_pos_y[a], SWAP_VSYNC, 4);
+
+    tptr = sp[a];
+    sp[a] = sp[b];
+    sp[b] = tptr;
+}
+
+void leader_retreat(char side, int target) {
+    for (int i = 1; i <= target; ++i){
+        swap_ships_sprites(side, i, i - 1);
+    }
+}
+
 void init_ship_sprites(void) {
     char i;
     struct sp1_ss *s;
@@ -220,7 +266,6 @@ int main() {
     // s = sp1_CreateSpr(SP1_DRAW_MASK2LB, SP1_TYPE_2BYTE, 4, 0, 0);
     init_ship_sprites();
     init_bullet();
-    sp1_MoveSprPix(bullet_sp, &cr, 0, our_wing_pos_x[0] -6, our_wing_pos_y[1] + 2);
     // sp1_AddColSpr(s, SP1_DRAW_MASK2, 0, 48, 0);
     // sp1_AddColSpr(s, SP1_DRAW_MASK2RB, 0, 0, 0);
     // sp1_IterateSprChar(s, color_ship);
@@ -231,12 +276,17 @@ int main() {
     b[0] = 0;
     b[1] = 2;
     while(1){
-        shoot_bullet(b[0], b[1], False);
-        b[0] = (b[0] + 2) % 5;
+        leader_retreat(0, 4);
+        leader_retreat(1, 1);
+        shoot_bullet(b[0], b[1], True);
+        b[0] = (b[0] + 1) % 5;
       //  b[1] = (b[1] + 3) % 5;
+
+        vsync(10000);
         
         sp1_UpdateNow();
     }
 
+    while(1);
     return 0;
 }
