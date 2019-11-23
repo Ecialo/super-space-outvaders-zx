@@ -162,9 +162,10 @@ void select_from_prepare_options() {
 
 
 void select_from_wing(wing *wing, char side) {
+    char s;
     char offset = side * 5;
     CURSOR_POS = 0;
-    char s;
+
     s = wing->size - 1;
     render_wing(wing, side);
     draw_ramka_around(wing_sprites[CURSOR_POS + offset]);
