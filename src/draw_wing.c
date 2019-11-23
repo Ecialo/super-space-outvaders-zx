@@ -17,7 +17,6 @@
 // #define SHIP_SIZE 16
 #define SHIP_SIZE 24
 
-
 // draw_ship
 
 extern unsigned char ship21[];
@@ -30,10 +29,22 @@ extern unsigned char ship23[];
 // struct sp1_Rect cr = {0, 0, 32, 24};
 struct sp1_ss *wing_sprites[10];
 
-uint16_t our_wing_pos_x[] = {SHIP_SIZE * 2, SHIP_SIZE, SHIP_SIZE * 3, 0, SHIP_SIZE * 4};
+uint16_t our_wing_pos_x[] = {
+    SHIP_SIZE * 2 + OFFSET, 
+    SHIP_SIZE + OFFSET, 
+    SHIP_SIZE * 3 + OFFSET, 
+    OFFSET, 
+    SHIP_SIZE * 4 + OFFSET
+};
 uint16_t our_wing_pos_y[] = {32, 16, 16, 0, 0};
 
-uint16_t their_wing_pos_x[] = {SHIP_SIZE * 2, SHIP_SIZE, SHIP_SIZE * 3, 0, SHIP_SIZE * 4};
+uint16_t their_wing_pos_x[] = {
+    SHIP_SIZE * 2 + OFFSET, 
+    SHIP_SIZE + OFFSET, 
+    SHIP_SIZE * 3 + OFFSET, 
+    OFFSET, 
+    SHIP_SIZE * 4 + OFFSET
+};
 // uint16_t their_wing_pos_y[] = {192 - 16, 192 - 8, 192 - 8, 192 - 0, 192 - 0};
 uint16_t their_wing_pos_y[] = {192 - 32 - 24, 192 - 16 - 24, 192 - 16 - 24, 192 - 0 - 24, 192 - 0 - 24};
 

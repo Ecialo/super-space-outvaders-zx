@@ -36,6 +36,7 @@ function generate_tiles {
         python3 ./png2ugd.py data/grph/icons/special.png -i special_ic > data/special.h
         python3 ./png2ugd.py data/grph/icons/techno-heart.png -i heal_ic > data/heal.h
         python3 ./png2ugd.py data/grph/icons/upgrade.png -i upgrade_ic > data/upgrade.h
+        python3 ./png2ugd.py data/grph/icons/semi-closed-eye.png -i spy_ic > data/spy_tile.h
 }
 
 # zcc +zx -vn -clib=sdcc_iy -startup=31 glyph_drawing.c -o glph -create-app

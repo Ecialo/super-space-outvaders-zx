@@ -10,25 +10,25 @@
 #define False 0
 
 #define NO_MODS 0
-#define EXTRA_SHIELD 1
-#define EXTRA_GUNS 2
+#define EXTRA_SHIELD 2
+#define EXTRA_GUNS 1
 #define EXTRA_COMP 4
-#define ARMOR 8
-#define REBIRTH 16
-#define TORPEDO 32
-#define REMTECH 64
+#define ARMOR 32
+#define REBIRTH 64
+#define TORPEDO 8
+#define REMTECH 16
 
 #define TIER_1_SCRAP 7
 #define MOD_SCRAP 3
 
 char ALL_MODS[] = {
-    EXTRA_SHIELD, 
-    EXTRA_GUNS, 
+    EXTRA_GUNS,
+    EXTRA_SHIELD,  
     EXTRA_COMP, 
+    TORPEDO,
+    REMTECH,
     ARMOR, 
-    REBIRTH, 
-    TORPEDO, 
-    REMTECH
+    REBIRTH 
 };
 
 typedef enum ShipType {

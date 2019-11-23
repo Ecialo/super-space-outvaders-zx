@@ -16,11 +16,16 @@
 #include "icons.h"
 #include "draw_wing.c"
 #include "tiles.c"
+
+#define SWAP_OPTION 0
+#define SPY_OPTION 1
+#define ADVANCE_OPTION 2
 // #include "src/utils.c"
 
 struct sp1_ss *cursor_sprites[4];
 
 uint16_t battle_options[] = {RETREAT_TILES, ATTACK_TILES, SPECIAL_TILES};
+uint16_t prepare_options[] = {RETREAT_TILES, SPY_TILES, ATTACK_TILES};
 char CURSOR_POS;
 
 void init_cursor() {
@@ -149,6 +154,10 @@ void select_from_options(uint16_t *options, char num_of_options) {
 
 void select_from_battle_options() {
     select_from_options(battle_options, 3);
+}
+
+void select_from_prepare_options() {
+    select_from_options(prepare_options, 3);
 }
 
 

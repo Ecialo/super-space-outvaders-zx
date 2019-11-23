@@ -229,6 +229,23 @@ int perform_round(
     // TODO COMPLETE PERFORMER
 }
 
+void prepare(wing *player_wing, wing *enemy_wing) {
+    char ship_a, ship_b;
+
+    for (;;) {
+        select_from_prepare_options();
+        if (CURSOR_POS == SWAP_OPTION) {
+            ship_a = read_ship_i(player_wing, OUR_SIDE);
+            ship_b = read_ship_i(player_wing, OUR_SIDE);
+            swap_ships(player_wing, ship_a, ship_b);
+        } else if (CURSOR_POS == SPY_OPTION) {
+            read_ship_i(enemy_wing, THEIR_SIDE);
+        } else {
+            break;
+        }
+    }
+}
+
 void perform_fight(game_state *state) {
     char player_action, enemy_action; 
     char player_choice, enemy_choice;
@@ -239,7 +256,9 @@ void perform_fight(game_state *state) {
     wing enemy_wing;
     init_enemy_wing(&enemy_wing, node_args[current_world]);
 
-    for(;;) {
+    prepare(&player_wing, &enemy_wing);
+
+    for (;;) {
         render_wing(&player_wing, OUR_SIDE);
         render_wing(&enemy_wing, THEIR_SIDE);
         inspect_ship(get_leader(&player_wing), 18, 10);

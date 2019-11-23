@@ -20,6 +20,7 @@
 #include "../data/easy_tile.h"
 #include "../data/norm_tile.h"
 #include "../data/hard_tile.h"
+#include "../data/spy_tile.h"
 
 #include "base_sp1.c"
 
@@ -53,6 +54,7 @@
 #define REBIRTH_MOD_TILES (144+4*14) // rebirth mod tiles angel-wings.png
 #define HEAL_TILES (144+4*15) // heal all bonus techno-heart.png
 #define SKIP_NODE_TILES (144+4*16) // heal all bonus techno-heart.png
+#define SPY_TILES (144+4*17) // heal all bonus techno-heart.png
 
 #define LEFT_TOP_TILE 0
 #define RIGHT_TOP_TILE 2
@@ -72,6 +74,7 @@ void init_all_tilesets() {
     init_tileset(special_ic, SPECIAL_TILES, 4);
     // options
     init_tileset(retreat_ic, RETREAT_TILES, 4);
+    init_tileset(spy_ic, SPY_TILES, 4);
 
     // bonus and node
     init_tileset(money_ic, CREDIT_TILES, 4);
