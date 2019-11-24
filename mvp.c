@@ -9,6 +9,7 @@
 #include "src/wing.c"
 #include "src/map.c"
 #include "src/world.c"
+#include "src/init_all.c"
 
 // #define NO_MODS 0
 // #define TORPEDO 1
@@ -81,14 +82,19 @@ void gen_ai(wing *enemy, wing *player) {
         ENEMY_CHOICE[1] = NO_CHOICE;
         ENEMY_CHOICE[2] = NO_CHOICE;
     } else if (
-        leader->health < leader->max_health / 2 
+        leader->health < leader->max_health / 2
+        && enemy->size > 0 
         && get_ship(enemy, 1)->health > (get_ship(enemy, 1)->max_health / 2)
     ) {
         ENEMY_CHOICE[0] = RETREAT;
         ENEMY_CHOICE[1] = NO_CHOICE;
         ENEMY_CHOICE[2] = NO_CHOICE;
     } else {
-        ENEMY_CHOICE[0] = ((char) rand() % 2) + 1;
+        if (leader->type == DESTROYER && enemy->size <= 1) {
+            ENEMY_CHOICE[0] = ATTACK;
+        } else {
+            ENEMY_CHOICE[0] = ((char) rand() % 2) + 1;
+        }
         ENEMY_CHOICE[1] = get_most_damaged_ship_i(enemy);
         ENEMY_CHOICE[2] = get_most_damaged_ship_i(player);
     }
@@ -144,7 +150,9 @@ void perform_action(wing *you, wing *oppose, char action, char choice, char dama
                     );
                     break;
                 case DESTROYER:
-                    swap_ships(you, 0, 1);
+                    if (you->size > 1) {
+                        swap_ships(you, 0, 1);
+                    }
                     // TODO RAISE DESTROYER SHIELD
                     break;  
                 case SUPPORT:
@@ -246,6 +254,13 @@ void prepare(wing *player_wing, wing *enemy_wing) {
     }
 }
 
+void render_scene(wing *player_wing, wing *enemy_wing) {
+    render_wing(player_wing, OUR_SIDE);
+    render_wing(enemy_wing, THEIR_SIDE);
+    inspect_wing(player_wing, &our_inspect_wing_rect, &our_inspect_ship_rect);
+    inspect_wing(enemy_wing, &target_inspect_wing_rect, &target_inspect_ship_rect);
+}
+
 void perform_fight(game_state *state) {
     char player_action, enemy_action; 
     char player_choice, enemy_choice;
@@ -256,13 +271,13 @@ void perform_fight(game_state *state) {
     wing enemy_wing;
     init_enemy_wing(&enemy_wing, node_args[current_world]);
 
+    render_scene(&player_wing, &enemy_wing);
+
     prepare(&player_wing, &enemy_wing);
 
     for (;;) {
-        render_wing(&player_wing, OUR_SIDE);
-        render_wing(&enemy_wing, THEIR_SIDE);
-        inspect_ship(get_leader(&player_wing), 18, 10);
-        inspect_ship(get_leader(&enemy_wing), 18, 3);
+
+        render_scene(&player_wing, &enemy_wing);
 
         player_action = read_action();
         if (player_action == SPECIAL) {
@@ -358,13 +373,7 @@ int main() {
     init_state(&state);
     generate_world();
 
-    init_sp1();
-    init_all_tilesets();
-    init_cursor();
-    init_bonus_wing();
-    init_ship_sprites();
-    init_inspector();
-
+    init_all();
 
     while (!world[current_world].is_terminate) {
         perform_flight();
@@ -375,8 +384,15 @@ int main() {
             }
         } else if (nodes_content[current_world] == SHOP) {
             perform_shopping(&state);
-        }
-        
+        }   
     }
+    sp1_SetPrintPos(&ps0, 10, 10);
+    if (state.state == DEFEAT) {
+        sp1_PrintString(&ps0, "YOU LOOSE");
+    }
+    else {
+        sp1_PrintString(&ps0, "YOU WIN");
+    }
+    update_screen();
 
 }

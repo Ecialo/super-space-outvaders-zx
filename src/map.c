@@ -17,11 +17,11 @@
 #include "cursor.c"
 
 char compute_node_x(char node_i) {
-    return nodes_x[node_i] * 3 + 3;
+    return nodes_x[node_i] * 3;
 }
 
 char compute_node_y(char node_i) {
-    return nodes_y[node_i] * 3 + 3;
+    return nodes_y[node_i] * 3;
 }
 
 void print_arr(uint16_t row, uint16_t col, uint16_t colour, char in_arr, char out_arr) {
@@ -53,7 +53,7 @@ void draw_map() {
     char i;
     char x, y, power;
     char color;
-    sp1_GetTiles(&env_rect, env_tiles);
+    sp1_GetTiles(&map_rect, env_tiles);
     for (i = 0; i < WORLD_SIZE; i++) {
         if (i == current_world) {
             color = INK_MAGENTA | PAPER_RED;
@@ -103,7 +103,7 @@ void draw_map() {
 }
 
 void clear_screen_from_map() {
-    sp1_PutTilesInv(&env_rect, env_tiles);
+    sp1_PutTilesInv(&map_rect, env_tiles);
 }
 
 void select_destination() {

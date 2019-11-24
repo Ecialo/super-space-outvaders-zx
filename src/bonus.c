@@ -10,41 +10,16 @@
 #include <intrinsic.h>         // for intrinsic_di()
 #include <sound.h>             // for bit_beepfx()
 
-#include "src/ship.c"
-#include "src/wing.c"
-#include "src/icons.h"
-#include "src/base_sp1.c"
-#include "src/draw_wing.c"
-#include "src/cursor.c"
+#include "types.h"
+#include "ship.c"
+#include "wing.c"
+#include "base_sp1.c"
+#include "tiles.c"
+#include "draw_wing.c"
+#include "cursor.c"
 
 #define NUM_OF_MOD_TYPES 10
 wing bonus_wing;
-
-typedef enum Bonus {
-    ATK,
-    HP,
-    SP,
-    MSL,
-    SUP,
-    ARM,
-    REB,
-    UPG,
-    NEW,
-    HEAL
-} bonus;
-
-uint16_t tiles_for_bonus[] = {
-    ATTACK_TILES, 
-    HP_MOD_TILES,
-    SPECIAL_TILES,
-    TORPEDO_MOD_TILES,
-    SUPPORT_MOD_TILES,
-    ARMOR_MOD_TILES,
-    REBIRTH_MOD_TILES,
-    UPGRADE_TILES,
-    ADD_SHIP_TILES,
-    HEAL_TILES
-};
 
 char bonus2mod[] = {
     EXTRA_GUNS,

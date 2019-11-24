@@ -35,10 +35,10 @@ typedef struct Wing
 } wing;
 
 void init_wing(wing *wing) {
-    wing->ships[0].next_empty_slot = 1;
-    wing->ships[1].next_empty_slot = 2;
-    wing->ships[2].next_empty_slot = 3;
-    wing->ships[3].next_empty_slot = 4;
+    char i;
+    for (i = 0; i < 4; i++) {
+        wing->ships[i].next_empty_slot = i + 1;
+    }
     wing->ships[4].next_empty_slot = NO_SLOT;
     wing->size = 0;
     wing->first_empty_slot = 0;
@@ -89,22 +89,55 @@ void add_ship(wing *wing, char *name, ship_type ship_type) {
 
     // ship init
     ship = &(wing->ships[slot].ship);
-    if (ship_type == INTERCEPTOR) { init_interceptor(ship, name); }
-    else if (ship_type == BOMBER) { init_bomber(ship, name); }
-    else if (ship_type == DESTROYER) { init_destroyer(ship, name); }
-    else if (ship_type == SUPPORT) { init_support(ship, name); }
-    // else { return ERROR; }
+    switch (ship_type) {
+        case INTERCEPTOR:
+            init_interceptor(ship, name);
+            break;
+        case BOMBER:
+            init_bomber(ship, name);
+            wing->missile++;
+            break;
+        case DESTROYER:
+            init_destroyer(ship, name);
+            break;
+        case SUPPORT:
+            init_support(ship, name);
+            wing->heal++;
+            break;
+        default:
+            break;
+    }
 }
 
 char install_mod(wing *wing, ship *ship, char mod) {
     if (mod & ship->mods) {
         return ERROR;
     } else {
-        if (mod == TORPEDO) {
-            wing->missile++;
-        } else if (mod == REMTECH) {
-            wing->heal++;
+        switch (mod) {
+            case EXTRA_GUNS:
+                ship->attack = ship->attack + ATTACK_MOD_BONUS;
+                break;
+            case EXTRA_SHIELD:
+                ship->health = ship->health + HEALTH_MOD_BONUS;
+                ship->max_health = ship->max_health + HEALTH_MOD_BONUS;
+                break;
+            case EXTRA_COMP:
+                ship->special = ship->special + SPECIAL_MOD_BONUS;
+                break;
+            case TORPEDO:
+                wing->missile++;
+                break;
+            case REMTECH:
+                wing->heal++;
+                break;
+            default:
+                break;
         }
+        // if (mod == TORPEDO) {
+            // wing->missile++;
+        // } else if (mod == REMTECH) {
+            // wing->heal++;
+        // }
         ship->mods = ship->mods | mod;
         return OK;
     }
@@ -136,6 +169,24 @@ void remove_ship(wing *wing, char inwing_pos) {
     char slot, i, size;
     char ship_i;
     char old_size = wing->size;
+    char m;
+    m = get_ship(wing, inwing_pos)->mods;
+    if (REMTECH & m) {
+        wing->heal--;
+    } 
+    if (TORPEDO & m) {
+        wing->missile--;
+    }
+    switch (get_ship(wing, inwing_pos)->type) {
+        case SUPPORT:
+            wing->heal--;
+            break;
+        case BOMBER:
+            wing->missile--;
+            break;
+        default:
+            break;
+    }
     // assert(wing->size > inwing_pos);
 
     ship_i = wing->arrange[inwing_pos];
@@ -243,10 +294,17 @@ void scrap_ship(ship *ship) {
 void scrap_dead_ships(wing *wing) {
     char i = 0;
     char size = wing->size;
+    ship *ship;
     while (i < wing->size)
-    {
-        if (get_ship(wing, i)->is_alive) {
+    {   
+        ship = get_ship(wing, i);
+        if (ship->is_alive) {
             i++;
+        } else if (ship->mods & REBIRTH) {
+            SCRAP = SCRAP + MOD_SCRAP;
+            ship->health = ship->max_health;
+            ship->mods
+            ship->is_alive = True;
         } else {
             scrap_ship(get_ship(wing, i));
             remove_ship(wing, i);

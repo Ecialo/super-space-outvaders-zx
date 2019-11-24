@@ -23,15 +23,25 @@
 
 #define OFFSET 24
 
+// COLORS
+#define OPTIONS_COLOR (INK_MAGENTA | PAPER_WHITE)
+
 // y, x, w, h
 struct sp1_Rect full_screen = {0, 0, 32, 24};
 
 struct sp1_Rect our_wing_rect = {17, 3, 15, 7};
 struct sp1_Rect env_rect = {0, 3, 15, 7};
-struct sp1_Rect target_rect = {0, 21, 11, 7};
-// struct sp1_Rect our_wing_rect = {12, 21, 11, 12};
-struct sp1_tp env_tiles[17*7];
-// struct sp1_Rect options_rect = {8, 0, 17, 10};
+struct sp1_Rect map_rect = {0, 0, 21, 8};
+
+struct sp1_Rect target_inspect_rect = {0, 21, 11, 10};
+struct sp1_Rect target_inspect_wing_rect = {0, 21, 11, 3};
+struct sp1_Rect target_inspect_ship_rect = {3, 21, 11, 7};
+
+struct sp1_Rect our_inspect_wing_rect = {14, 21, 11, 3};
+struct sp1_Rect our_inspect_ship_rect = {17, 21, 11, 7};
+
+struct sp1_Rect options_rect = {11, 2, 11, 2};
+struct sp1_tp env_tiles[21*8];
 
 void init_sp1() {
     sp1_Initialize(
@@ -47,6 +57,5 @@ void init_sp1() {
 void update_screen() {
     sp1_UpdateNow();
 }
-
 
 #endif

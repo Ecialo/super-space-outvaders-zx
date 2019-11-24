@@ -4,7 +4,6 @@
 #include "ship.c"
 #include "wing.c"
 #include "base_sp1.c"
-#include "bonus.c"
 #include "tiles.c"
 
 struct sp1_pss ps0;
@@ -15,10 +14,14 @@ void init_inspector() {
     ps0.visit = 0;
 }
 
-void inspect_ship(ship *ship, char x, char y) {
+void inspect_ship(ship *ship, struct sp1_Rect *rect) {
     char num_holder[3];
-    char i, mods;
+    char i, mods, x, y;
     num_holder[2] = '\0';
+    x = rect->col;
+    y = rect->row;
+
+    sp1_ClearRectInv(rect, INK_RED | PAPER_WHITE, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR);
     sp1_SetPrintPos(&ps0, y, x);
 
     // INIT
@@ -65,7 +68,33 @@ void inspect_ship(ship *ship, char x, char y) {
 
 }
 
-void inspect_wing(wing *wing, char x, char y, char side) {
+void inspect_wing(wing *wing, struct sp1_Rect *wing_rect, struct sp1_Rect *ship_rect) {
+    char num_holder[3];
+    char x, y;
+    sp1_ClearRectInv(wing_rect, INK_RED | PAPER_WHITE, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR);
+    if (wing->size == 0) {
+        return;
+    }
+    num_holder[2] = '\0';
+    
+    x = wing_rect->col;
+    y = wing_rect->row;
 
+    sp1_SetPrintPos(&ps0, y + 1, x);
+    // INIT
+    sp1_PrintString(&ps0, "\x14\x50");
+    to_string(wing->missile, num_holder);
+    sp1_PrintString(&ps0, "MSL");
+    sp1_PrintString(&ps0, num_holder);
+    
+    to_string(wing->heal, num_holder);
+    sp1_PrintString(&ps0, " SUP");
+    sp1_PrintString(&ps0, num_holder);
+
+    inspect_ship(get_leader(wing), ship_rect);
 }
+
+// void inspect_bonus(bonus bonus, char x, char y) {
+// 
+// }
 #endif

@@ -52,9 +52,6 @@ case $1 in
     main)
         zcc +zx -vn -SO2 -startup=31 -DWFRAMES=3 -clib=sdcc_iy --max-allocs-per-node200000 \
             mvp.c \
-            data/attack_icon.asm \
-            data/flee_icon.asm \
-            data/special_icon.asm \
             data/ship2.asm \
             data/ramka_lb.asm \
             data/ramka_rb.asm \
@@ -81,7 +78,15 @@ case $1 in
         zcc +zx -vn -SO2 -startup=0 -clib=sdcc_iy --max-allocs-per-node200000 draw_wing_debug.c data/ship2.asm  -o draw_wing -create-app && fuse draw_wing.tap
     ;;
     inspect)
-        zcc +zx -vn -SO2 -startup=0 -clib=sdcc_iy --max-allocs-per-node200000 inspect_ship_debug.c -o inspect_ship -create-app && fuse inspect_ship.tap
+        generate_tiles
+        zcc +zx -vn -SO2 -startup=31 -DWFRAMES=3 -clib=sdcc_iy --max-allocs-per-node200000 \
+            inspect_ship_debug.c \
+            data/ship2.asm \
+            data/ramka_lb.asm \
+            data/ramka_rb.asm \
+            data/ramka_lt.asm \
+            data/ramka_rt.asm \
+            -o inspect_ship -create-app && fuse inspect_ship.tap
     ;;
     cursor)
         zcc +zx -vn -SO2 -startup=31 -clib=sdcc_iy --max-allocs-per-node200000 \

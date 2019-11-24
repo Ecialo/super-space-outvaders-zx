@@ -21,6 +21,10 @@
 #define TIER_1_SCRAP 7
 #define MOD_SCRAP 3
 
+#define ATTACK_MOD_BONUS 2
+#define HEALTH_MOD_BONUS 3
+#define SPECIAL_MOD_BONUS 1
+
 char ALL_MODS[] = {
     EXTRA_GUNS,
     EXTRA_SHIELD,  
@@ -142,7 +146,10 @@ int take_damage(ship *ship, char amount, char multiplier, ship_type source_type)
         if (source_type == BOMBER) {
             total_damage = total_damage + amount;
         } 
-        total_damage = total_damage - ship->special;
+        total_damage = monus(total_damage, ship->special);
+    }
+    if (ARMOR & ship->mods) {
+        total_damage = monus(total_damage, 1);
     }
     ship->health = monus(ship->health, total_damage);
     if (ship->health == 0) {

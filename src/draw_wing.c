@@ -48,9 +48,9 @@ uint16_t their_wing_pos_x[] = {
 // uint16_t their_wing_pos_y[] = {192 - 16, 192 - 8, 192 - 8, 192 - 0, 192 - 0};
 uint16_t their_wing_pos_y[] = {192 - 32 - 24, 192 - 16 - 24, 192 - 16 - 24, 192 - 0 - 24, 192 - 0 - 24};
 
-void render_ship(ship *ship, struct sp1_ss *sprite, int x, int y) {
+// void render_ship(ship *ship, struct sp1_ss *sprite, int x, int y) {
 
-}
+// }
 
 void init_ship_sprites(void) {
     char i;
@@ -147,5 +147,6 @@ void clear_screen_from_wing(char side) {
         );
     }
 }
+
 
 #endif

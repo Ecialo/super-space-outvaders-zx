@@ -13,21 +13,26 @@
 #include "src/inspect.c"
 
 int main() {
-    ship ship;
-    init_bomber(&ship, "LOLO");
+    wing wing;
+    ship *ship;
+    char i;
+    init_wing(&wing);
+    ship = get_leader(&wing);
+    add_ship(&wing, "OLOLO", BOMBER);
+    for (i = 0; i < 7; i++) {
+        install_mod(&wing, ship, ALL_MODS[i]);
+    }
     // ps0.bounds = &cr;
     // ps0.flags = SP1_PSSFLAG_INVALIDATE;
     // ps0.visit = 0;
 
-    sp1_Initialize(
-        SP1_IFLAG_MAKE_ROTTBL | SP1_IFLAG_OVERWRITE_TILES | SP1_IFLAG_OVERWRITE_DFILE, 
-        INK_BLACK | PAPER_WHITE, 
-        ' '
-    );
+    init_sp1();
     init_inspector();
-    sp1_Invalidate(&full_screen);        // invalidate entire screen so that it is all initially drawn
+    init_all_tilesets();
 
-    inspect_ship(&ship, 10, 10);
+    // inspect_ship(ship, 10, 10);
+    inspect_wing(&wing, &our_inspect_wing_rect, &our_inspect_ship_rect);
+    inspect_wing(&wing, &target_inspect_wing_rect, &target_inspect_ship_rect);
 
     sp1_UpdateNow();
     while(1);

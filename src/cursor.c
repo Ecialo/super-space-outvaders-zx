@@ -13,15 +13,19 @@
 #include "base_sp1.c"
 #include "ship.c"
 #include "wing.c"
-#include "icons.h"
 #include "draw_wing.c"
 #include "tiles.c"
+#include "inspect.c"
 
 #define SWAP_OPTION 0
 #define SPY_OPTION 1
 #define ADVANCE_OPTION 2
 // #include "src/utils.c"
 
+extern unsigned char ramka_lb1[];
+extern unsigned char ramka_rb1[];
+extern unsigned char ramka_rt1[];
+extern unsigned char ramka_lt1[];
 struct sp1_ss *cursor_sprites[4];
 
 uint16_t battle_options[] = {RETREAT_TILES, ATTACK_TILES, SPECIAL_TILES};
@@ -45,19 +49,21 @@ void clear_screen_from_cursor() {
 }
 
 void clear_screen_from_options() {
-    char i;
-    for (i = 0; i < 5; i++) {
-        print_big_empty(8, 2 + 2 * i, INK_MAGENTA | PAPER_WHITE);
-    }
+    sp1_ClearRectInv(&options_rect, INK_BLACK | PAPER_BLACK, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR);
+    // char i;
+    // for (i = 0; i < 5; i++) {
+    //     print_big_empty(8, 2 + 2 * i, INK_MAGENTA | PAPER_WHITE);
+    // }
 }
 
 void draw_options(uint16_t *options, char num_of_options) {
     unsigned char i;
     for (i = 0; i < num_of_options; i++) {
         print_big_at_inv(
-            8,
-            2 + 2 * i,
-            INK_MAGENTA | PAPER_WHITE,
+            11,
+            2 + 3 * i,
+            // INK_MAGENTA | PAPER_WHITE,
+            OPTIONS_COLOR,
             options[i]
         );
     }
@@ -127,10 +133,15 @@ void draw_ramka_around(struct sp1_ss *target) {
 
 void select_from_options(uint16_t *options, char num_of_options) {
     char s;
-    CURSOR_POS = 1;
+    if (num_of_options > 1) {
+        CURSOR_POS = 1;
+    } else {
+        CURSOR_POS = 0;
+    }
     s = num_of_options - 1;
+    sp1_ClearRectInv(&options_rect, OPTIONS_COLOR, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR);
     draw_options(options, num_of_options);
-    draw_ramka_at(8, 2 + 2 * CURSOR_POS, 2, 2);
+    draw_ramka_at(11, 2 + 3 * CURSOR_POS, 2, 2);
     // draw_ramka_around(options_sprites[CURSOR_POS]);
     sp1_UpdateNow();
     while(1) {
@@ -145,7 +156,7 @@ void select_from_options(uint16_t *options, char num_of_options) {
         } else if (in_key_pressed(IN_KEY_SCANCODE_SPACE)) {
             break;
         }
-        draw_ramka_at(8, 2 + 2 * CURSOR_POS, 2, 2);
+        draw_ramka_at(11, 2 + 3 * CURSOR_POS, 2, 2);
         // draw_ramka_around(options_sprites[CURSOR_POS]);
         sp1_UpdateNow();
     }
@@ -181,6 +192,9 @@ void select_from_wing(wing *wing, char side) {
         }
         render_wing(wing, side);
         draw_ramka_around(wing_sprites[CURSOR_POS + offset]);
+
+        inspect_ship(get_ship(wing, CURSOR_POS), &target_inspect_ship_rect);
+        
         sp1_UpdateNow();
     }
 }

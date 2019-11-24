@@ -61,6 +61,19 @@
 #define LEFT_BOT_TILE 1
 #define RIGHT_BOT_TILE 3
 
+uint16_t tiles_for_bonus[] = {
+    ATTACK_TILES, 
+    HP_MOD_TILES,
+    SPECIAL_TILES,
+    TORPEDO_MOD_TILES,
+    SUPPORT_MOD_TILES,
+    ARMOR_MOD_TILES,
+    REBIRTH_MOD_TILES,
+    UPGRADE_TILES,
+    ADD_SHIP_TILES,
+    HEAL_TILES
+};
+
 void init_tileset(uint8_t *tileset, uint16_t offset, char size) {
     char i;
     for (i = 0; i < size; i++) {
