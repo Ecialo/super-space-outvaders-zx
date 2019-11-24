@@ -24,6 +24,18 @@ content_type nodes_content_{world_id}[] = {node_content};
 char node_args_{world_id}[] = {node_args};
 """
 
+definitions = """char world_size;
+char *max_map_depth;
+char *nodes_x;
+char *nodes_y;
+char *nodes_out;
+char *nodes_in;
+char *num_of_links;
+char *links;
+content_type *nodes_content;
+char *node_args;
+"""
+
 select_template = """
     world_size = WORLD_SIZE_{world_id};
     max_map_depth = max_map_depth_{world_id};
@@ -272,4 +284,5 @@ if __name__ == "__main__":
 
     print('#define MAX_WORLD_SIZE ', max_world_size)
     print('#define MAPS_COUNT', len(map_list))
+    print(definitions)
     gen_select(len(map_list))

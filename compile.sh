@@ -103,6 +103,7 @@ case $1 in
     ;;
     world)
         generate_tiles
+        python3 ./generate_world.py > ./data/world_0.h
         zcc +zx -vn -SO2 -startup=31 -clib=sdcc_iy --max-allocs-per-node200000 \
             world_debug.c \
             data/attack_icon.asm \
