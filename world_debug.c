@@ -13,19 +13,25 @@
 #include "src/map.c"
 
 int main() {
-    // char i;
+    char i = 0;
+    volatile int v;
     init_sp1();
     init_all_tilesets();
     // init_map_tiles();
     init_cursor();
     // init_icons();
-    generate_world();
-    draw_map();
-    sp1_UpdateNow();
+    while (1){
+        select_map(i);
+        i = 1 - i;
+        generate_world();
+        draw_map();
+        sp1_UpdateNow();
+        v = 5000;
+        while(v--);
+    }
     select_destination();
 
     // sp1_UpdateNow();
 
     while(1);
-    return 0;
 }
