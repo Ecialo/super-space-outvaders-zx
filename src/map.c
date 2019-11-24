@@ -109,13 +109,13 @@ void clear_screen_from_map() {
 void select_destination() {
     char s, nwi;
     char x, y;
-    world_node cwn;
+    world_node *cwn;
     
     CURSOR_POS = 0;
-    cwn = world[current_world];
+    cwn = &world[current_world];
     
-    s = cwn.num_of_next_worlds - 1;
-    nwi = cwn.next_worlds[CURSOR_POS];
+    s = cwn->num_of_next_worlds - 1;
+    nwi = cwn->next_worlds[CURSOR_POS];
     x = compute_node_x(nwi);
     y = compute_node_y(nwi);
     draw_ramka_at(y, x, 2, 2);
@@ -130,7 +130,7 @@ void select_destination() {
         } else if (in_key_pressed(IN_KEY_SCANCODE_SPACE)) {
             break;
         }
-        nwi = cwn.next_worlds[CURSOR_POS];
+        nwi = cwn->next_worlds[CURSOR_POS];
         x = compute_node_x(nwi);
         y = compute_node_y(nwi);
         draw_ramka_at(y, x, 2, 2);
