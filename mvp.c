@@ -237,10 +237,18 @@ int perform_round(
     // TODO COMPLETE PERFORMER
 }
 
+void render_scene(wing *player_wing, wing *enemy_wing) {
+    render_wing(player_wing, OUR_SIDE);
+    render_wing(enemy_wing, THEIR_SIDE);
+    inspect_wing(player_wing, &our_inspect_wing_rect, &our_inspect_ship_rect);
+    inspect_wing(enemy_wing, &target_inspect_wing_rect, &target_inspect_ship_rect);
+}
+
 void prepare(wing *player_wing, wing *enemy_wing) {
     char ship_a, ship_b;
 
     for (;;) {
+        render_scene(player_wing, enemy_wing);
         select_from_prepare_options();
         if (CURSOR_POS == SWAP_OPTION) {
             ship_a = read_ship_i(player_wing, OUR_SIDE);
@@ -252,13 +260,6 @@ void prepare(wing *player_wing, wing *enemy_wing) {
             break;
         }
     }
-}
-
-void render_scene(wing *player_wing, wing *enemy_wing) {
-    render_wing(player_wing, OUR_SIDE);
-    render_wing(enemy_wing, THEIR_SIDE);
-    inspect_wing(player_wing, &our_inspect_wing_rect, &our_inspect_ship_rect);
-    inspect_wing(enemy_wing, &target_inspect_wing_rect, &target_inspect_ship_rect);
 }
 
 void perform_fight(game_state *state) {

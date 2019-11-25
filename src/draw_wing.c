@@ -36,7 +36,7 @@ uint16_t our_wing_pos_x[] = {
     OFFSET, 
     SHIP_SIZE * 4 + OFFSET
 };
-uint16_t our_wing_pos_y[] = {32, 16, 16, 0, 0};
+uint16_t our_wing_pos_y[] = {192 - 32 - 24, 192 - 16 - 24, 192 - 16 - 24, 192 - 0 - 24, 192 - 0 - 24};
 
 uint16_t their_wing_pos_x[] = {
     SHIP_SIZE * 2 + OFFSET, 
@@ -46,7 +46,7 @@ uint16_t their_wing_pos_x[] = {
     SHIP_SIZE * 4 + OFFSET
 };
 // uint16_t their_wing_pos_y[] = {192 - 16, 192 - 8, 192 - 8, 192 - 0, 192 - 0};
-uint16_t their_wing_pos_y[] = {192 - 32 - 24, 192 - 16 - 24, 192 - 16 - 24, 192 - 0 - 24, 192 - 0 - 24};
+uint16_t their_wing_pos_y[] = {32, 16, 16, 0, 0};
 
 // void render_ship(ship *ship, struct sp1_ss *sprite, int x, int y) {
 
@@ -106,7 +106,7 @@ void render_wing(wing *wing, char side) {
                 sp1_IterateSprChar(wing_sprites[i + offset], color_support);
                 break;
         }
-        if (side) {
+        if (side == OUR_SIDE) {
             sp1_MoveSprPix(
                 wing_sprites[i + offset], 
                 // &our_wing_rect, 
