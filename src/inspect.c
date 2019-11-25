@@ -8,6 +8,8 @@
 
 struct sp1_pss ps0;
 
+char money_tile_not_ready = True;
+
 void init_inspector() {
     ps0.bounds = &full_screen;
     ps0.flags = SP1_PSSFLAG_INVALIDATE;
@@ -92,6 +94,20 @@ void inspect_wing(wing *wing, struct sp1_Rect *wing_rect, struct sp1_Rect *ship_
     sp1_PrintString(&ps0, num_holder);
 
     inspect_ship(get_leader(wing), ship_rect);
+}
+
+void inspect_money(char money) {
+    char num_holder[3];
+    num_holder[2] = '\0';
+
+    if (money_tile_not_ready) {
+        print_big_at_inv(12, 21, INK_RED | PAPER_WHITE, CREDIT_TILES);
+        money_tile_not_ready = False;
+    }
+    to_string(money, num_holder);
+    sp1_SetPrintPos(&ps0, 13, 23);
+    sp1_PrintString(&ps0, num_holder);
+
 }
 
 // void inspect_bonus(bonus bonus, char x, char y) {

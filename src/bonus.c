@@ -39,8 +39,8 @@ void init_bonus_wing() {
     add_ship(&bonus_wing, "1", SUPPORT);
 }
 
-unsigned char MONEY = 99;
-// unsigned char MONEY = 0;
+// unsigned char MONEY = 99;
+unsigned char MONEY = 0;
 char select_bonus(bonus *bonuses, char num, wing *wing, char is_shop) {
     uint16_t tiles_for_options[5];
     bonus bonus;

@@ -118,6 +118,7 @@ void render_wing(wing *wing, char side) {
                 our_wing_pos_x[i], 
                 our_wing_pos_y[i]
             );
+            sp1_Invalidate(&our_wing_rect);
         } else {
             sp1_MoveSprPix(
                 wing_sprites[i + offset], 
@@ -131,6 +132,7 @@ void render_wing(wing *wing, char side) {
                 their_wing_pos_x[i], 
                 their_wing_pos_y[i]
             );
+            sp1_Invalidate(&env_rect);
         }
     }
 }

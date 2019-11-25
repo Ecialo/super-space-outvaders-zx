@@ -303,7 +303,7 @@ void scrap_dead_ships(wing *wing) {
         } else if (ship->mods & REBIRTH) {
             SCRAP = SCRAP + MOD_SCRAP;
             ship->health = ship->max_health;
-            ship->mods
+            ship->mods = ship->mods ^ REBIRTH;
             ship->is_alive = True;
         } else {
             scrap_ship(get_ship(wing, i));

@@ -270,6 +270,7 @@ void perform_fight(game_state *state) {
     
     wing enemy_wing;
     init_enemy_wing(&enemy_wing, node_args[current_world]);
+    state->combat_round = 0;
 
     render_scene(&player_wing, &enemy_wing);
 
@@ -328,10 +329,13 @@ void perform_fight(game_state *state) {
         scrap_dead_ships(&player_wing);
         scrap_dead_ships(&enemy_wing);
         fight_result = check_fight_result(&player_wing, &enemy_wing);
+        
         if (fight_result == CONTINUE) {
             state->combat_round++;
         } else if (fight_result == WE) {
             state->state = IDLE;
+            MONEY = MONEY + node_args[current_world] + 1;
+            inspect_money(MONEY);
             break;
         } else if (fight_result == THEY) {
             state->state = DEFEAT;
@@ -375,8 +379,14 @@ int main() {
 
     init_all();
 
-    while (!world[current_world].is_terminate) {
+    render_wing(&state.player_wing, OUR_SIDE);
+    inspect_wing(&state.player_wing, &our_inspect_wing_rect, &our_inspect_ship_rect);
+    inspect_money(MONEY);
+    while (!world[current_world].is_terminate && world[current_world].num_of_next_worlds > 0) {
+        
         perform_flight();
+        heal_wing(&state.player_wing, 4);
+
         if (nodes_content[current_world] == ENEMY) {
             perform_fight(&state);
             if (state.state == DEFEAT) {
@@ -386,12 +396,13 @@ int main() {
             perform_shopping(&state);
         }   
     }
+    sp1_ClearRectInv(&full_screen, INK_WHITE | PAPER_BLACK, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR | SP1_RFLAG_SPRITE);
     sp1_SetPrintPos(&ps0, 10, 10);
     if (state.state == DEFEAT) {
-        sp1_PrintString(&ps0, "YOU LOOSE");
+        sp1_PrintString(&ps0, "GAME OVER :o(");
     }
     else {
-        sp1_PrintString(&ps0, "YOU WIN");
+        sp1_PrintString(&ps0, "YOU WIN :o)");
     }
     update_screen();
 
