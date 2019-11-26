@@ -13,20 +13,12 @@
 #include "ship.c"
 #include "wing.c"
 #include "base_sp1.c"
+#include "ship_sprites.h"
 
-// #define SHIP_SIZE 16
 #define SHIP_SIZE 24
 
-// draw_ship
+unsigned char flip_buffer[5][192];
 
-extern unsigned char ship21[];
-extern unsigned char ship22[];
-extern unsigned char ship23[];
-// #include "data/alien.h"
-// #include "data/ship2.h"
-// #include "data/interceptor.h"
-
-// struct sp1_Rect cr = {0, 0, 32, 24};
 struct sp1_ss *wing_sprites[10];
 
 uint16_t our_wing_pos_x[] = {
@@ -45,24 +37,32 @@ uint16_t their_wing_pos_x[] = {
     OFFSET, 
     SHIP_SIZE * 4 + OFFSET
 };
-// uint16_t their_wing_pos_y[] = {192 - 16, 192 - 8, 192 - 8, 192 - 0, 192 - 0};
 uint16_t their_wing_pos_y[] = {32, 16, 16, 0, 0};
 
-// void render_ship(ship *ship, struct sp1_ss *sprite, int x, int y) {
 
-// }
+// 0   1   2   3   4   5   6  ...  63   64
+// i*2                              
+unsigned char* flip_sprite(unsigned char *sprite, char buff_i) {
+    unsigned char i, column, column_offset, j;
+    for (column = 0; column < 3; column++) {
+        column_offset = column * 64;
+        for (i = 0; i < 24; i++) {
+            j = column_offset + 64 - 16 - i - i;
+            flip_buffer[buff_i][column_offset + i*2] = sprite[j - 2];
+            flip_buffer[buff_i][column_offset + i*2 + 1] = sprite[j - 1];
+        }
+        memcpy(flip_buffer[buff_i] + column_offset + 48, sprite + column_offset + 48, 16);
+    }
+    return flip_buffer[buff_i];
+}
 
 void init_ship_sprites(void) {
     char i;
     struct sp1_ss *s;
     for(i = 0; i < 10; i++) {
-        // wing_sprites[i] = s = sp1_CreateSpr(SP1_DRAW_MASK2LB, SP1_TYPE_2BYTE, 4, (int)ship21, 0);
-        // sp1_AddColSpr(s, SP1_DRAW_MASK2, SP1_TYPE_2BYTE, (int)ship22, 0);
-        // sp1_AddColSpr(s, SP1_DRAW_MASK2, SP1_TYPE_2BYTE, (int)ship23, 0);
-        // sp1_AddColSpr(s, SP1_DRAW_MASK2RB, SP1_TYPE_2BYTE, 0, 0);
         wing_sprites[i] = s = sp1_CreateSpr(SP1_DRAW_MASK2LB, SP1_TYPE_2BYTE, 4, 0, 3);
-        sp1_AddColSpr(s, SP1_DRAW_MASK2, SP1_TYPE_2BYTE, (int)ship22 - (int)ship21, 3);
-        sp1_AddColSpr(s, SP1_DRAW_MASK2, SP1_TYPE_2BYTE, (int)ship23 - (int)ship21, 3);
+        sp1_AddColSpr(s, SP1_DRAW_MASK2, SP1_TYPE_2BYTE, column2_offset, 3);
+        sp1_AddColSpr(s, SP1_DRAW_MASK2, SP1_TYPE_2BYTE, column3_offset, 3);
         sp1_AddColSpr(s, SP1_DRAW_MASK2RB, SP1_TYPE_2BYTE, 0, 1);
     }
 }
@@ -88,52 +88,60 @@ void color_bomber(unsigned int count, struct sp1_cs *cs) {
 void render_wing(wing *wing, char side) {
     char i;
     char offset = side * 5;
-    // char offset = 0;
+    unsigned char *sprite;
+    uint16_t *xs, *ys;
     ship_type st;
+
+    if (side == OUR_SIDE) {
+        xs = our_wing_pos_x;
+        ys = our_wing_pos_y;
+    } else {
+        xs = their_wing_pos_x;
+        ys = their_wing_pos_y;
+    }
+
     for (i = 0; i < wing->size; i++) {
         st = get_ship(wing, i)->type;
         switch (st) {
             case INTERCEPTOR:
                 sp1_IterateSprChar(wing_sprites[i + offset], color_interceptor);
+                sprite = interceptor_11;
                 break;
             case BOMBER:
                 sp1_IterateSprChar(wing_sprites[i + offset], color_bomber);
+                sprite = bomber_11;
                 break;
             case DESTROYER:
                 sp1_IterateSprChar(wing_sprites[i + offset], color_destroyer);
+                sprite = destroyer_11;
                 break;
             case SUPPORT:
                 sp1_IterateSprChar(wing_sprites[i + offset], color_support);
+                sprite = support_11;
                 break;
         }
         if (side == OUR_SIDE) {
             sp1_MoveSprPix(
                 wing_sprites[i + offset], 
-                // &our_wing_rect, 
                 &full_screen, 
-                ship21, 
-                // 0, 
-                // 0,
-                // 0
-                our_wing_pos_x[i], 
-                our_wing_pos_y[i]
+                sprite, 
+                xs[i], 
+                ys[i]
             );
-            sp1_Invalidate(&our_wing_rect);
         } else {
             sp1_MoveSprPix(
                 wing_sprites[i + offset], 
-                // &env_rect, 
                 &full_screen, 
-                // interceptor, 
-                ship21, 
-                // 0, 
-                // 0,
-                // 0
-                their_wing_pos_x[i], 
-                their_wing_pos_y[i]
+                flip_sprite(sprite, i), 
+                xs[i], 
+                ys[i]
             );
-            sp1_Invalidate(&env_rect);
         }
+    }
+    if (side == OUR_SIDE) {
+        sp1_Invalidate(&our_wing_rect);
+    } else {
+        sp1_Invalidate(&env_rect);
     }
 }
 

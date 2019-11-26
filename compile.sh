@@ -3,7 +3,11 @@
 source $HOME/.bashrc
 
 function generate_graphics {
-    python3 ./png2sp1sprite.py data/grph/ship2.png -i ship2 > data/ship2.asm
+    # python3 ./png2sp1sprite.py data/grph/ship2.png -i ship2 > data/ship2.asm
+    python3 ./png2sp1sprite.py data/grph/sprites/interceptor_1.png -i interceptor_1 > data/i1.asm
+    python3 ./png2sp1sprite.py data/grph/sprites/destroyer-1.png -i destroyer_1 > data/d1.asm
+    python3 ./png2sp1sprite.py data/grph/sprites/bomber-1.png -i bomber_1 > data/b1.asm
+    python3 ./png2sp1sprite.py data/grph/sprites/support-1.png -i support_1 > data/s1.asm
     # python3 ./png2sp1sprite.py data/grph/attack.png -i attack_ic > data/attack_icon.asm
     # python3 ./png2sp1sprite.py data/grph/flee.png -i flee_ic > data/flee_icon.asm
     # python3 ./png2sp1sprite.py data/grph/special.png -i special_ic > data/special_icon.asm
@@ -11,10 +15,10 @@ function generate_graphics {
     # python3 ./png2ugd.py data/grph/boss.png -a -i boss_ic > data/boss_tile.asm
     # python3 ./png2ugd.py data/grph/credit.png -a -i money_ic > data/money_tile.asm
     
-    python3 ./png2sp1sprite.py data/grph/ramka_lb.png -i ramka_lb > data/ramka_lb.asm
-    python3 ./png2sp1sprite.py data/grph/ramka_rb.png -i ramka_rb > data/ramka_rb.asm
-    python3 ./png2sp1sprite.py data/grph/ramka_lt.png -i ramka_lt > data/ramka_lt.asm
-    python3 ./png2sp1sprite.py data/grph/ramka_rt.png -i ramka_rt > data/ramka_rt.asm
+    python3 ./png2sp1sprite.py data/grph/sprites/ramka_lb.png -i ramka_lb > data/ramka_lb.asm
+    python3 ./png2sp1sprite.py data/grph/sprites/ramka_rb.png -i ramka_rb > data/ramka_rb.asm
+    python3 ./png2sp1sprite.py data/grph/sprites/ramka_lt.png -i ramka_lt > data/ramka_lt.asm
+    python3 ./png2sp1sprite.py data/grph/sprites/ramka_rt.png -i ramka_rt > data/ramka_rt.asm
 }
 
 function generate_tiles {
@@ -75,7 +79,14 @@ case $1 in
             -o mvp -create-app && fuse mvp.tap
     ;;
     wing)
-        zcc +zx -vn -SO2 -startup=0 -clib=sdcc_iy --max-allocs-per-node200000 draw_wing_debug.c data/ship2.asm  -o draw_wing -create-app && fuse draw_wing.tap
+        generate_graphics
+        zcc +zx -vn -SO2 -startup=31 -DWFRAMES=3 -clib=sdcc_iy --max-allocs-per-node200000 \
+        draw_wing_debug.c \
+        data/b1.asm \
+        data/i1.asm \
+        data/s1.asm \
+        data/d1.asm \
+        -o draw_wing -create-app && fuse draw_wing.tap
     ;;
     inspect)
         generate_tiles
