@@ -124,10 +124,10 @@ NEW | Добавить Тир-1 корабль в крыло | 5
 --------- | -------
 1 | HEAL
 2 | MOD
-3 | NEW
+3 | MOD
 4 | HEAL + MOD
-5 | MOD
-6 | NEW + MOD
+5 | NEW
+6 | MOD
 7 | MOD + MOD
 8 | UPG
 9 | HEAL
