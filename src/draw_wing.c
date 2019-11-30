@@ -367,7 +367,6 @@ void leader_retreat(char side, int target) {
     }
 }
 
-struct sp1_tp screen_tiles[24 * 32];
 
 void draw_stars() {
     sp1_GetTiles(&full_screen, screen_tiles);
