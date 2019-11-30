@@ -18,7 +18,7 @@
 
 #define SHIP_SIZE 24
 
- unsigned char flip_buffer[5][192];
+ unsigned char flip_buffer[5][96];
 
 struct sp1_ss *wing_sprites[10];
 
