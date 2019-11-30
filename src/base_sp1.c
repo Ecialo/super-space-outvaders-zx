@@ -28,6 +28,7 @@
 
 // y, x, w, h
 struct sp1_Rect full_screen = {0, 0, 32, 24};
+struct sp1_tp screen_tiles[24 * 32];
 
 struct sp1_Rect our_wing_rect = {17, 3, 15, 7};
 struct sp1_Rect env_rect = {0, 3, 15, 7};
