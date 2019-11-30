@@ -21,6 +21,7 @@
 #include "../data/norm_tile.h"
 #include "../data/hard_tile.h"
 #include "../data/spy_tile.h"
+#include "../data/star_tile.h"
 
 #include "base_sp1.c"
 
@@ -55,6 +56,9 @@
 #define HEAL_TILES (144+4*15) // heal all bonus techno-heart.png
 #define SKIP_NODE_TILES (144+4*16) // heal all bonus techno-heart.png
 #define SPY_TILES (144+4*17) // heal all bonus techno-heart.png
+
+#define STAR_TILES (144 + 4 * 17 + 1)
+
 
 #define LEFT_TOP_TILE 0
 #define RIGHT_TOP_TILE 2
@@ -111,6 +115,8 @@ void init_all_tilesets() {
     init_tileset(upgrade_ic, UPGRADE_TILES, 4);
     init_tileset(ship_ic, ADD_SHIP_TILES, 4);
     init_tileset(heal_ic, HEAL_TILES, 4);
+
+    init_tileset(stars, STAR_TILES, STAR_TILE_TYPES);
 }
 
 void print_big_at_inv(uint16_t row, uint16_t col, uint16_t colour, uint16_t tile) {

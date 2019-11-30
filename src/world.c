@@ -46,15 +46,20 @@ char WORLD_INITED = False;
 
 #include "../data/world_0.h"
 
-
 char world_x_offset = 0;
 char current_world = 1;
-world_node world[WORLD_SIZE];
+world_node world[MAX_WORLD_SIZE];
 
 void init_world_node(world_node *node, char id) {
     node->id = id;
     node->num_of_next_worlds = 0;
     node->is_terminate = 0;
+}
+
+void select_map(char id) {
+    memset(world, 0, sizeof(world_node) * MAX_WORLD_SIZE);
+    select_pointers(id);
+    WORLD_INITED = False;
 }
 
 
@@ -64,7 +69,7 @@ void generate_world() {
         return;
     }
 
-    for (i = 0; i < WORLD_SIZE; i++) {
+    for (i = 0; i < world_size; i++) {
         init_world_node(&world[i], i);
     }
     for (i = 0; i < num_of_links; i++) {
