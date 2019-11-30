@@ -19,6 +19,7 @@
 #define REMTECH 16
 
 #define TIER_1_SCRAP 7
+#define TIER_2_SCRAP 13
 #define MOD_SCRAP 3
 
 #define ATTACK_MOD_BONUS 2

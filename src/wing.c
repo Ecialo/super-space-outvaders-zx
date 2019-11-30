@@ -28,6 +28,7 @@ typedef struct Wing
     char arrange[MAX_WING_SIZE];
     char size;
     char first_empty_slot;
+    char protector;
 
     char head;
     char heal;
@@ -43,6 +44,7 @@ void init_wing(wing *wing) {
     wing->size = 0;
     wing->first_empty_slot = 0;
 
+    wing->protector = NO_SLOT;
     wing->head = 0;
     wing->heal = 0;
     wing->missile = 0;
@@ -69,6 +71,22 @@ char get_most_damaged_ship_i(wing *wing) {
         }
     }
     return most_damaged;
+}
+
+// DANGER!!! CAST SCRAP TO ZERO. NOT INTENDED TO USE MID COMBAT
+char get_strongest_ship(wing *wing) {
+    char max_scrap = 0;
+    char i, cur_scrap, p;
+    SCRAP = 0; // Badbadnotgood, but i'm lazy
+    for (i = 0; i < wing->size; i++) {
+        scrap_ship(get_ship(wing, i));
+        cur_scrap = collect_scrap();
+        if (cur_scrap > max_scrap) {
+            p = i;
+            max_scrap = cur_scrap;
+        }
+    }
+    return p;
 }
 
 void add_ship(wing *wing, char *name, ship_type ship_type) {
@@ -200,6 +218,11 @@ void remove_ship(wing *wing, char inwing_pos) {
     wing->ships[ship_i].next_empty_slot = slot;
     wing->first_empty_slot = ship_i;
 
+    // protector
+    if (ship_i == wing->protector) {
+        wing->protector = NO_SLOT;
+    }
+
     // arrange
     for (i = inwing_pos; i < size; i++) {
         wing->arrange[i] =wing->arrange[i + 1];
@@ -283,6 +306,8 @@ void scrap_ship(ship *ship) {
     char i;
     if (ship->tier == 1) {
         SCRAP = SCRAP + TIER_1_SCRAP;
+    } else {
+        SCRAP = SCRAP + TIER_2_SCRAP;
     }
     for (i = 1; i <= REMTECH; i = i*2) {
         if (i & ship->mods) {
