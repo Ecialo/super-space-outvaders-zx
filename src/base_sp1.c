@@ -40,7 +40,8 @@ struct sp1_Rect target_inspect_ship_rect = {3, 21, 11, 7};
 struct sp1_Rect our_inspect_wing_rect = {14, 21, 11, 3};
 struct sp1_Rect our_inspect_ship_rect = {17, 21, 11, 7};
 
-struct sp1_Rect options_rect = {11, 2, 11, 2};
+struct sp1_Rect options_rect = {11, 2, 14, 2};
+struct sp1_Rect costs_rect = {13, 2, 14, 1};
 struct sp1_tp env_tiles[21*8];
 
 void init_sp1() {

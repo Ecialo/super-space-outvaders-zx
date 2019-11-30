@@ -9,11 +9,11 @@
 
 #include "src/ship.c"
 #include "src/wing.c"
-#include "src/icons.h"
 #include "src/base_sp1.c"
 #include "src/draw_wing.c"
 #include "src/cursor.c"
 #include "src/bonus.c"
+#include "src/inspect.c"
 
 int main() {
     wing our;
@@ -27,6 +27,7 @@ int main() {
     init_wing(&our);
     add_ship(&our, "LOL", DESTROYER);
     init_sp1();
+    init_inspector();
     init_bonus_wing();
     init_all_tilesets();
     init_cursor();
@@ -35,7 +36,7 @@ int main() {
     
     
     render_wing(&our, 0);
-    collect_bonuses(b, 5, &our, 0);
+    collect_bonuses(b, 5, &our, 1);
     // render_wing(&their,  1);
     // sp1_Invalidate(&full_screen);
     // select_from_wing(&our, 1);

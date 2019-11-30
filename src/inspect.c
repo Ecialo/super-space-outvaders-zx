@@ -5,8 +5,11 @@
 #include "wing.c"
 #include "base_sp1.c"
 #include "tiles.c"
+#include "types.h"
 
 struct sp1_pss ps0;
+struct sp1_pss pst;
+
 
 char money_tile_not_ready = True;
 
@@ -14,6 +17,9 @@ void init_inspector() {
     ps0.bounds = &full_screen;
     ps0.flags = SP1_PSSFLAG_INVALIDATE;
     ps0.visit = 0;
+    pst.bounds = &target_inspect_rect;
+    pst.flags = SP1_PSSFLAG_INVALIDATE;
+    pst.visit = 0;
 }
 
 void inspect_ship(ship *ship, struct sp1_Rect *rect) {
@@ -110,7 +116,45 @@ void inspect_money(char money) {
 
 }
 
-// void inspect_bonus(bonus bonus, char x, char y) {
-// 
-// }
+void inspect_bonus(uint16_t bonus) {
+    sp1_ClearRectInv(&target_inspect_rect, INK_RED | PAPER_WHITE, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR);
+    sp1_PrintString(&pst, "\x14\x50 \x18\x01 \x19\x01");
+    pst.bounds = &target_inspect_rect;
+    // sp1_PrintString(&ps0, "\x19\x01");
+    print_big_at_inv(3, 25, INK_RED | PAPER_WHITE, bonus);
+    sp1_SetPrintPos(&pst, 5, 21);
+
+    switch (bonus) {
+        case ATTACK_TILES: 
+            sp1_PrintString(&pst, " +2 ship    attack");
+            break;
+        case HP_MOD_TILES:
+            sp1_PrintString(&pst, " +3 ship    hull");
+            break;
+        case SPECIAL_TILES:
+            sp1_PrintString(&pst, " +1 ship    special    power");
+            break;
+        case TORPEDO_MOD_TILES:
+            sp1_PrintString(&pst, " +1 wing    missile    power");
+            break;
+        case SUPPORT_MOD_TILES:
+            sp1_PrintString(&pst, " +1 wing    support    power");
+            break;
+        case ARMOR_MOD_TILES:
+            sp1_PrintString(&pst, " Reduce     incoming   damage by 1");
+            break;
+        case REBIRTH_MOD_TILES:
+            sp1_PrintString(&pst, " Ressurect  ship once");
+            break;
+        case UPGRADE_TILES:
+            sp1_PrintString(&pst, " Upgrade    ship");
+            break;
+        case ADD_SHIP_TILES:
+            sp1_PrintString(&pst, " Add tier-1 ship to     wing");
+            break;
+        case HEAL_TILES:
+            sp1_PrintString(&pst, " Repair     wing");
+            break;
+    }
+}
 #endif

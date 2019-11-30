@@ -20,6 +20,10 @@
 #define SWAP_OPTION 0
 #define SPY_OPTION 1
 #define ADVANCE_OPTION 2
+
+#define OPTION 0
+#define BONUS 1
+#define SHOP 2
 // #include "src/utils.c"
 
 extern unsigned char ramka_lb1[];
@@ -131,7 +135,7 @@ void draw_ramka_around(struct sp1_ss *target) {
     );
 }
 
-void select_from_options(uint16_t *options, char num_of_options) {
+void select_from_options(uint16_t *options, char num_of_options, char mode) {
     char s;
     if (num_of_options > 1) {
         CURSOR_POS = 1;
@@ -142,6 +146,9 @@ void select_from_options(uint16_t *options, char num_of_options) {
     sp1_ClearRectInv(&options_rect, OPTIONS_COLOR, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR);
     draw_options(options, num_of_options);
     draw_ramka_at(11, 2 + 3 * CURSOR_POS, 2, 2);
+    if (mode != OPTION) {
+        inspect_bonus(options[CURSOR_POS]);
+    }
     // draw_ramka_around(options_sprites[CURSOR_POS]);
     sp1_UpdateNow();
     while(1) {
@@ -157,6 +164,9 @@ void select_from_options(uint16_t *options, char num_of_options) {
             break;
         }
         draw_ramka_at(11, 2 + 3 * CURSOR_POS, 2, 2);
+        if (mode != OPTION) {
+            inspect_bonus(options[CURSOR_POS]);
+        }
         // draw_ramka_around(options_sprites[CURSOR_POS]);
         sp1_UpdateNow();
     }
@@ -164,11 +174,11 @@ void select_from_options(uint16_t *options, char num_of_options) {
 }
 
 void select_from_battle_options() {
-    select_from_options(battle_options, 3);
+    select_from_options(battle_options, 3, False);
 }
 
 void select_from_prepare_options() {
-    select_from_options(prepare_options, 3);
+    select_from_options(prepare_options, 3, False);
 }
 
 
@@ -180,6 +190,7 @@ void select_from_wing(wing *wing, char side) {
     s = wing->size - 1;
     render_wing(wing, side);
     draw_ramka_around(wing_sprites[CURSOR_POS + offset]);
+    inspect_ship(get_ship(wing, CURSOR_POS), &target_inspect_ship_rect);
     sp1_UpdateNow();
     while(1) {
         in_wait_nokey();

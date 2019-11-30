@@ -1,3 +1,6 @@
+#ifndef __SUP_SP_TYPES__
+#define __SUP_SP_TYPES__
+
 typedef enum Bonus {
     ATK,
     HP,
@@ -10,3 +13,4 @@ typedef enum Bonus {
     NEW,
     HEAL
 } bonus;
+#endif

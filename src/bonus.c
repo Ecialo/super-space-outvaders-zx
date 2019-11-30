@@ -13,10 +13,12 @@
 #include "types.h"
 #include "ship.c"
 #include "wing.c"
+#include "utils.c"
 #include "base_sp1.c"
 #include "tiles.c"
 #include "draw_wing.c"
 #include "cursor.c"
+#include "inspect.c"
 
 #define NUM_OF_MOD_TYPES 10
 wing bonus_wing;
@@ -31,6 +33,19 @@ char bonus2mod[] = {
     REBIRTH
 };
 
+char bonus_cost[] = {
+    3,
+    3,
+    3,
+    3,
+    3,
+    5,
+    7,
+    10,
+    5,
+    1
+};
+
 void init_bonus_wing() {
     init_wing(&bonus_wing);
     add_ship(&bonus_wing, "1", INTERCEPTOR);
@@ -39,8 +54,20 @@ void init_bonus_wing() {
     add_ship(&bonus_wing, "1", SUPPORT);
 }
 
-// unsigned char MONEY = 99;
-unsigned char MONEY = 0;
+void draw_costs(bonus *bonuses, char num) {
+    char num_holder[3];
+    unsigned char i;
+    sp1_ClearRectInv(&costs_rect, INK_RED | PAPER_WHITE, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR);
+    sp1_PrintString(&ps0, "\x14\x50");
+    for (i = 0; i < num; i++) {
+        to_string(bonus_cost[bonuses[i]], num_holder);
+        sp1_SetPrintPos(&ps0, 13, 2 + 3 * i);
+        sp1_PrintString(&ps0, num_holder);
+    }
+}
+
+unsigned char MONEY = 99;
+// unsigned char MONEY = 0;
 char select_bonus(bonus *bonuses, char num, wing *wing, char is_shop) {
     uint16_t tiles_for_options[5];
     bonus bonus;
@@ -49,9 +76,21 @@ char select_bonus(bonus *bonuses, char num, wing *wing, char is_shop) {
     for (i = 0; i < num; i++) {
         tiles_for_options[i] = tiles_for_bonus[bonuses[i]];
     }
-    select_from_options(tiles_for_options, num);
-    selected_bonus = CURSOR_POS;
-    bonus = bonuses[selected_bonus];
+    if (is_shop) {
+        draw_costs(bonuses, num);
+    }
+    for (;;) {
+        select_from_options(tiles_for_options, num, True);
+        selected_bonus = CURSOR_POS;
+        bonus = bonuses[selected_bonus];
+        if (is_shop && MONEY >= bonus_cost[bonus]) {
+            MONEY -= bonus_cost[bonus];
+            inspect_money(MONEY);
+            break;
+        } else if (!is_shop) {
+            break;
+        }
+    }
     switch (bonus) {
         case HEAL:
             heal_wing(wing, 1);
