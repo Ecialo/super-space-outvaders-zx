@@ -204,7 +204,7 @@ int perform_round(
 ) {
     char i, wing_size;
     // int result_effect;
-    ship player_leader, enemy_leader;
+    ship *player_leader, *enemy_leader;
 
     wing_size = player->size;
     for (i = 1; i < wing_size; i++) {
@@ -250,8 +250,8 @@ int perform_round(
             NOT_A_SHIP
         );
     }
-    player_leader = *get_leader(player);
-    enemy_leader = *get_leader(enemy);
+    player_leader = get_leader(player);
+    enemy_leader = get_leader(enemy);
 
     perform_action(player, enemy, player_action, player_choice, damage_multiplier);
     perform_action(enemy, player, enemy_action, enemy_choice, damage_multiplier);
@@ -288,9 +288,10 @@ void perform_fight(game_state *state) {
     char player_choice, enemy_choice;
     fight_result fight_result;
     wing *player_wing;
+    wing enemy_wing;
+
     player_wing = &state->player_wing;
     
-    wing enemy_wing;
     init_enemy_wing(&enemy_wing, node_args[current_world]);
     state->combat_round = 0;
 
@@ -394,16 +395,17 @@ void perform_shopping(game_state *state) {
 }
 
 // MAIN
-
+/*
 int main() {
     game_state state;
     init_state(&state);
-    generate_world();
+    //select_map(0);
+    //generate_world();
 
     init_all();
 
     render_wing(&state.player_wing, OUR_SIDE);
-    inspect_wing(&state.player_wing, &our_inspect_wing_rect, &our_inspect_ship_rect);
+   /* inspect_wing(&state.player_wing, &our_inspect_wing_rect, &our_inspect_ship_rect);
     inspect_money(MONEY);
     while (!world[current_world].is_terminate && world[current_world].num_of_next_worlds > 0) {
         
@@ -427,6 +429,35 @@ int main() {
     else {
         sp1_PrintString(&ps0, "YOU WIN :o)");
     }
-    update_screen();
+    */
+  //  update_screen();
 
+//}
+
+int main() {
+    static game_state state;
+    int i;
+    volatile v;
+    i = 0;
+    init_state(&state);
+    select_map(0);
+    generate_world();
+
+    init_all();
+    
+    while (1){
+        select_map(i);
+        i = 1 - i;
+        generate_world();
+        draw_map();
+        sp1_UpdateNow();
+        v = 5000;
+        while(v--);
+    }
+    select_destination();
+
+    // sp1_UpdateNow();
+
+    while(1);
 }
+

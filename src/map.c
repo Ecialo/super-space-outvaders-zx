@@ -107,9 +107,6 @@ void draw_map() {
 
 }
 
-void clear_screen_from_map() {
-    sp1_PutTilesInv(&map_rect, env_tiles);
-}
 
 void select_destination() {
     char s, nwi;

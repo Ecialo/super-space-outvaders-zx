@@ -2,6 +2,8 @@ import enum
 import string
 import sys
 
+sys.stdout = open("./data/world_0.h", encoding="utf8", mode='w')
+
 class InFlag(enum.Flag):
     no = 0
     top = enum.auto()

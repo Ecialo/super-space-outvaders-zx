@@ -14,6 +14,7 @@
 #include "wing.c"
 #include "base_sp1.c"
 #include "ship_sprites.h"
+#include "tiles.c"
 
 #define SHIP_SIZE 24
 
