@@ -254,7 +254,7 @@ void into_the_hyperspace(int count) {
     }
 
     for (i = 0; i < HYPERSPACE_STEPS; ++i){
-        steps[i] = 15 - i * 10;
+        steps[i] = 15 + i * 10;
     }
     or = yOrigin;
     tar = yTarget;
@@ -275,10 +275,18 @@ void leader_retreat(char side, int target) {
     }
 }
 
+struct sp1_tp  screen_tiles[24 * 32];
+
 void draw_stars(){
+    sp1_GetTiles(&full_screen, screen_tiles);
     for (int i = 0; i < 32; ++i)
-        for (int j = 0; j < 24; ++j)
-            sp1_PrintAtInv(j, i, INK_WHITE | PAPER_BLACK, STAR_TILES + (i + 4)  * (j + 7) % STAR_TILE_TYPES);
+        for (int j = 0; j < 24; ++j){
+            screen_tiles[j * 32 + i].tile = (rand() % 4 == 0) ? STAR_TILES + rand() % STAR_TILE_TYPES : ' ';
+            if (rand() % 4 == 0)
+
+            screen_tiles[j * 32 + i].attr = INK_WHITE | PAPER_BLACK;
+        }
+    sp1_PutTilesInv(&full_screen, screen_tiles);
 }
 
 int main() {
@@ -311,8 +319,8 @@ int main() {
 
     // b[0] = 0;
     // b[1] = 2;
-    // while(1){
-    //     into_the_hyperspace(5);
+     while(1){
+        into_the_hyperspace(5);
     //     //leader_retreat(0, 4);
     //     //leader_retreat(1, 1);
     //     //shoot_bullet(b[0], b[1], True);
@@ -322,7 +330,7 @@ int main() {
     //     vsync(10000);
         
         sp1_UpdateNow();
-    // }
+     }
 
     while(1);
     return 0;
