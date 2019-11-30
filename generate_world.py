@@ -30,7 +30,7 @@ char *nodes_x;
 char *nodes_y;
 char *nodes_out;
 char *nodes_in;
-char *num_of_links;
+char num_of_links;
 char *links;
 content_type *nodes_content;
 char *node_args;
@@ -282,7 +282,7 @@ if __name__ == "__main__":
         max_world_size = max(format_world(world_d, ind), max_world_size)
 
 
-    print('#define MAX_WORLD_SIZE ', max_world_size)
-    print('#define MAPS_COUNT', len(map_list))
-    print(definitions)
+    print('#define MAX_WORLD_SIZE', max_world_size, '\n')
+    print('#define MAPS_COUNT', len(map_list), '\n')
+    print(definitions, '\n')
     gen_select(len(map_list))
