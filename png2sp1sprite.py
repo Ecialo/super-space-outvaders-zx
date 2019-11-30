@@ -59,6 +59,7 @@ def get_mask_value(rgb, animated=False):
         """
     # return "0"
     # if rgb[0] > 0 or rgb[1] > 0 or rgb[2] > 0:
+    # return "0"
     if rgb[0] == 0 and rgb[1] == 0 and rgb[2] == 0:
         return "1" if not animated else "0"
     else:

@@ -60,28 +60,32 @@ void init_ship_sprites(void) {
     char i;
     struct sp1_ss *s;
     for(i = 0; i < 10; i++) {
-        wing_sprites[i] = s = sp1_CreateSpr(SP1_DRAW_MASK2LB, SP1_TYPE_2BYTE, 4, 0, 3);
-        sp1_AddColSpr(s, SP1_DRAW_MASK2, SP1_TYPE_2BYTE, column2_offset, 3);
-        sp1_AddColSpr(s, SP1_DRAW_MASK2, SP1_TYPE_2BYTE, column3_offset, 3);
-        sp1_AddColSpr(s, SP1_DRAW_MASK2RB, SP1_TYPE_2BYTE, 0, 1);
+        wing_sprites[i] = s = sp1_CreateSpr(SP1_DRAW_MASK2LB, SP1_TYPE_2BYTE, 4, 0, 0);
+        sp1_AddColSpr(s, SP1_DRAW_MASK2, SP1_TYPE_2BYTE, column2_offset, 0);
+        sp1_AddColSpr(s, SP1_DRAW_MASK2, SP1_TYPE_2BYTE, column3_offset, 0);
+        sp1_AddColSpr(s, SP1_DRAW_MASK2RB, SP1_TYPE_2BYTE, 0, 0);
     }
 }
 
 
 void color_interceptor(unsigned int count, struct sp1_cs *cs) {
-     cs->attr = INK_RED | PAPER_BLACK;
+    cs->attr_mask = SP1_AMASK_INK;
+    cs->attr = INK_RED | PAPER_BLACK;
 }
 
 void color_destroyer(unsigned int count, struct sp1_cs *cs) {
-     cs->attr = INK_BLUE | PAPER_BLACK;
+    cs->attr_mask = SP1_AMASK_INK;
+    cs->attr = INK_BLUE | PAPER_BLACK;
 }
 
 void color_support(unsigned int count, struct sp1_cs *cs) {
-     cs->attr = INK_GREEN | PAPER_BLACK;
+    cs->attr = INK_GREEN | PAPER_BLACK;
+    cs->attr_mask = SP1_AMASK_INK;
 }
 
 void color_bomber(unsigned int count, struct sp1_cs *cs) {
-     cs->attr = INK_YELLOW | PAPER_BLACK;
+    cs->attr_mask = SP1_AMASK_INK;
+    cs->attr = INK_YELLOW | PAPER_BLACK;
 }
 
 

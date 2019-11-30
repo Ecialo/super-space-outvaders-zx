@@ -160,4 +160,14 @@ case $1 in
             data/ramka_rt.asm \
             -o shop -create-app && fuse shop.tap
     ;;
-esac
+    bullet)
+        generate_graphics
+            zcc +zx -vn -SO2 -startup=31 -DWFRAMES=3 -clib=sdcc_iy --max-allocs-per-node200000 \
+            draw_wing_with_bullet.c \
+            data/b1.asm \
+            data/i1.asm \
+            data/s1.asm \
+            data/d1.asm \
+            -o draw_wing -create-app && fuse draw_wing.tap
+    ;;
+esac    

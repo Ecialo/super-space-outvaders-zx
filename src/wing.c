@@ -73,21 +73,21 @@ char get_most_damaged_ship_i(wing *wing) {
     return most_damaged;
 }
 
-// DANGER!!! CAST SCRAP TO ZERO. NOT INTENDED TO USE MID COMBAT
-char get_strongest_ship(wing *wing) {
-    char max_scrap = 0;
-    char i, cur_scrap, p;
-    SCRAP = 0; // Badbadnotgood, but i'm lazy
-    for (i = 0; i < wing->size; i++) {
-        scrap_ship(get_ship(wing, i));
-        cur_scrap = collect_scrap();
-        if (cur_scrap > max_scrap) {
-            p = i;
-            max_scrap = cur_scrap;
-        }
-    }
-    return p;
-}
+// // DANGER!!! CAST SCRAP TO ZERO. NOT INTENDED TO USE MID COMBAT
+// char get_strongest_ship(wing *wing) {
+//     char max_scrap = 0;
+//     char i, cur_scrap, p;
+//     SCRAP = 0; // Badbadnotgood, but i'm lazy
+//     for (i = 0; i < wing->size; i++) {
+//         scrap_ship(get_ship(wing, i));
+//         cur_scrap = collect_scrap();
+//         if (cur_scrap > max_scrap) {
+//             p = i;
+//             max_scrap = cur_scrap;
+//         }
+//     }
+//     return p;
+// }
 
 void add_ship(wing *wing, char *name, ship_type ship_type) {
     char slot;

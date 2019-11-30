@@ -118,12 +118,22 @@ void perform_action(wing *you, wing *oppose, char action, char choice, char dama
     
     switch (action) {
         case ATTACK:
-            take_damage(
-                oppose_leader, 
-                you_leader->attack, 
-                damage_multiplier,
-                you_leader->type
-            );
+            if (oppose->protector == NO_SLOT) {
+                take_damage(
+                    oppose_leader, 
+                    you_leader->attack, 
+                    damage_multiplier,
+                    you_leader->type
+                );
+            } else {
+                take_damage(
+                    get_ship(oppose, oppose->protector),
+                    you_leader->attack, 
+                    damage_multiplier,
+                    you_leader->type
+                );
+                oppose->protector = NO_SLOT;
+            }
             break;
         case RETREAT:
             cycle_ships(you);
@@ -153,7 +163,7 @@ void perform_action(wing *you, wing *oppose, char action, char choice, char dama
                     if (you->size > 1) {
                         swap_ships(you, 0, 1);
                     }
-                    // TODO RAISE DESTROYER SHIELD
+                    you->protector = you->arrange[1];
                     break;  
                 case SUPPORT:
                     heal(
@@ -170,6 +180,17 @@ void perform_action(wing *you, wing *oppose, char action, char choice, char dama
             // assert(0);
             break;
     }
+}
+
+void perform_summoner_boss_action(wing *boss_wing, wing *player, char damage_mulipler) {
+    if (boss_wing->size <= MAX_WING_SIZE - 2) {
+        fill_wing_with_rand_ships(boss_wing, 2, 0, 0);
+    } else if (boss_wing->size == MAX_WING_SIZE - 1) {
+        fill_wing_with_rand_ships(boss_wing, 1, 0, 1);
+    } else {
+        fill_wing_with_rand_ships(boss_wing, 0, 0, 2);
+    }
+    cycle_ships(boss_wing);
 }
 
 int perform_round(
@@ -266,30 +287,30 @@ void perform_fight(game_state *state) {
     char player_action, enemy_action; 
     char player_choice, enemy_choice;
     fight_result fight_result;
-    wing player_wing;
-    player_wing = state->player_wing;
+    wing *player_wing;
+    player_wing = &state->player_wing;
     
     wing enemy_wing;
     init_enemy_wing(&enemy_wing, node_args[current_world]);
     state->combat_round = 0;
 
-    render_scene(&player_wing, &enemy_wing);
+    render_scene(player_wing, &enemy_wing);
 
-    prepare(&player_wing, &enemy_wing);
+    prepare(player_wing, &enemy_wing);
 
     for (;;) {
 
-        render_scene(&player_wing, &enemy_wing);
+        render_scene(player_wing, &enemy_wing);
 
         player_action = read_action();
         if (player_action == SPECIAL) {
-            switch (get_leader(&player_wing)->type) {
+            switch (get_leader(player_wing)->type) {
                 case BOMBER:
                 case INTERCEPTOR:
                     player_choice = read_ship_i(&enemy_wing, THEIR_SIDE);
                     break;
                 case SUPPORT:
-                    player_choice = read_ship_i(&player_wing, OUR_SIDE);
+                    player_choice = read_ship_i(player_wing, OUR_SIDE);
                     break;
                 default:
                     player_choice = NO_CHOICE;
@@ -299,10 +320,10 @@ void perform_fight(game_state *state) {
             player_choice = NO_CHOICE;
         }
 
-        gen_ai(&enemy_wing, &player_wing);   // expand this where boss added
+        gen_ai(&enemy_wing, player_wing);   // expand this where boss added
         enemy_action = ENEMY_CHOICE[0];
         if (enemy_action == SPECIAL) {
-            switch (get_leader(&player_wing)->type) {
+            switch (get_leader(player_wing)->type) {
                 case BOMBER:
                 case INTERCEPTOR:
                     enemy_choice = ENEMY_CHOICE[2];
@@ -319,7 +340,7 @@ void perform_fight(game_state *state) {
         }
 
         perform_round(
-            &player_wing,
+            player_wing,
             &enemy_wing,
             (state->combat_round / 10) + 1,
             player_action,
@@ -327,14 +348,15 @@ void perform_fight(game_state *state) {
             enemy_action,
             enemy_choice
         );
-        scrap_dead_ships(&player_wing);
+        scrap_dead_ships(player_wing);
         scrap_dead_ships(&enemy_wing);
-        fight_result = check_fight_result(&player_wing, &enemy_wing);
+        fight_result = check_fight_result(player_wing, &enemy_wing);
         
         if (fight_result == CONTINUE) {
             state->combat_round++;
         } else if (fight_result == WE) {
             state->state = IDLE;
+            player_wing->protector = NO_SLOT;
             MONEY = MONEY + node_args[current_world] + 1;
             inspect_money(MONEY);
             break;
