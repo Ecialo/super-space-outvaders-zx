@@ -12,16 +12,41 @@ def printe(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 template = """
-#define WORLD_SIZE {world_size}
-char max_map_depth = {world_depth};
-char nodes_x[]   = {node_xs};
-char nodes_y[]   = {node_ys};
-char nodes_out[] = {node_out};
-char nodes_in[]  = {node_in};
-char num_of_links = {num_of_links};
-char links[] = {links};
-content_type nodes_content[] = {node_content};
-char node_args[] = {node_args};
+#define WORLD_SIZE_{world_id} {world_size}
+char max_map_depth_{world_id} = {world_depth};
+char nodes_x_{world_id}[]   = {node_xs};
+char nodes_y_{world_id}[]   = {node_ys};
+char nodes_out_{world_id}[] = {node_out};
+char nodes_in_{world_id}[]  = {node_in};
+char num_of_links_{world_id} = {num_of_links};
+char links_{world_id}[] = {links};
+content_type nodes_content_{world_id}[] = {node_content};
+char node_args_{world_id}[] = {node_args};
+"""
+
+definitions = """char world_size;
+char *max_map_depth;
+char *nodes_x;
+char *nodes_y;
+char *nodes_out;
+char *nodes_in;
+char num_of_links;
+char *links;
+content_type *nodes_content;
+char *node_args;
+"""
+
+select_template = """
+    world_size = WORLD_SIZE_{world_id};
+    max_map_depth = max_map_depth_{world_id};
+    nodes_x = nodes_x_{world_id};
+    nodes_y = nodes_y_{world_id};
+    nodes_out = nodes_out_{world_id};
+    nodes_in = nodes_in_{world_id};
+    num_of_links = num_of_links_{world_id};
+    links  = links_{world_id};
+    nodes_content = nodes_content_{world_id};
+    node_args = node_args_{world_id};
 """
 
 skip_node = '='
@@ -193,7 +218,7 @@ def post_proc_world_struct(world_d: dict, links: list):
 def as_c_arr(arr):
     return "{" + ", ".join(map(str, arr)) + "} "
 
-def format_world(world_d):
+def format_world(world_d, world_id):
     world_size = len(world_d)
     world_depth = max(world_d.keys(), key=lambda x: x[0])[0]
     nodes_xs = [0 for _ in range(world_size)]
@@ -222,6 +247,7 @@ def format_world(world_d):
 
     num_of_links = len(links) // 2
     formatted_template = template.format(
+        world_id=world_id,
         world_size=world_size,
         world_depth=world_depth,
         node_xs=as_c_arr(nodes_xs),
@@ -234,11 +260,29 @@ def format_world(world_d):
         links=as_c_arr(links),
     )
     print(formatted_template)
+    return world_size
 
+def gen_select(n):
+    print("void select_pointers(char id) {")
+    for i in range(n):
+        print("if (id == ", i, ") {")
+        formatted_template = select_template.format(world_id = i)
+        print(formatted_template)
+        print("}")
+    print("}")
 
 if __name__ == "__main__":
-    # world_c = world_0
-    world_c = world_1
-    world_d, links = generate_world_struct(world_c)
-    post_proc_world_struct(world_d, links)
-    format_world(world_d)
+    max_world_size = 0
+
+    map_list = [world_0, world_1]
+    for ind, i in enumerate(map_list):
+        world_c = i
+        world_d, links = generate_world_struct(world_c)
+        post_proc_world_struct(world_d, links)
+        max_world_size = max(format_world(world_d, ind), max_world_size)
+
+
+    print('#define MAX_WORLD_SIZE', max_world_size, '\n')
+    print('#define MAPS_COUNT', len(map_list), '\n')
+    print(definitions, '\n')
+    gen_select(len(map_list))

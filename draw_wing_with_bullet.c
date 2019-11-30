@@ -9,7 +9,7 @@
 
 #include "src/ship.c"
 #include "src/wing.c"
-
+#include "src/tiles.c"
 
 #pragma output REGISTER_SP           = 0xd000    // place stack at $d000 at startup
 #pragma output CLIB_MALLOC_HEAP_SIZE = 7000      // create a 3000-byte heap in BSS section
@@ -331,7 +331,11 @@ void render_wing(wing *wing, char side) {
     }
 }
 
-
+void draw_stars(){
+    for (int i = 0; i < 32; ++i)
+        for (int j = 0; j < 24; ++j)
+            sp1_PrintAtInv(j, i, INK_WHITE | PAPER_BLACK, STAR_TILES + (i + 4)  * (j + 7) % STAR_TILE_TYPES);
+}
 
 int main() {
     struct sp1_ss *s;
@@ -348,13 +352,16 @@ int main() {
 
     sp1_Initialize(
         SP1_IFLAG_MAKE_ROTTBL | SP1_IFLAG_OVERWRITE_TILES | SP1_IFLAG_OVERWRITE_DFILE, 
-        INK_BLACK | PAPER_WHITE, 
+        0, 
         ' '
     );
+    draw_stars();
     sp1_Invalidate(&cr);        // invalidate entire screen so that it is all initially drawn
     // s = sp1_CreateSpr(SP1_DRAW_MASK2LB, SP1_TYPE_2BYTE, 4, 0, 0);
     init_ship_sprites();
     init_bullet();
+    init_all_tilesets();
+
     // sp1_AddColSpr(s, SP1_DRAW_MASK2, 0, 48, 0);
     // sp1_AddColSpr(s, SP1_DRAW_MASK2RB, 0, 0, 0);
     // sp1_IterateSprChar(s, color_ship);
