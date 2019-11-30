@@ -13,7 +13,7 @@
 #pragma output REGISTER_SP           = 0xd000    // place stack at $d000 at startup
 // #pragma output CLIB_MALLOC_HEAP_SIZE = 4000      // create a 3000-byte heap in BSS section
 #pragma output CLIB_BALLOC_TABLE_SIZE = 1
-// #pragma output CRT_STACK_SIZE = 128
+// #pragma output CRT_STACK_SIZE = 256
 
 // #pragma output CRT_ORG_CODE          = 32768     // org 32768
 #pragma output CRT_ORG_CODE          = 24500       // org 24500
@@ -28,7 +28,7 @@
 
 // y, x, w, h
 struct sp1_Rect full_screen = {0, 0, 32, 24};
-struct sp1_tp screen_tiles[24 * 32];
+// struct sp1_tp screen_tiles[24 * 32];
 
 struct sp1_Rect our_wing_rect = {17, 3, 15, 7};
 struct sp1_Rect env_rect = {0, 3, 15, 7};

@@ -395,19 +395,19 @@ void perform_shopping(game_state *state) {
 }
 
 // MAIN
-/*
-int main() {
+void main() {
     game_state state;
     init_state(&state);
-    //select_map(0);
-    //generate_world();
+    select_map(0);
+    generate_world();
 
     init_all();
 
     render_wing(&state.player_wing, OUR_SIDE);
-   /* inspect_wing(&state.player_wing, &our_inspect_wing_rect, &our_inspect_ship_rect);
+    inspect_wing(&state.player_wing, &our_inspect_wing_rect, &our_inspect_ship_rect);
     inspect_money(MONEY);
-    while (!world[current_world].is_terminate && world[current_world].num_of_next_worlds > 0) {
+    update_screen();
+    while (world[current_world].num_of_next_worlds > 0) {
         
         perform_flight();
         heal_wing(&state.player_wing, 4);
@@ -429,35 +429,39 @@ int main() {
     else {
         sp1_PrintString(&ps0, "YOU WIN :o)");
     }
-    */
   //  update_screen();
 
-//}
-
-int main() {
-    static game_state state;
-    int i;
-    volatile v;
-    i = 0;
-    init_state(&state);
-    select_map(0);
-    generate_world();
-
-    init_all();
-    
-    while (1){
-        select_map(i);
-        i = 1 - i;
-        generate_world();
-        draw_map();
-        sp1_UpdateNow();
-        v = 5000;
-        while(v--);
-    }
-    select_destination();
-
-    // sp1_UpdateNow();
-
-    while(1);
 }
+
+// int main() {
+//     static game_state state;
+//     int i;
+//     volatile int v;
+//     i = 0;
+//     init_state(&state);
+//     select_map(0);
+//     generate_world();
+
+//     init_all();
+//     render_wing(&state.player_wing, OUR_SIDE);
+//     while (1)
+//     {
+//         sp1_UpdateNow();
+//     }
+    
+//     // while (1){
+//     //     select_map(i);
+//     //     i = 1 - i;
+//     //     generate_world();
+//     //     draw_map();
+//     //     sp1_UpdateNow();
+//     //     v = 5000;
+//     //     while(v--);
+//     // }
+//     // select_destination();
+
+//     sp1_UpdateNow();
+
+//     while(1);
+// }
 

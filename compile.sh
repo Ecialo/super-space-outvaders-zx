@@ -4,10 +4,10 @@ source $HOME/.bashrc
 
 function generate_graphics {
     # python3 ./png2sp1sprite.py data/grph/ship2.png -i ship2 > data/ship2.asm
-    python3 ./png2sp1sprite.py data/grph/sprites/interceptor_1.png -i interceptor_1 > data/i1.asm
-    python3 ./png2sp1sprite.py data/grph/sprites/destroyer-1.png -i destroyer_1 > data/d1.asm
-    python3 ./png2sp1sprite.py data/grph/sprites/bomber-1.png -i bomber_1 > data/b1.asm
-    python3 ./png2sp1sprite.py data/grph/sprites/support-1.png -i support_1 > data/s1.asm
+    python3 ./png2sp1sprite.py data/grph/sprites/interceptor_1.png -i interceptor_1 --bit > data/i1.asm
+    python3 ./png2sp1sprite.py data/grph/sprites/destroyer-1.png -i destroyer_1 --bit > data/d1.asm
+    python3 ./png2sp1sprite.py data/grph/sprites/bomber-1.png -i bomber_1 --bit > data/b1.asm
+    python3 ./png2sp1sprite.py data/grph/sprites/support-1.png -i support_1 --bit > data/s1.asm
     # python3 ./png2sp1sprite.py data/grph/attack.png -i attack_ic > data/attack_icon.asm
     # python3 ./png2sp1sprite.py data/grph/flee.png -i flee_ic > data/flee_icon.asm
     # python3 ./png2sp1sprite.py data/grph/special.png -i special_ic > data/special_icon.asm
@@ -42,7 +42,6 @@ function generate_tiles {
         python3 ./png2ugd.py data/grph/icons/upgrade.png -i upgrade_ic > data/upgrade.h
         python3 ./png2ugd.py data/grph/icons/semi-closed-eye.png -i spy_ic > data/spy_tile.h
 }
-
 # zcc +zx -vn -clib=sdcc_iy -startup=31 glyph_drawing.c -o glph -create-app
 # zcc +zx -vn -clib=sdcc_iy -startup=31 mvp.c -o mvp -create-app && fuse mvp.tap
 # zcc +zx -vn -startup=31 -clib=new sp1d.c graphics.asm -o demo -create-app
@@ -50,13 +49,16 @@ function generate_tiles {
 # zcc +zx -vn -SO2 -startup=0 -clib=sdcc_iy --max-allocs-per-node200000 draw_wing.c data/ship2.asm  -o draw_wing -create-app && fuse draw_wing.tap
 # zcc +zx -vn -SO2 -startup=0 -clib=sdcc_iy --max-allocs-per-node200000 inspect_ship.c -o inspect_ship -create-app && fuse inspect_ship.tap
 
-# generate_graphics
+generate_graphics
 
 case $1 in 
     main)
-        zcc +zx -vn -SO2 -startup=31 -DWFRAMES=3 -clib=sdcc_iy --max-allocs-per-node200000 \
+        zcc +zx -vn -SO0 -startup=31 -DWFRAMES=3 -clib=sdcc_iy --max-allocs-per-node200000 \
             mvp.c \
-            data/ship2.asm \
+            data/b1.asm \
+            data/i1.asm \
+            data/s1.asm \
+            data/d1.asm \
             data/ramka_lb.asm \
             data/ramka_rb.asm \
             data/ramka_lt.asm \
@@ -153,7 +155,10 @@ case $1 in
         generate_tiles
         zcc +zx -vn -SO2 -DWFRAMES=3 -startup=31 -clib=sdcc_iy --max-allocs-per-node200000 \
             shop_debug.c \
-            data/ship2.asm \
+            data/b1.asm \
+            data/i1.asm \
+            data/s1.asm \
+            data/d1.asm \
             data/ramka_lb.asm \
             data/ramka_rb.asm \
             data/ramka_lt.asm \

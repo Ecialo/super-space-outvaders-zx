@@ -27,7 +27,7 @@ char node_args_{world_id}[] = {node_args};
 """
 
 definitions = """char world_size;
-char *max_map_depth;
+char max_map_depth;
 char *nodes_x;
 char *nodes_y;
 char *nodes_out;
@@ -276,7 +276,10 @@ def gen_select(n):
 if __name__ == "__main__":
     max_world_size = 0
 
-    map_list = [world_0, world_1]
+    map_list = [
+        # world_0, 
+        world_1
+    ]
     for ind, i in enumerate(map_list):
         world_c = i
         world_d, links = generate_world_struct(world_c)

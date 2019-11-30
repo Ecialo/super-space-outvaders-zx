@@ -21,9 +21,9 @@
 #define SPY_OPTION 1
 #define ADVANCE_OPTION 2
 
-#define OPTION 0
-#define BONUS 1
-#define SHOP 2
+#define OPTION_MODE 0
+#define BONUS_MODE 1
+#define SHOP_MODE 2
 // #include "src/utils.c"
 
 extern unsigned char ramka_lb1[];
@@ -146,7 +146,7 @@ void select_from_options(uint16_t *options, char num_of_options, char mode) {
     sp1_ClearRectInv(&options_rect, OPTIONS_COLOR, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR);
     draw_options(options, num_of_options);
     draw_ramka_at(11, 2 + 3 * CURSOR_POS, 2, 2);
-    if (mode != OPTION) {
+    if (mode != OPTION_MODE) {
         inspect_bonus(options[CURSOR_POS]);
     }
     // draw_ramka_around(options_sprites[CURSOR_POS]);
@@ -164,7 +164,7 @@ void select_from_options(uint16_t *options, char num_of_options, char mode) {
             break;
         }
         draw_ramka_at(11, 2 + 3 * CURSOR_POS, 2, 2);
-        if (mode != OPTION) {
+        if (mode != OPTION_MODE) {
             inspect_bonus(options[CURSOR_POS]);
         }
         // draw_ramka_around(options_sprites[CURSOR_POS]);
@@ -174,11 +174,11 @@ void select_from_options(uint16_t *options, char num_of_options, char mode) {
 }
 
 void select_from_battle_options() {
-    select_from_options(battle_options, 3, False);
+    select_from_options(battle_options, 3, OPTION_MODE);
 }
 
 void select_from_prepare_options() {
-    select_from_options(prepare_options, 3, False);
+    select_from_options(prepare_options, 3, OPTION_MODE);
 }
 
 
