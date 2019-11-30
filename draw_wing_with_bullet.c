@@ -7,18 +7,10 @@
 #include <intrinsic.h>         // for intrinsic_di()
 #include <sound.h>             // for bit_beepfx()
 
+#include "src/base_sp1.c"
 #include "src/ship.c"
 #include "src/wing.c"
 #include "src/tiles.c"
-
-#pragma output REGISTER_SP           = 0xd000    // place stack at $d000 at startup
-#pragma output CLIB_MALLOC_HEAP_SIZE = 7000      // create a 3000-byte heap in BSS section
-
-#pragma output CRT_ORG_CODE          = 32768     // org 32768
-#pragma output CLIB_EXIT_STACK_SIZE  = 0         // no atexit() functions
-#pragma output CLIB_STDIO_HEAP_SIZE  = 0         // no memory for files
-#pragma output CLIB_FOPEN_MAX        = -1        // do not create open files list
-
 
 
 // #define SHIP_SIZE 16
@@ -349,12 +341,7 @@ int main() {
     add_ship(&our, "LOL", SUPPORT);
     add_ship(&our, "LOL", DESTROYER);
     add_ship(&our, "LOL", DESTROYER);
-
-    sp1_Initialize(
-        SP1_IFLAG_MAKE_ROTTBL | SP1_IFLAG_OVERWRITE_TILES | SP1_IFLAG_OVERWRITE_DFILE, 
-        0, 
-        ' '
-    );
+    init_sp1();
     draw_stars();
     sp1_Invalidate(&cr);        // invalidate entire screen so that it is all initially drawn
     // s = sp1_CreateSpr(SP1_DRAW_MASK2LB, SP1_TYPE_2BYTE, 4, 0, 0);
