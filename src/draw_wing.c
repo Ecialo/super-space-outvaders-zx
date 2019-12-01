@@ -119,15 +119,15 @@ void render_wing(wing *wing, char side) {
                 break;
             case BOMBER:
                 sp1_IterateSprChar(wing_sprites[i + offset], color_bomber);
-                sprite = (tier == 2) ? interceptor_11 : bomber_11;
+                sprite = (tier == 2) ? bomber_21 : bomber_11;
                 break;
             case DESTROYER:
                 sp1_IterateSprChar(wing_sprites[i + offset], color_destroyer);
-                sprite = (tier == 2) ? interceptor_11 : destroyer_11;
+                sprite = (tier == 2) ? destroyer_21 : destroyer_11;
                 break;
             case SUPPORT:
                 sp1_IterateSprChar(wing_sprites[i + offset], color_support);
-                sprite = (tier == 2) ? interceptor_11 : support_11;
+                sprite = (tier == 2) ? support_21 : support_11;
                 break;
         }
         if (side == OUR_SIDE) {
@@ -167,6 +167,8 @@ void clear_screen_from_wing(char side) {
         );
     }
 }
+
+volatile int vsync_i;
 
 void vsync(int wait) {
     vsync_i = wait;

@@ -4,15 +4,15 @@ source $HOME/.bashrc
 
 function generate_graphics {
     # python3 ./png2sp1sprite.py data/grph/ship2.png -i ship2 > data/ship2.asm
-    python3 ./png2sp1sprite.py data/grph/sprites/interceptor_1.png -i interceptor_1 --bit > data/i1.asm
-    python3 ./png2sp1sprite.py data/grph/sprites/destroyer-1.png -i destroyer_1 --bit > data/d1.asm
-    python3 ./png2sp1sprite.py data/grph/sprites/bomber-1.png -i bomber_1 --bit > data/b1.asm
-    python3 ./png2sp1sprite.py data/grph/sprites/support-1.png -i support_1 --bit > data/s1.asm
+    python ./png2sp1sprite.py data/grph/sprites/interceptor_1.png -i interceptor_1 --bit > data/i1.asm
+    python ./png2sp1sprite.py data/grph/sprites/destroyer-1.png -i destroyer_1 --bit > data/d1.asm
+    python ./png2sp1sprite.py data/grph/sprites/bomber-1.png -i bomber_1 --bit > data/b1.asm
+    python ./png2sp1sprite.py data/grph/sprites/support-1.png -i support_1 --bit > data/s1.asm
 
-    python3 ./png2sp1sprite.py data/grph/sprites/interceptor_2.png -i interceptor_2 --bit > data/i2.asm
-    python3 ./png2sp1sprite.py data/grph/sprites/destroyer-2.png -2 destroyer_2 --bit > data/d2.asm
-    python3 ./png2sp1sprite.py data/grph/sprites/bomber-2.png -i bomber_2 --bit > data/b2.asm
-    python3 ./png2sp1sprite.py data/grph/sprites/support-2.png -i support_2 --bit > data/s2.asm
+    python ./png2sp1sprite.py data/grph/sprites/interceptor_2.png -i interceptor_2 --bit > data/i2.asm
+    python ./png2sp1sprite.py data/grph/sprites/destroyer-2.png -i destroyer_2 --bit > data/d2.asm
+    python ./png2sp1sprite.py data/grph/sprites/bomber-2.png -i bomber_2 --bit > data/b2.asm
+    python ./png2sp1sprite.py data/grph/sprites/support-2.png -i support_2 --bit > data/s2.asm
 
 
     # python3 ./png2sp1sprite.py data/grph/attack.png -i attack_ic > data/attack_icon.asm
