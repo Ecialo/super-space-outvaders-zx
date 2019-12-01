@@ -9,9 +9,10 @@ char monus(char a, char b) {
     }
 }
 
-void to_string(char s, char *out) {
-    out[0] = s / 10 + '0';
-    out[1] = s % 10 + '0';
+char num_holder[3];
+void to_string(char s) {
+    num_holder[0] = s / 10 + '0';
+    num_holder[1] = s % 10 + '0';
 }
 
 // unsigned char RANDOM_HEAD = 255;

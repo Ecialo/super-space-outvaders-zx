@@ -23,7 +23,7 @@ void init_inspector() {
 }
 
 void inspect_ship(ship *ship, struct sp1_Rect *rect) {
-    char num_holder[3];
+    // char num_holder[3];
     char i, mods, x, y;
     num_holder[2] = '\0';
     x = rect->col;
@@ -42,21 +42,21 @@ void inspect_ship(ship *ship, struct sp1_Rect *rect) {
 
     // ATTACK
     sp1_SetPrintPos(&ps0, y + 1, x);
-    to_string(ship->attack, num_holder);
+    to_string(ship->attack);
     sp1_PrintString(&ps0, "AT");
         sp1_PrintString(&ps0, num_holder);
 
     // SPECIAL
-    to_string(ship->special, num_holder);
+    to_string(ship->special);
     sp1_SetPrintPos(&ps0, y + 2, x);
     sp1_PrintString(&ps0, "SP"); sp1_PrintString(&ps0, num_holder);
     
     // HP
-    to_string(ship->health, num_holder);
+    to_string(ship->health);
     sp1_SetPrintPos(&ps0, y + 1, x + 4);
     sp1_PrintString(&ps0, "HP"); 
         sp1_PrintString(&ps0, num_holder);
-        to_string(ship->max_health, num_holder);
+        to_string(ship->max_health);
         sp1_PrintString(&ps0, "/");
         sp1_PrintString(&ps0, num_holder);
 
@@ -77,7 +77,7 @@ void inspect_ship(ship *ship, struct sp1_Rect *rect) {
 }
 
 void inspect_wing(wing *wing, struct sp1_Rect *wing_rect, struct sp1_Rect *ship_rect) {
-    char num_holder[3];
+    // char num_holder[3];
     char x, y;
     sp1_ClearRectInv(wing_rect, INK_RED | PAPER_WHITE, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR);
     if (wing->size == 0) {
@@ -91,11 +91,11 @@ void inspect_wing(wing *wing, struct sp1_Rect *wing_rect, struct sp1_Rect *ship_
     sp1_SetPrintPos(&ps0, y + 1, x);
     // INIT
     sp1_PrintString(&ps0, "\x14\x50");
-    to_string(wing->missile, num_holder);
+    to_string(wing->missile);
     sp1_PrintString(&ps0, "MSL");
     sp1_PrintString(&ps0, num_holder);
     
-    to_string(wing->heal, num_holder);
+    to_string(wing->heal);
     sp1_PrintString(&ps0, " SUP");
     sp1_PrintString(&ps0, num_holder);
 
@@ -103,17 +103,13 @@ void inspect_wing(wing *wing, struct sp1_Rect *wing_rect, struct sp1_Rect *ship_
 }
 
 void inspect_money(char money) {
-    char num_holder[3];
-    num_holder[2] = '\0';
-
     if (money_tile_not_ready) {
         print_big_at_inv(12, 21, INK_RED | PAPER_WHITE, CREDIT_TILES);
         money_tile_not_ready = False;
     }
-    to_string(money, num_holder);
+    to_string(money);
     sp1_SetPrintPos(&ps0, 13, 23);
     sp1_PrintString(&ps0, num_holder);
-
 }
 
 void inspect_bonus(uint16_t bonus) {

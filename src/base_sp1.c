@@ -13,9 +13,10 @@
 #pragma output REGISTER_SP           = 0xd000    // place stack at $d000 at startup
 // #pragma output CLIB_MALLOC_HEAP_SIZE = 4000      // create a 3000-byte heap in BSS section
 #pragma output CLIB_BALLOC_TABLE_SIZE = 1
-// #pragma output CRT_STACK_SIZE = 256
+// #pragma output CRT_STACK_SIZE = 128
 
 // #pragma output CRT_ORG_CODE          = 32768     // org 32768
+// #pragma output CRT_ORG_CODE          = 25124       // org 24500
 #pragma output CRT_ORG_CODE          = 24500       // org 24500
 #pragma output CLIB_EXIT_STACK_SIZE  = 0         // no atexit() functions
 #pragma output CLIB_STDIO_HEAP_SIZE  = 0         // no memory for files
@@ -43,7 +44,7 @@ struct sp1_Rect our_inspect_ship_rect = {17, 21, 11, 7};
 
 struct sp1_Rect options_rect = {11, 2, 14, 2};
 struct sp1_Rect costs_rect = {13, 2, 14, 1};
-struct sp1_tp env_tiles[21*8];
+// struct sp1_tp env_tiles[21*8];
 
 void init_sp1() {
     sp1_Initialize(

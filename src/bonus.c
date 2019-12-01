@@ -55,12 +55,11 @@ void init_bonus_wing() {
 }
 
 void draw_costs(bonus *bonuses, char num) {
-    char num_holder[3];
     unsigned char i;
     sp1_ClearRectInv(&costs_rect, INK_RED | PAPER_WHITE, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR);
     sp1_PrintString(&ps0, "\x14\x50");
     for (i = 0; i < num; i++) {
-        to_string(bonus_cost[bonuses[i]], num_holder);
+        to_string(bonus_cost[bonuses[i]]);
         sp1_SetPrintPos(&ps0, 13, 2 + 3 * i);
         sp1_PrintString(&ps0, num_holder);
     }
@@ -133,7 +132,7 @@ char select_bonus(bonus *bonuses, char num, wing *wing, char is_shop) {
     return selected_bonus;
 }
 
-char collect_bonuses(bonus *bonuses, char num, wing *wing, char is_shop) {
+void collect_bonuses(bonus *bonuses, char num, wing *wing, char is_shop) {
     bonus actual_bonuses[5];
     char i, selected_bonus;
     char actual_num = num;
