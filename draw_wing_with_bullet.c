@@ -20,15 +20,22 @@ int main() {
     init_wing(&their);
     // add_ship(&their, "KEK", INTERCEPTOR);
     add_ship(&our, "KEK", INTERCEPTOR);
+    promote_ship(get_ship(&our, 0));
     add_ship(&our, "LOL", BOMBER);
+    promote_ship(get_ship(&our, 1));
+
     add_ship(&our, "LOL", SUPPORT);
+    promote_ship(get_ship(&our, 2));
+
     add_ship(&our, "LOL", DESTROYER);
     add_ship(&our, "LOL", DESTROYER);
+    promote_ship(get_ship(&our, 4));
+
     init_sp1();
     init_all_tilesets();
     init_ship_sprites();
     init_bullet();
-   // draw_stars();
+    draw_stars();
     // loadlevel();
     // drawmap();
     // s = sp1_CreateSpr(SP1_DRAW_MASK2LB, SP1_TYPE_2BYTE, 4, 0, 0);

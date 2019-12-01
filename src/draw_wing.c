@@ -117,6 +117,7 @@ void render_wing(wing *wing, uch side) {
     uch *sprite;
     uint16_t *xs, *ys;
     ship_type st;
+    char tier;
 
     // if (wing->size == 0) {
     clear_screen_from_wing(side);
@@ -133,22 +134,23 @@ void render_wing(wing *wing, uch side) {
 
     for (i = 0; i < wing->size; i++) {
         st = get_ship(wing, i)->type;
+        tier = get_ship(wing, i)->tier;
         switch (st) {
             case INTERCEPTOR:
                 sp1_IterateSprChar(wing_sprites[i + offset], color_interceptor);
-                sprite = interceptor_11;
+                sprite = (tier == 2) ? interceptor_21 : interceptor_11;
                 break;
             case BOMBER:
                 sp1_IterateSprChar(wing_sprites[i + offset], color_bomber);
-                sprite = bomber_11;
+                sprite = (tier == 2) ? bomber_21 : bomber_11;
                 break;
             case DESTROYER:
                 sp1_IterateSprChar(wing_sprites[i + offset], color_destroyer);
-                sprite = destroyer_11;
+                sprite = (tier == 2) ? destroyer_21 : destroyer_11;
                 break;
             case SUPPORT:
                 sp1_IterateSprChar(wing_sprites[i + offset], color_support);
-                sprite = support_11;
+                sprite = (tier == 2) ? support_21 : support_11;
                 break;
         }
         if (side == OUR_SIDE) {
