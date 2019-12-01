@@ -18,7 +18,7 @@
 
 #define SHIP_SIZE 24
 
- unsigned char flip_buffer[5][96];
+ unsigned char flip_buffer[5][192];
 
 struct sp1_ss *wing_sprites[10];
 
@@ -99,6 +99,7 @@ void render_wing(wing *wing, char side) {
     unsigned char *sprite;
     uint16_t *xs, *ys;
     ship_type st;
+    char tier;
 
     if (side == OUR_SIDE) {
         xs = our_wing_pos_x;
@@ -110,22 +111,23 @@ void render_wing(wing *wing, char side) {
 
     for (i = 0; i < wing->size; i++) {
         st = get_ship(wing, i)->type;
+        tier = get_ship(wing, i)->tier;
         switch (st) {
             case INTERCEPTOR:
                 sp1_IterateSprChar(wing_sprites[i + offset], color_interceptor);
-                sprite = interceptor_11;
+                sprite = (tier == 2) ? interceptor_21 : interceptor_11;
                 break;
             case BOMBER:
                 sp1_IterateSprChar(wing_sprites[i + offset], color_bomber);
-                sprite = bomber_11;
+                sprite = (tier == 2) ? interceptor_11 : bomber_11;
                 break;
             case DESTROYER:
                 sp1_IterateSprChar(wing_sprites[i + offset], color_destroyer);
-                sprite = destroyer_11;
+                sprite = (tier == 2) ? interceptor_11 : destroyer_11;
                 break;
             case SUPPORT:
                 sp1_IterateSprChar(wing_sprites[i + offset], color_support);
-                sprite = support_11;
+                sprite = (tier == 2) ? interceptor_11 : support_11;
                 break;
         }
         if (side == OUR_SIDE) {

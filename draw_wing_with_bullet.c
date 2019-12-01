@@ -20,10 +20,17 @@ int main() {
     init_wing(&their);
     // add_ship(&their, "KEK", INTERCEPTOR);
     add_ship(&our, "KEK", INTERCEPTOR);
+    get_ship(&our, 0)->tier = 2;
     add_ship(&our, "LOL", BOMBER);
+    get_ship(&our, 1)->tier = 2;
+
     add_ship(&our, "LOL", SUPPORT);
+    get_ship(&our, 2)->tier = 2;
+
     add_ship(&our, "LOL", DESTROYER);
     add_ship(&our, "LOL", DESTROYER);
+    get_ship(&our, 4)->tier = 2;
+
     init_sp1();
     init_all_tilesets();
     init_ship_sprites();
