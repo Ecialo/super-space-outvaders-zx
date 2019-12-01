@@ -18,8 +18,8 @@
 
 #define SHIP_SIZE 24
 
-// unsigned char flip_buffer[5][192];
-volatile int vsync_i;
+ unsigned char flip_buffer[5][96];
+
 struct sp1_ss *wing_sprites[10];
 
 uint16_t our_wing_pos_x[] = {
@@ -44,18 +44,16 @@ uint16_t their_wing_pos_y[] = {32, 16, 16, 0, 0};
 // 0   1   2   3   4   5   6  ...  63   64
 // i*2                              
 unsigned char* flip_sprite(unsigned char *sprite, char buff_i) {
-    // unsigned char i, column, column_offset, j;
-    // for (column = 0; column < 3; column++) {
-    //     column_offset = column * 64;
-    //     for (i = 0; i < 24; i++) {
-    //         j = column_offset + 64 - 16 - i - i;
-    //         flip_buffer[buff_i][column_offset + i*2] = sprite[j - 2];
-    //         flip_buffer[buff_i][column_offset + i*2 + 1] = sprite[j - 1];
-    //     }
-    //     memcpy(flip_buffer[buff_i] + column_offset + 48, sprite + column_offset + 48, 16);
-    // }
-    // return flip_buffer[buff_i];
-    return sprite;
+     unsigned char i, column, column_offset, j;
+     for (column = 0; column < 3; column++) {
+         column_offset = column * 32;
+         for (i = 0; i < 24; i++) {
+             j = column_offset + 32 - 8 - i;
+             flip_buffer[buff_i][column_offset + i] = sprite[j - 1];
+         }
+         memcpy(flip_buffer[buff_i] + column_offset + 24, sprite + column_offset + 24, 8);
+     }
+    return flip_buffer[buff_i];
 }
 
 void init_ship_sprites(void) {
@@ -375,17 +373,15 @@ void leader_retreat(char side, int target) {
 }
 
 
-// void draw_stars() {
-//     sp1_GetTiles(&full_screen, screen_tiles);
-//     for (int i = 0; i < 21; ++i)
-//         for (int j = 0; j < 24; ++j){
-//             screen_tiles[j * 21 + i].tile = (rand() % 4 == 0) ? STAR_TILES + rand() % STAR_TILE_TYPES : ' ';
-//             if (rand() % 4 == 0)
-
-//             screen_tiles[j * 32 + i].attr = INK_WHITE | PAPER_BLACK;
-//         }
-//     sp1_PutTilesInv(&full_screen, screen_tiles);
-// }
+void draw_stars() {
+    for (int i = 0; i < 21; ++i)
+        for (int j = 0; j < 24; ++j){
+            if (rand() % 4 == 0)
+                sp1_PrintAtInv(j, i, INK_WHITE | PAPER_BLACK,  STAR_TILES + rand() % STAR_TILE_TYPES);
+            else
+                sp1_PrintAtInv(j, i, INK_WHITE | PAPER_BLACK,  ' ');
+        }
+}
 
 
 
