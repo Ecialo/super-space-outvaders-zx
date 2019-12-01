@@ -135,6 +135,32 @@ int init_support(ship *ship, char *name) {
     return OK;
 }
 
+void promote_ship(ship* ship) {
+    ship->tier = 2;
+    switch (ship->type)
+    {
+    case INTERCEPTOR:
+        ship->attack = 6;
+        ship->health = 11;
+        ship->special = 6;
+        break;
+    case BOMBER:
+        ship->attack = 3;
+        ship->health = 13;
+        ship->special = 5;
+        break;
+    case SUPPORT:
+        ship->attack = 1;
+        ship->health = 16;
+        ship->special = 7;
+        break;
+    case DESTROYER:
+        ship->attack = 4;
+        ship->health = 19;
+        ship->special = 2;
+        break;
+    }
+}
 int take_damage(ship *ship, char amount, char multiplier, ship_type source_type) {
     char total_damage;
     ship_type type = ship->type;
