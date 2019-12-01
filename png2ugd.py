@@ -126,8 +126,8 @@ def main():
         print("const uint8_t " + args.id + "[] = {" + fmt + "};")
     else:
         print("SECTION rodata_user")
-        print("PUBLIC _{}".format(name))
-        print("._{}".format(name))
+        print("PUBLIC _{}".format(args.id.replace('-', "_")))
+        print("._{}".format(args.id.replace('-', "_")))
 
         print("defb {}".format(fmt))
 

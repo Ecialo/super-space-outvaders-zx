@@ -1,7 +1,7 @@
 #ifndef __SUP_SP_TILES__
 #define __SUP_SP_TILES__
 
-#include "../data/rebirth.h"
+// #include "../data/rebirth.h"
 #include "../data/attack.h"
 #include "../data/boss_tile.h"
 #include "../data/compact_arr_tile.h"
@@ -23,6 +23,7 @@
 #include "../data/spy_tile.h"
 #include "../data/star_tile.h"
 
+#include "types.h"
 #include "base_sp1.c"
 
 #define COMPACT_ARR_TILES 128 // compact_arr
@@ -65,6 +66,8 @@
 #define LEFT_BOT_TILE 1
 #define RIGHT_BOT_TILE 3
 
+extern uch rebirth_ic[];
+
 uint16_t tiles_for_bonus[] = {
     ATTACK_TILES, 
     HP_MOD_TILES,
@@ -78,8 +81,8 @@ uint16_t tiles_for_bonus[] = {
     HEAL_TILES
 };
 
-void init_tileset(uint8_t *tileset, uint16_t offset, char size) {
-    char i;
+void init_tileset(uint8_t *tileset, uint16_t offset, uch size) {
+    uch i;
     for (i = 0; i < size; i++) {
         sp1_TileEntry(offset + i, tileset + i*8);
     }

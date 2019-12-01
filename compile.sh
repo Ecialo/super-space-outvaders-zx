@@ -22,7 +22,8 @@ function generate_graphics {
 }
 
 function generate_tiles {
-        python3 ./png2ugd.py data/grph/icons/angel-wings.png -i rebirth_ic > data/rebirth.h
+        # python3 ./png2ugd.py data/grph/icons/angel-wings.png -i rebirth_ic > data/rebirth.h
+        python3 ./png2ugd.py data/grph/icons/angel-wings.png -i rebirth_ic -a > data/rebirth.asm
         python3 ./png2ugd.py data/grph/icons/attack.png -i attack_ic > data/attack.h
         python3 ./png2ugd.py data/grph/icons/boss.png -i boss > data/boss_tile.h
         python3 ./png2ugd.py data/grph/icons/compact_arr.png -i compact_arr > data/compact_arr_tile.h
@@ -50,15 +51,18 @@ function generate_tiles {
 # zcc +zx -vn -SO2 -startup=0 -clib=sdcc_iy --max-allocs-per-node200000 inspect_ship.c -o inspect_ship -create-app && fuse inspect_ship.tap
 
 generate_graphics
+generate_tiles
 
 case $1 in 
     main)
-        zcc +zx -vn -startup=31 -DWFRAMES=3 -clib=sdcc_iy --opt-code-size --max-allocs-per-node200000 \
+        zcc +zx -vn -SO2 -startup=31 -DWFRAMES=3 -clib=sdcc_iy -m --list --c-code-in-asm --opt-code-size --max-allocs-per-node200000 \
             mvp.c \
             data/b1.asm \
             data/i1.asm \
             data/s1.asm \
             data/d1.asm \
+            data/dynamic_data.asm \
+            data/rebirth.asm \
             data/ramka_lb.asm \
             data/ramka_rb.asm \
             data/ramka_lt.asm \

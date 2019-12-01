@@ -1,6 +1,7 @@
 #ifndef __SUP_SP_SHIPS__
 #define __SUP_SP_SHIPS__
 
+#include "types.h"
 #include "utils.c"
 
 #define OK 1
@@ -26,7 +27,7 @@
 #define HEALTH_MOD_BONUS 3
 #define SPECIAL_MOD_BONUS 1
 
-char ALL_MODS[] = {
+uch ALL_MODS[] = {
     EXTRA_GUNS,
     EXTRA_SHIELD,  
     EXTRA_COMP, 
@@ -47,29 +48,29 @@ typedef enum ShipType {
 
 typedef struct SpaceShip
 {
-    char name[11];
+    uch name[11];
     ship_type type;
-    char tier;
+    uch tier;
 
-    char max_health;
-    char health;
+    uch max_health;
+    uch health;
 
-    char attack;
-    char special;
+    uch attack;
+    uch special;
 
-    char mods;
-    char is_alive;
+    uch mods;
+    uch is_alive;
 } ship;
 
 int init_ship(
     ship *ship, 
-    char *name,
+    uch *name,
     ship_type type,
-    // char tier, 
-    char health, 
-    char attack,
-    char special,
-    char mods
+    // uch tier, 
+    uch health, 
+    uch attack,
+    uch special,
+    uch mods
 ) {
     strcpy(ship->name, name);
     ship->max_health = health;
@@ -83,7 +84,7 @@ int init_ship(
     return OK;
 }
 
-int init_interceptor(ship *ship, char *name) {
+int init_interceptor(ship *ship, uch *name) {
     init_ship(
         ship,
         name,
@@ -96,7 +97,7 @@ int init_interceptor(ship *ship, char *name) {
     return OK;
 }
 
-int init_bomber(ship *ship, char *name) {
+int init_bomber(ship *ship, uch *name) {
     init_ship(
         ship,
         name,
@@ -109,7 +110,7 @@ int init_bomber(ship *ship, char *name) {
     return OK;
 }
 
-int init_destroyer(ship *ship, char *name) {
+int init_destroyer(ship *ship, uch *name) {
     init_ship(
         ship,
         name,
@@ -122,7 +123,7 @@ int init_destroyer(ship *ship, char *name) {
     return OK;
 }
 
-int init_support(ship *ship, char *name) {
+int init_support(ship *ship, uch *name) {
     init_ship(
         ship,
         name,
@@ -135,8 +136,8 @@ int init_support(ship *ship, char *name) {
     return OK;
 }
 
-int take_damage(ship *ship, char amount, char multiplier, ship_type source_type) {
-    char total_damage;
+int take_damage(ship *ship, uch amount, uch multiplier, ship_type source_type) {
+    uch total_damage;
     ship_type type = ship->type;
     total_damage = amount * multiplier;
     if (type == INTERCEPTOR && source_type == DESTROYER) {
@@ -159,8 +160,8 @@ int take_damage(ship *ship, char amount, char multiplier, ship_type source_type)
     return OK;
 }
 
-void heal(ship *ship, char amount) {
-    char result_health;
+void heal(ship *ship, uch amount) {
+    uch result_health;
     result_health = ship->health + amount;
     if (result_health > ship->max_health) {
         ship->health = ship->max_health;
@@ -170,8 +171,8 @@ void heal(ship *ship, char amount) {
     }
 }
 
-char upgrade_ship(ship *ship) {
-    // char old_mods;
+uch upgrade_ship(ship *ship) {
+    // uch old_mods;
     // old_mods = ship->mods;
     if (ship->tier > 1) {
         return ERROR;

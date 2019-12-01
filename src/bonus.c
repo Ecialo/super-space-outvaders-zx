@@ -23,7 +23,7 @@
 #define NUM_OF_MOD_TYPES 10
 wing bonus_wing;
 
-char bonus2mod[] = {
+uch bonus2mod[] = {
     EXTRA_GUNS,
     EXTRA_SHIELD,
     EXTRA_COMP,
@@ -33,7 +33,7 @@ char bonus2mod[] = {
     REBIRTH
 };
 
-char bonus_cost[] = {
+uch bonus_cost[] = {
     3,
     3,
     3,
@@ -54,8 +54,8 @@ void init_bonus_wing() {
     add_ship(&bonus_wing, "1", SUPPORT);
 }
 
-void draw_costs(bonus *bonuses, char num) {
-    unsigned char i;
+void draw_costs(bonus *bonuses, uch num) {
+    uch i;
     sp1_ClearRectInv(&costs_rect, INK_RED | PAPER_WHITE, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR);
     sp1_PrintString(&ps0, "\x14\x50");
     for (i = 0; i < num; i++) {
@@ -65,13 +65,13 @@ void draw_costs(bonus *bonuses, char num) {
     }
 }
 
-unsigned char MONEY = 99;
-// unsigned char MONEY = 0;
-char select_bonus(bonus *bonuses, char num, wing *wing, char is_shop) {
+// uch MONEY = 99;
+uch MONEY = 0;
+uch select_bonus(bonus *bonuses, uch num, wing *wing, uch is_shop) {
     uint16_t tiles_for_options[5];
     bonus bonus;
     ship *ship;
-    char i, selected_bonus;
+    uch i, selected_bonus;
     for (i = 0; i < num; i++) {
         tiles_for_options[i] = tiles_for_bonus[bonuses[i]];
     }
@@ -132,10 +132,10 @@ char select_bonus(bonus *bonuses, char num, wing *wing, char is_shop) {
     return selected_bonus;
 }
 
-void collect_bonuses(bonus *bonuses, char num, wing *wing, char is_shop) {
+void collect_bonuses(bonus *bonuses, uch num, wing *wing, uch is_shop) {
     bonus actual_bonuses[5];
-    char i, selected_bonus;
-    char actual_num = num;
+    uch i, selected_bonus;
+    uch actual_num = num;
     // actual_num = num;
     for (i = 0; i < num; i++) {
         actual_bonuses[i] = bonuses[i];

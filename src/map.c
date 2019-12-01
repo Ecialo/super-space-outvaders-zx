@@ -16,16 +16,16 @@
 #include "tiles.c"
 #include "cursor.c"
 
-char compute_node_x(char node_i) {
+uch compute_node_x(uch node_i) {
     return nodes_x[node_i] * 3;
 }
 
-char compute_node_y(char node_i) {
+uch compute_node_y(uch node_i) {
     return nodes_y[node_i] * 3;
 }
 
-void print_arr(uint16_t row, uint16_t col, uint16_t colour, char in_arr, char out_arr) {
-    char out = NO_OUT * !out_arr;
+void print_arr(uint16_t row, uint16_t col, uint16_t colour, uch in_arr, uch out_arr) {
+    uch out = NO_OUT * (1 - out_arr);
 
     if (IN_UP & in_arr && IN_MID & in_arr) {
         sp1_PrintAtInv(row, col, colour, ALL_CON_TOP + out);
@@ -54,9 +54,9 @@ void clear_screen_from_map() {
 }
 
 void draw_map() {
-    char i;
-    char x, y, power;
-    char color;
+    uch i;
+    uch x, y, power;
+    uch color;
     sp1_ClearRectInv(&map_rect, 0, ' ', SP1_IFLAG_OVERWRITE_TILES);
 
     // sp1_GetTiles(&map_rect, env_tiles);
@@ -110,8 +110,8 @@ void draw_map() {
 
 
 void select_destination() {
-    char s, nwi;
-    char x, y;
+    uch s, nwi;
+    uch x, y;
     world_node *cwn;
     
     CURSOR_POS = 0;

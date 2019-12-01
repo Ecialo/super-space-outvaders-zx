@@ -1,7 +1,7 @@
 #ifndef __SUP_SP_UTILS__
 #define __SUP_SP_UTILS__
 
-char monus(char a, char b) {
+uch monus(uch a, uch b) {
     if (a > b) {
         return a - b;
     } else {
@@ -9,14 +9,14 @@ char monus(char a, char b) {
     }
 }
 
-char num_holder[3];
-void to_string(char s) {
+uch num_holder[3];
+void to_string(uch s) {
     num_holder[0] = s / 10 + '0';
     num_holder[1] = s % 10 + '0';
 }
 
-// unsigned char RANDOM_HEAD = 255;
-// unsigned char RANDOM[] = {
+// unsigned uch RANDOM_HEAD = 255;
+// unsigned uch RANDOM[] = {
 //     106, 162, 190, 251, 249, 243, 34, 246, 37, 215, 62, 
 //     147, 97, 176, 148, 150, 64, 80, 177, 52, 22, 247, 43, 
 //     133, 226, 125, 9, 104, 141, 77, 194, 248, 172, 241, 182, 90, 
@@ -36,7 +36,7 @@ void to_string(char s) {
 //     141, 141, 16, 81, 145, 213, 138, 4, 147, 6, 214, 116, 44, 210, 199, 15, 
 //     131, 111, 159, 194, 154, 56, 117, 117, 150, 3, 235
 // };
-// unsigned char rnd() {
+// unsigned uch rnd() {
 //     RANDOM_HEAD++;
 //     return RANDOM[RANDOM_HEAD];
 // }

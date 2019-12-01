@@ -26,18 +26,18 @@
 #define SHOP_MODE 2
 // #include "src/utils.c"
 
-extern unsigned char ramka_lb1[];
-extern unsigned char ramka_rb1[];
-extern unsigned char ramka_rt1[];
-extern unsigned char ramka_lt1[];
+extern uch ramka_lb1[];
+extern uch ramka_rb1[];
+extern uch ramka_rt1[];
+extern uch ramka_lt1[];
 struct sp1_ss *cursor_sprites[4];
 
 uint16_t battle_options[] = {RETREAT_TILES, ATTACK_TILES, SPECIAL_TILES};
 uint16_t prepare_options[] = {RETREAT_TILES, SPY_TILES, ATTACK_TILES};
-char CURSOR_POS;
+uch CURSOR_POS;
 
 void init_cursor() {
-    char i;
+    uch i;
     struct sp1_ss *s;
     for (i = 0; i < 4; i++) { 
         cursor_sprites[i] = s = sp1_CreateSpr(SP1_DRAW_MASK2LB, SP1_TYPE_2BYTE, 2, 0, 0);
@@ -46,7 +46,7 @@ void init_cursor() {
 }
 
 void clear_screen_from_cursor() {
-    char i;
+    uch i;
     for (i = 0; i < 4; i++) {
         sp1_MoveSprAbs(cursor_sprites[i], &full_screen, NULL, 0, 34, 0, 0);
     }
@@ -54,14 +54,14 @@ void clear_screen_from_cursor() {
 
 void clear_screen_from_options() {
     sp1_ClearRectInv(&options_rect, INK_BLACK | PAPER_BLACK, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR);
-    // char i;
+    // uch i;
     // for (i = 0; i < 5; i++) {
     //     print_big_empty(8, 2 + 2 * i, INK_MAGENTA | PAPER_WHITE);
     // }
 }
 
-void draw_options(uint16_t *options, char num_of_options) {
-    unsigned char i;
+void draw_options(uint16_t *options, uch num_of_options) {
+    uch i;
     for (i = 0; i < num_of_options; i++) {
         print_big_at_inv(
             11,
@@ -135,8 +135,8 @@ void draw_ramka_around(struct sp1_ss *target) {
     );
 }
 
-void select_from_options(uint16_t *options, char num_of_options, char mode) {
-    char s;
+void select_from_options(uint16_t *options, uch num_of_options, uch mode) {
+    uch s;
     if (num_of_options > 1) {
         CURSOR_POS = 1;
     } else {
@@ -149,7 +149,6 @@ void select_from_options(uint16_t *options, char num_of_options, char mode) {
     if (mode != OPTION_MODE) {
         inspect_bonus(options[CURSOR_POS]);
     }
-    // draw_ramka_around(options_sprites[CURSOR_POS]);
     sp1_UpdateNow();
     while(1) {
         in_wait_nokey();
@@ -167,7 +166,6 @@ void select_from_options(uint16_t *options, char num_of_options, char mode) {
         if (mode != OPTION_MODE) {
             inspect_bonus(options[CURSOR_POS]);
         }
-        // draw_ramka_around(options_sprites[CURSOR_POS]);
         sp1_UpdateNow();
     }
     clear_screen_from_options();
@@ -182,9 +180,9 @@ void select_from_prepare_options() {
 }
 
 
-void select_from_wing(wing *wing, char side) {
-    char s;
-    char offset = side * 5;
+void select_from_wing(wing *wing, uch side) {
+    uch s;
+    uch offset = side * 5;
     CURSOR_POS = 0;
 
     s = wing->size - 1;

@@ -13,10 +13,10 @@
 #pragma output REGISTER_SP           = 0xd000    // place stack at $d000 at startup
 // #pragma output CLIB_MALLOC_HEAP_SIZE = 4000      // create a 3000-byte heap in BSS section
 #pragma output CLIB_BALLOC_TABLE_SIZE = 1
-// #pragma output CRT_STACK_SIZE = 128
+#pragma output CRT_STACK_SIZE = 128
 
 // #pragma output CRT_ORG_CODE          = 32768     // org 32768
-// #pragma output CRT_ORG_CODE          = 25124       // org 24500
+// #pragma output CRT_ORG_CODE          = 27148       // org 24500
 #pragma output CRT_ORG_CODE          = 24500       // org 24500
 #pragma output CLIB_EXIT_STACK_SIZE  = 0         // no atexit() functions
 #pragma output CLIB_STDIO_HEAP_SIZE  = 0         // no memory for files
