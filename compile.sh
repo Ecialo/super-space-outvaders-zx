@@ -53,7 +53,7 @@ generate_graphics
 
 case $1 in 
     main)
-        zcc +zx -vn -SO0 -startup=31 -DWFRAMES=3 -clib=sdcc_iy --max-allocs-per-node200000 \
+        zcc +zx -vn -startup=31 -DWFRAMES=3 -clib=sdcc_iy --opt-code-size --max-allocs-per-node200000 \
             mvp.c \
             data/b1.asm \
             data/i1.asm \
