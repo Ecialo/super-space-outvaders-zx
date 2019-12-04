@@ -1,5 +1,6 @@
 #ifndef __SUP_SP_UTILS__
 #define __SUP_SP_UTILS__
+#include <input.h>
 
 uch monus(uch a, uch b) {
     if (a > b) {
@@ -15,6 +16,19 @@ void to_string(uch s) {
     num_holder[1] = s % 10 + '0';
 }
 
+void select_seed() {
+    unsigned int seed = 0;
+       while(1) {
+        in_wait_nokey();
+        in_wait_key();
+        if (in_key_pressed(IN_KEY_SCANCODE_SPACE)) {
+            break;
+        } else {
+            seed += in_inkey();
+        }
+    }
+    srand(seed);
+}
 // unsigned uch RANDOM_HEAD = 255;
 // unsigned uch RANDOM[] = {
 //     106, 162, 190, 251, 249, 243, 34, 246, 37, 215, 62, 

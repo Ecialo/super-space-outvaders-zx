@@ -5,17 +5,17 @@
 #include "src/wing.c"
 // TESTS
 
-int test_random() {
-    int i;
-    unsigned char rnd_result;
-    assert(rnd() == 106);
-    for (i = 0; i < 255; i++) {
-        rnd();
-    }
-    assert(rnd() == 106);
-    assert(rnd() == 162);
-    return OK;
-}
+// int test_random() {
+//     int i;
+//     unsigned char rnd_result;
+//     assert(rnd() == 106);
+//     for (i = 0; i < 255; i++) {
+//         rnd();
+//     }
+//     assert(rnd() == 106);
+//     assert(rnd() == 162);
+//     return OK;
+// }
 
 int test_wing_ship_add() {
     wing wing1;
@@ -260,7 +260,7 @@ int test_heal() {
 }
 
 int run_tests() {
-    test_random();
+    // test_random();
     test_wing_ship_add();
     test_wing_swap_ships();
     test_wing_cycle_ships();

@@ -27,6 +27,34 @@
 #define HEALTH_MOD_BONUS 3
 #define SPECIAL_MOD_BONUS 1
 
+#define TROLL_CLASS 1
+#define TSUNAMI_CLASS 0
+
+uch *intr_names[] = {
+    "RAPTOR",
+    "VIPER"
+};
+
+uch *bomb_names[] = {
+    "SHOOTA",
+    "SKORCHA"
+};
+
+uch *dest_names[] = {
+    "TITAN",
+    "DEMIGOD"
+};
+
+uch *sup_names[] = {
+    "GEEK",
+    "NERD"
+};
+
+uch *boss_names[] = {
+    "TSUNAMI",
+    "TROLL"
+};
+
 uch ALL_MODS[] = {
     EXTRA_GUNS,
     EXTRA_SHIELD,  
@@ -48,7 +76,7 @@ typedef enum ShipType {
 
 typedef struct SpaceShip
 {
-    uch name[11];
+    uch *name;
     ship_type type;
     uch tier;
 
@@ -62,7 +90,7 @@ typedef struct SpaceShip
     uch is_alive;
 } ship;
 
-int init_ship(
+void init_ship(
     ship *ship, 
     uch *name,
     ship_type type,
@@ -72,7 +100,7 @@ int init_ship(
     uch special,
     uch mods
 ) {
-    strcpy(ship->name, name);
+    ship->name = name;
     ship->max_health = health;
     ship->health = health;
     ship->attack = attack;
@@ -81,91 +109,133 @@ int init_ship(
     ship->is_alive = True;
     ship->type = type;
     ship->tier = 1;
-    return OK;
 }
 
-int init_interceptor(ship *ship, uch *name) {
+void init_interceptor(ship *ship) {
     init_ship(
         ship,
-        name,
+        intr_names[0],
         INTERCEPTOR,
         10,
         3,
         1,
         NO_MODS
     );
-    return OK;
 }
 
-int init_bomber(ship *ship, uch *name) {
+void init_bomber(ship *ship) {
     init_ship(
         ship,
-        name,
+        bomb_names[0],
         BOMBER,
-        8,
+        9,
         2,
         3,
         NO_MODS
     );
-    return OK;
 }
 
-int init_destroyer(ship *ship, uch *name) {
+void init_destroyer(ship *ship) {
     init_ship(
         ship,
-        name,
+        dest_names[0],
         DESTROYER,
         12,
         2,
         1,
         NO_MODS
     );
-    return OK;
 }
 
-int init_support(ship *ship, uch *name) {
+void init_support(ship *ship) {
     init_ship(
         ship,
-        name,
+        sup_names[0],
         SUPPORT,
         8,
         1,
         3,
         NO_MODS
     );
-    return OK;
 }
 
-void promote_ship(ship* ship) {
+void init_boss(ship *ship, uch boss_class) {
+    if (boss_class == TROLL_CLASS) {
+        init_ship(
+            ship,
+            boss_names[1],
+            BOSS,
+            35,
+            8,
+            0,
+            NO_MODS
+        );
+        ship->tier = 2;
+    } else {
+        init_ship(
+            ship,
+            boss_names[0],
+            BOSS,
+            40,
+            0,
+            0,
+            NO_MODS
+        );
+    }
+}
+
+uch promote_ship(ship* ship) {
+    if (ship->tier > 1) {
+        return ERROR;
+    }
     ship->tier = 2;
     switch (ship->type)
     {
     case INTERCEPTOR:
         ship->attack = 6;
         ship->health = 11;
+        ship->max_health = 11;
         ship->special = 6;
         break;
     case BOMBER:
         ship->attack = 3;
         ship->health = 13;
+        ship->max_health = 13;
         ship->special = 5;
         break;
     case SUPPORT:
         ship->attack = 1;
         ship->health = 16;
+        ship->max_health = 16;
         ship->special = 7;
         break;
     case DESTROYER:
         ship->attack = 4;
         ship->health = 19;
+        ship->max_health = 19;
         ship->special = 2;
         break;
+    case BOSS:
+        ship->attack = 8;
+        ship->health = 35;
+        ship->max_health = 35;
+        break;
     }
-    // todo respect mods
+    if (EXTRA_GUNS & ship->mods) {
+        ship->attack += 2;
+    }
+    if (EXTRA_SHIELD & ship->mods) {
+        ship->max_health += 3;
+        ship->health += 3;
+    }
+    if (EXTRA_COMP & ship->mods) {
+        ship->special += 1;
+    }
+    return OK;
 }
 
 
-int take_damage(ship *ship, uch amount, uch multiplier, ship_type source_type) {
+void take_damage(ship *ship, uch amount, uch multiplier, ship_type source_type) {
     uch total_damage;
     ship_type type = ship->type;
     total_damage = amount * multiplier;
@@ -186,7 +256,6 @@ int take_damage(ship *ship, uch amount, uch multiplier, ship_type source_type) {
     if (ship->health == 0) {
         ship->is_alive = False;
     }
-    return OK;
 }
 
 void heal(ship *ship, uch amount) {
@@ -200,14 +269,14 @@ void heal(ship *ship, uch amount) {
     }
 }
 
-uch upgrade_ship(ship *ship) {
-    // uch old_mods;
-    // old_mods = ship->mods;
-    if (ship->tier > 1) {
-        return ERROR;
-    } else {
-        return OK;
-    }
-}
+// uch upgrade_ship(ship *ship) {
+//     // uch old_mods;
+//     // old_mods = ship->mods;
+//     if (ship->tier > 1) {
+//         return ERROR;
+//     } else {
+//         return OK;
+//     }
+// }
 
 #endif

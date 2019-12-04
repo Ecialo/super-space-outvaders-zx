@@ -35,6 +35,29 @@ typedef struct Wing
     uch missile;
 } wing;
 
+uch SCRAP = 0;
+
+uch collect_scrap() {
+    uch scrap = SCRAP;
+    SCRAP = 0;
+    return scrap;
+}
+
+void scrap_ship(ship *ship) {
+    uch i;
+    if (ship->tier == 1) {
+        SCRAP = SCRAP + TIER_1_SCRAP;
+    } else {
+        SCRAP = SCRAP + TIER_2_SCRAP;
+    }
+    for (i = 1; i <= REMTECH; i = i*2) {
+        if (i & ship->mods) {
+            SCRAP = SCRAP + MOD_SCRAP;
+        }
+    }
+}
+
+
 void init_wing(wing *wing) {
     uch i;
     for (i = 0; i < 4; i++) {
@@ -49,6 +72,7 @@ void init_wing(wing *wing) {
     wing->heal = 0;
     wing->missile = 0;
 }
+
 
 ship* get_ship(wing *wing, uch inwing_pos) {
     // assert(wing->size > inwing_pos);
@@ -74,22 +98,22 @@ uch get_most_damaged_ship_i(wing *wing) {
 }
 
 // // DANGER!!! CAST SCRAP TO ZERO. NOT INTENDED TO USE MID COMBAT
-// uch get_strongest_ship(wing *wing) {
-//     uch max_scrap = 0;
-//     uch i, cur_scrap, p;
-//     SCRAP = 0; // Badbadnotgood, but i'm lazy
-//     for (i = 0; i < wing->size; i++) {
-//         scrap_ship(get_ship(wing, i));
-//         cur_scrap = collect_scrap();
-//         if (cur_scrap > max_scrap) {
-//             p = i;
-//             max_scrap = cur_scrap;
-//         }
-//     }
-//     return p;
-// }
+uch get_strongest_ship(wing *wing) {
+    uch max_scrap = 0;
+    uch i, cur_scrap, p;
+    SCRAP = 0; // Badbadnotgood, but i'm lazy
+    for (i = 0; i < wing->size; i++) {
+        scrap_ship(get_ship(wing, i));
+        cur_scrap = collect_scrap();
+        if (cur_scrap > max_scrap) {
+            p = i;
+            max_scrap = cur_scrap;
+        }
+    }
+    return p;
+}
 
-void add_ship(wing *wing, uch *name, ship_type ship_type) {
+void add_ship(wing *wing, ship_type ship_type) {
     uch slot;
     uch old_size = wing->size;
     ship *ship;
@@ -109,19 +133,21 @@ void add_ship(wing *wing, uch *name, ship_type ship_type) {
     ship = &(wing->ships[slot].ship);
     switch (ship_type) {
         case INTERCEPTOR:
-            init_interceptor(ship, name);
+            init_interceptor(ship);
             break;
         case BOMBER:
-            init_bomber(ship, name);
+            init_bomber(ship);
             wing->missile++;
             break;
         case DESTROYER:
-            init_destroyer(ship, name);
+            init_destroyer(ship);
             break;
         case SUPPORT:
-            init_support(ship, name);
+            init_support(ship);
             wing->heal++;
             break;
+        case BOSS:
+            init_boss(ship, TSUNAMI_CLASS);
         default:
             break;
     }
@@ -151,11 +177,6 @@ uch install_mod(wing *wing, ship *ship, uch mod) {
             default:
                 break;
         }
-        // if (mod == TORPEDO) {
-            // wing->missile++;
-        // } else if (mod == REMTECH) {
-            // wing->heal++;
-        // }
         ship->mods = ship->mods | mod;
         return OK;
     }
@@ -166,9 +187,12 @@ void fill_wing_with_rand_ships(wing *wing, uch tier1, uch tier2, uch mods) {
     ship_type t;
     uch i;
     uch mod;
-    for (i = 0; i < tier1; i++) {
+    for (i = 0; i < tier1 + tier2; i++) {
         t = (ship_type) (rand() % 4);
-        add_ship(wing, "LOL", t);
+        add_ship(wing, t);
+    }
+    for (i = 0; i < tier2; i++) {
+        promote_ship(get_ship(wing, i));
     }
     while (mods > 0)
     {
@@ -219,9 +243,9 @@ void remove_ship(wing *wing, uch inwing_pos) {
     wing->first_empty_slot = ship_i;
 
     // protector
-    // if (ship_i == wing->protector) {
-    //     wing->protector = NO_SLOT;
-    // }
+    if (ship_i == wing->protector) {
+        wing->protector = NO_SLOT;
+    }
 
     // arrange
     for (i = inwing_pos; i < size; i++) {
@@ -233,54 +257,57 @@ void remove_ship(wing *wing, uch inwing_pos) {
 
 void init_enemy_wing(wing *wing, uch power) {
     init_wing(wing);
-    add_ship(wing, "LOL", DESTROYER);
-    add_ship(wing, "LOL", DESTROYER);
-    add_ship(wing, "LOL", DESTROYER);
-    add_ship(wing, "LOL", DESTROYER);
-    add_ship(wing, "LOL", DESTROYER);
-    // switch (power) {
-    //     case 0:
-    //         // fill_wing_with_rand_ships(wing, 2, 0, 0);
-    //         fill_wing_with_rand_ships(wing, 1, 0, 0);
-    //         break;
-    //     case 1:
-    //         // fill_wing_with_rand_ships(wing, 2, 0, 2);
-    //         fill_wing_with_rand_ships(wing, 1, 0, 0);
-    //         break;
-    //     case 2:
-    //         // fill_wing_with_rand_ships(wing, 3, 0, 2);
-    //         fill_wing_with_rand_ships(wing, 1, 0, 0);
-    //         break;
-    //     case 3:
-    //         // fill_wing_with_rand_ships(wing, 0, 2, 3);
-    //         fill_wing_with_rand_ships(wing, 1, 0, 0);
-    //         break;
-    //     case 4:
-    //         // fill_wing_with_rand_ships(wing, 4, 1, 0);
-    //         fill_wing_with_rand_ships(wing, 1, 0, 0);
-    //         break;
-    //     case 5:
-    //         // fill_wing_with_rand_ships(wing, 5, 0, 4);
-    //         fill_wing_with_rand_ships(wing, 1, 0, 0);
-    //         break;
-    //     case 6:
-    //         // fill_wing_with_rand_ships(wing, 5, 0, 7);
-    //         fill_wing_with_rand_ships(wing, 1, 0, 0);
-    //         break;
-    //     case 7:
-    //         // fill_wing_with_rand_ships(wing, 3, 2, 5);
-    //         fill_wing_with_rand_ships(wing, 1, 0, 0);
-    //         break;
-    //     case 8:
-    //         // fill_wing_with_rand_ships(wing, 0, 4, 5);
-    //         fill_wing_with_rand_ships(wing, 1, 0, 0);
-    //         break;
-    //     case 9:
-    //         fill_wing_with_rand_ships(wing, 1, 0, 0);
-    //         break;
-    //     default:
-    //         break;
-    // }
+    // add_ship(wing, BOSS);
+    // add_ship(wing, DESTROYER);
+    // add_ship(wing, DESTROYER);
+    // add_ship(wing, DESTROYER);
+    // add_ship(wing, DESTROYER);
+    // add_ship(wing, DESTROYER);
+    fill_wing_with_rand_ships(wing, 1, 0, 0);
+    switch (power) {
+        case 0:
+            // fill_wing_with_rand_ships(wing, 2, 0, 0);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 1:
+            // fill_wing_with_rand_ships(wing, 2, 0, 2);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 2:
+            // fill_wing_with_rand_ships(wing, 3, 0, 2);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 3:
+            // fill_wing_with_rand_ships(wing, 0, 2, 3);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 4:
+            // fill_wing_with_rand_ships(wing, 4, 1, 0);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 5:
+            // fill_wing_with_rand_ships(wing, 5, 0, 4);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 6:
+            // fill_wing_with_rand_ships(wing, 5, 0, 7);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 7:
+            // fill_wing_with_rand_ships(wing, 3, 2, 5);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 8:
+            // fill_wing_with_rand_ships(wing, 0, 4, 5);
+            fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        case 9:
+            add_ship(wing, BOSS);
+            // fill_wing_with_rand_ships(wing, 1, 0, 0);
+            break;
+        default:
+            break;
+    }
 }
 
 void swap_ships(wing *wing, uch left_ship_i, uch right_ship_i) {
@@ -298,27 +325,6 @@ void cycle_ships(wing *wing) {
         wing->arrange[i] = wing->arrange[i+1];
     }
     wing->arrange[wing_size] = tmp;
-}
-
-uch SCRAP = 0;
-uch collect_scrap() {
-    uch scrap = SCRAP;
-    SCRAP = 0;
-    return scrap;
-}
-
-void scrap_ship(ship *ship) {
-    uch i;
-    if (ship->tier == 1) {
-        SCRAP = SCRAP + TIER_1_SCRAP;
-    } else {
-        SCRAP = SCRAP + TIER_2_SCRAP;
-    }
-    for (i = 1; i <= REMTECH; i = i*2) {
-        if (i & ship->mods) {
-            SCRAP = SCRAP + MOD_SCRAP;
-        }
-    }
 }
 
 void scrap_dead_ships(wing *wing) {

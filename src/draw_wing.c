@@ -13,13 +13,13 @@
 #include "ship.c"
 #include "wing.c"
 #include "base_sp1.c"
-#include "ship_sprites.h"
+// #include "ship_sprites.h"
 #include "tiles.c"
 
 #define SHIP_SIZE 24
 
-struct sp1_ss *wing_sprites[10];
-volatile unsigned int vsync_i;
+// struct sp1_ss *wing_sprites[10];
+// struct sp1_ss *shield_sprites[1];
 
 uint16_t our_wing_pos_x[] = {
     SHIP_SIZE * 2 + OFFSET, 
@@ -42,87 +42,186 @@ uint16_t their_wing_pos_y[] = {32, 16, 16, 0, 0};
 
 // 0   1   2   3   4   5   6  ...  63   64
 // i*2                              
-uch* flip_sprite(uch *sprite, uch buff_i) {
-     uch i, column, column_offset, j;
-     for (column = 0; column < 3; column++) {
-         column_offset = column * 32;
-         for (i = 0; i < 24; i++) {
-             j = column_offset + 32 - 8 - i;
-             flip_buffer[buff_i][column_offset + i] = sprite[j - 1];
-         }
-         memcpy(flip_buffer[buff_i] + column_offset + 24, sprite + column_offset + 24, 8);
-     }
-    return flip_buffer[buff_i];
-    // return sprite;
-}
+// uch* flip_sprite(uch *sprite, uch buff_i) {
+// uch* flip_sprite(uch *sprite) {
+//      uch i, column, column_offset, j;
+//      for (column = 0; column < 3; column++) {
+//          column_offset = column * 32;
+//          for (i = 0; i < 24; i++) {
+//              j = column_offset + 32 - 8 - i;
+//             //  flip_buffer[buff_i][column_offset + i] = sprite[j - 1];
+//              flip_buffer[column_offset + i] = sprite[j - 1];
+//          }
+//         //  memcpy(flip_buffer[buff_i] + column_offset + 24, sprite + column_offset + 24, 8);
+//          memcpy(flip_buffer + column_offset + 24, sprite + column_offset + 24, 8);
+//      }
+//     // return flip_buffer[buff_i];
+//     return flip_buffer;
+//     // return sprite;
+// }
 
-void init_ship_sprites(void) {
-    uch i;
-    struct sp1_ss *s;
-    for(i = 0; i < 10; i++) {
-        // wing_sprites[i] = s = sp1_CreateSpr(SP1_DRAW_MASK2LB, SP1_TYPE_2BYTE, 4, 0, 0);
-        // sp1_AddColSpr(s, SP1_DRAW_MASK2, SP1_TYPE_2BYTE, column2_offset, 0);
-        // sp1_AddColSpr(s, SP1_DRAW_MASK2, SP1_TYPE_2BYTE, column3_offset, 0);
-        // sp1_AddColSpr(s, SP1_DRAW_MASK2RB, SP1_TYPE_2BYTE, 0, 0);
-        wing_sprites[i] = s = sp1_CreateSpr(SP1_DRAW_OR1LB, SP1_TYPE_1BYTE, 4, 0, 0);
-        sp1_AddColSpr(s, SP1_DRAW_OR1, SP1_TYPE_1BYTE, column2_offset, 0);
-        sp1_AddColSpr(s, SP1_DRAW_OR1, SP1_TYPE_1BYTE, column3_offset, 0);
-        sp1_AddColSpr(s, SP1_DRAW_OR1RB, SP1_TYPE_1BYTE, 0, 0);
-    }
-}
+// void color_interceptor(unsigned int count, struct sp1_cs *cs) {
+//     cs->attr_mask = SP1_AMASK_INK;
+//     cs->attr = INK_RED | PAPER_BLACK;
+// }
+
+// void color_destroyer(unsigned int count, struct sp1_cs *cs) {
+//     cs->attr_mask = SP1_AMASK_INK;
+//     cs->attr = INK_BLUE | PAPER_BLACK;
+// }
+
+// void color_support(unsigned int count, struct sp1_cs *cs) {
+//     cs->attr = INK_GREEN | PAPER_BLACK;
+//     cs->attr_mask = SP1_AMASK_INK;
+// }
+
+// void color_bomber(unsigned int count, struct sp1_cs *cs) {
+//     cs->attr_mask = SP1_AMASK_INK;
+//     cs->attr = INK_YELLOW | PAPER_BLACK;
+// }
+
+// void color_boss(unsigned int count, struct sp1_cs *cs) {
+//     cs->attr_mask = SP1_AMASK_INK;
+//     cs->attr = INK_CYAN | PAPER_BLACK;
+// }
 
 
-void color_interceptor(unsigned int count, struct sp1_cs *cs) {
-    cs->attr_mask = SP1_AMASK_INK;
-    cs->attr = INK_RED | PAPER_BLACK;
-}
+// void init_ship_sprites(void) {
+//     uch i;
+//     struct sp1_ss *s;
+//     for(i = 0; i < 10; i++) {
+//         wing_sprites[i] = s = sp1_CreateSpr(SP1_DRAW_OR1LB, SP1_TYPE_1BYTE, 4, 0, 0);
+//         sp1_AddColSpr(s, SP1_DRAW_OR1, SP1_TYPE_1BYTE, column2_offset, 0);
+//         sp1_AddColSpr(s, SP1_DRAW_OR1, SP1_TYPE_1BYTE, column3_offset, 0);
+//         sp1_AddColSpr(s, SP1_DRAW_OR1RB, SP1_TYPE_1BYTE, 0, 0);
+//     }
+// }
 
-void color_destroyer(unsigned int count, struct sp1_cs *cs) {
-    cs->attr_mask = SP1_AMASK_INK;
-    cs->attr = INK_BLUE | PAPER_BLACK;
-}
-
-void color_support(unsigned int count, struct sp1_cs *cs) {
-    cs->attr = INK_GREEN | PAPER_BLACK;
-    cs->attr_mask = SP1_AMASK_INK;
-}
-
-void color_bomber(unsigned int count, struct sp1_cs *cs) {
-    cs->attr_mask = SP1_AMASK_INK;
-    cs->attr = INK_YELLOW | PAPER_BLACK;
-}
+// void init_shield_sprites() {
+//     uch i;
+//     struct sp1_ss *s;
+//     for(i = 0; i < 1; i++) {
+//         shield_sprites[i] = s = sp1_CreateSpr(SP1_DRAW_OR1LB, SP1_TYPE_1BYTE, 3, (int)shield_sp1, 0);
+//         sp1_AddColSpr(s, SP1_DRAW_OR1, SP1_TYPE_1BYTE, (int)shield_sp2, 0);
+//         sp1_AddColSpr(s, SP1_DRAW_OR1, SP1_TYPE_1BYTE, (int)shield_sp3, 0);
+//         sp1_AddColSpr(s, SP1_DRAW_OR1RB, SP1_TYPE_1BYTE, 0, 0);
+//         sp1_IterateSprChar(s, color_destroyer);
+//     }
+// }
 
 
 void clear_screen_from_wing(uch side) {
-    // if (side == OUR_SIDE) {
-    //     sp1_ClearRectInv(&our_wing_rect, INK_WHITE | PAPER_BLACK, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR | SP1_RFLAG_SPRITE);
-    // } else {
-    //     sp1_ClearRectInv(&env_rect, INK_WHITE | PAPER_BLACK, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR | SP1_RFLAG_SPRITE);
-    // }
-    uch i;
-    uch offset = side * 5;
-    for (i = 0; i < 5; i++) {
-        sp1_MoveSprAbs(
-            wing_sprites[i + offset],
-            &full_screen,
-            NULL,
-            34, 34, 0, 0
-        );
+    if (side == OUR_SIDE) {
+        sp1_ClearRectInv(&our_wing_rect, INK_WHITE | PAPER_BLACK, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR);
+    } else {
+        sp1_ClearRectInv(&env_rect, INK_WHITE | PAPER_BLACK, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR);
     }
+    // uch i;
+    // uch offset = side * 5;
+    // for (i = 0; i < 5; i++) {
+    //     sp1_MoveSprAbs(
+    //         wing_sprites[i + offset],
+    //         &full_screen,
+    //         NULL,
+    //         34, 34, 0, 0
+    //     );
+    // }
+    // sp1_MoveSprAbs(
+    //     shield_sprites[side],
+    //     &full_screen,
+    //     NULL,
+    //     34, 34, 0, 0
+    // );
 }
+
+// void render_wing(wing *wing, uch side) {
+//     uch i;
+//     uch offset = side * 5;
+//     uch *sprite;
+//     uint16_t *xs, *ys;
+//     ship_type st;
+//     uch tier;
+
+//     // if (wing->size == 0) {
+//     clear_screen_from_wing(side);
+//         // return;
+//     // }
+
+//     if (side == OUR_SIDE) {
+//         xs = our_wing_pos_x;
+//         ys = our_wing_pos_y;
+//     } else {
+//         xs = their_wing_pos_x;
+//         ys = their_wing_pos_y;
+//     }
+
+//     for (i = 0; i < wing->size; i++) {
+//         st = get_ship(wing, i)->type;
+//         tier = get_ship(wing, i)->tier;
+//         switch (st) {
+//             case INTERCEPTOR:
+//                 sp1_IterateSprChar(wing_sprites[i + offset], color_interceptor);
+//                 sprite = (tier == 2) ? interceptor_21 : interceptor_11;
+//                 break;
+//             case BOMBER:
+//                 sp1_IterateSprChar(wing_sprites[i + offset], color_bomber);
+//                 sprite = (tier == 2) ? bomber_21 : bomber_11;
+//                 break;
+//             case DESTROYER:
+//                 sp1_IterateSprChar(wing_sprites[i + offset], color_destroyer);
+//                 sprite = (tier == 2) ? destroyer_21 : destroyer_11;
+//                 break;
+//             case SUPPORT:
+//                 sp1_IterateSprChar(wing_sprites[i + offset], color_support);
+//                 sprite = (tier == 2) ? support_21 : support_11;
+//                 break;
+//             case BOSS:
+//                 sp1_IterateSprChar(wing_sprites[i + offset], color_boss);
+//                 sprite = (tier == 2) ? boss_21 : boss_11;
+//                 break;
+//         }
+//         if (side == OUR_SIDE) {
+//             sp1_MoveSprPix(
+//                 wing_sprites[i + offset], 
+//                 &full_screen, 
+//                 sprite, 
+//                 xs[i], 
+//                 ys[i]
+//             );
+//         } else {
+//             sp1_MoveSprPix(
+//                 wing_sprites[i + offset], 
+//                 &full_screen, 
+//                 // flip_sprite(sprite, i), 
+//                 flip_sprite(sprite), 
+//                 xs[i], 
+//                 ys[i]
+//             );
+//             sp1_UpdateNow();
+//         }
+//     }
+//     // if (wing->protector != NO_SLOT) {
+//     //     sp1_MoveSprPix(
+//     //         shield_sprites[side], 
+//     //         &full_screen, 
+//     //         0, 
+//     //         xs[0], 
+//     //         (side == OUR_SIDE) ? ys[0] - SHIP_SIZE : ys[0] + SHIP_SIZE
+//     //     );
+//     // } else {
+//     //     sp1_MoveSprAbs(
+//     //         shield_sprites[side],
+//     //         &full_screen,
+//     //         NULL,
+//     //         34, 34, 0, 0
+//     //     );
+//     // }
+// }
 
 void render_wing(wing *wing, uch side) {
     uch i;
-    uch offset = side * 5;
-    uch *sprite;
     uint16_t *xs, *ys;
-    ship_type st;
-    char tier;
-
-    // if (wing->size == 0) {
     clear_screen_from_wing(side);
-        // return;
-    // }
 
     if (side == OUR_SIDE) {
         xs = our_wing_pos_x;
@@ -131,69 +230,41 @@ void render_wing(wing *wing, uch side) {
         xs = their_wing_pos_x;
         ys = their_wing_pos_y;
     }
-
     for (i = 0; i < wing->size; i++) {
-        st = get_ship(wing, i)->type;
-        tier = get_ship(wing, i)->tier;
-        switch (st) {
-            case INTERCEPTOR:
-                sp1_IterateSprChar(wing_sprites[i + offset], color_interceptor);
-                sprite = (tier == 2) ? interceptor_21 : interceptor_11;
-                break;
-            case BOMBER:
-                sp1_IterateSprChar(wing_sprites[i + offset], color_bomber);
-                sprite = (tier == 2) ? bomber_21 : bomber_11;
-                break;
-            case DESTROYER:
-                sp1_IterateSprChar(wing_sprites[i + offset], color_destroyer);
-                sprite = (tier == 2) ? destroyer_21 : destroyer_11;
-                break;
-            case SUPPORT:
-                sp1_IterateSprChar(wing_sprites[i + offset], color_support);
-                sprite = (tier == 2) ? support_21 : support_11;
-                break;
-        }
-        if (side == OUR_SIDE) {
-            sp1_MoveSprPix(
-                wing_sprites[i + offset], 
-                &full_screen, 
-                sprite, 
-                xs[i], 
-                ys[i]
-            );
-        } else {
-            sp1_MoveSprPix(
-                wing_sprites[i + offset], 
-                &full_screen, 
-                flip_sprite(sprite, i), 
-                xs[i], 
-                ys[i]
-            );
-        }
+        print_ship_at_inv(
+            ys[i] / 8,
+            xs[i] / 8,
+            get_ship(wing, i),
+            False,
+            side == THEIR_SIDE
+        );
     }
-    // for (; i < MAX_WING_SIZE; i++) {
-    //     sp1_MoveSprPix(
-    //             wing_sprites[i + offset], 
-    //             &full_screen, 
-    //             NULL, 
-    //             37, 
-    //             25
-    //         );
-    // }
-    // if (side == OUR_SIDE) {
-    //     sp1_Invalidate(&our_wing_rect);
-    // } else {
-    //     sp1_Invalidate(&env_rect);
-    // }
 }
 
-
-// void vsync(int wait) {
-//     vsync_i = wait;
-//     while (vsync_i) {
-//         --vsync_i;
+// uch tile_buffer[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+// uch c_t_x = 0;
+// uch c_t_y = 0;
+// uch l_t_x = 0;
+// uch l_t_y = 0;
+// #define a_t (STAR_TILES + 7) 
+// void putpix(int x, int y) {
+//     uch t_x = x / 8;
+//     uch t_y = y / 8;
+//     if (t_x != c_t_x || t_y != c_t_y) {
+//         sp1_TileEntry(a_t, tile_buffer);
+//         sp1_PrintAtInv(l_t_y, l_t_x, BACK_COLOR, ' ');
+//         sp1_PrintAtInv(c_t_y, c_t_x, LASOR_COLOR, a_t);
+//         sp1_UpdateNow();
+//         l_t_x = c_t_x;
+//         l_t_y = c_t_y;
+//         c_t_x = t_x;
+//         c_t_y = t_y;
+//         memset(tile_buffer, 0, 8);
+//         // a_t++;
 //     }
+//     tile_buffer[y % 8] =  1 << (7 - (x % 8));
 // }
+
 
 // struct sp1_ss *bullet_sp;
 // uch bullet_sprite[23] = {0, 0, 0, 0,
@@ -209,15 +280,15 @@ void render_wing(wing *wing, uch side) {
 //      cs->attr = INK_RED | PAPER_BLACK;
 // }
 // void init_bullet(void) {
-//     bullet_sp = sp1_CreateSpr(SP1_DRAW_LOAD1LB, SP1_TYPE_1BYTE, 2, (int) (bullet_sprite + 7), 11);
-//     sp1_AddColSpr(bullet_sp, SP1_DRAW_LOAD1RB, SP1_TYPE_1BYTE, 0, 0);
-//     sp1_IterateSprChar(bullet_sp, bullet_color);
+//     bullet_sp = sp1_CreateSpr(SP1_DRAW_OR1LB, SP1_TYPE_1BYTE, 2, (int) (bullet_sprite + 7), 11);
+//     sp1_AddColSpr(bullet_sp, SP1_DRAW_OR1RB, SP1_TYPE_1BYTE, 0, 0);
+//     sp1_IterateSprChar(bullet_sp, color_interceptor);
 // }
 
 // #define MAX_SPRITES_MOVE MAX_WING_SIZE
+// int dx[MAX_SPRITES_MOVE], dy[MAX_SPRITES_MOVE];
 // void move_multiple_sprites(int count, struct sp1_ss **sp, int *x1, int *x2, int *y1, int *y2, int pause, int steps)
 // {
-//     int dx[MAX_SPRITES_MOVE], dy[MAX_SPRITES_MOVE];
 //     int i, j;
 //     for (j = 0; j < count; ++j){
 //         dx[j] = (x2[j] - x1[j]) / steps;

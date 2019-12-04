@@ -10,17 +10,31 @@
 struct sp1_pss ps0;
 struct sp1_pss pst;
 
+extern uch att_bonus_text[];
+extern uch hull_bonus_text[];
+extern uch sp_bonus_text[];
+extern uch msl_bonus_text[];
+extern uch sup_bonus_text[];
+extern uch arm_bonus_text[];
+extern uch reb_bonus_text[];
+extern uch upg_bonus_text[];
+extern uch add_bonus_text[];
+extern uch rep_bonus_text[];
 
 uch money_tile_not_ready = True;
 
 void init_inspector() {
     ps0.bounds = &full_screen;
-    ps0.flags = SP1_PSSFLAG_INVALIDATE;
+    ps0.flags = SP1_PSSFLAG_INVALIDATE | SP1_PSSFLAG_XWRAP | SP1_PSSFLAG_YINC;
     ps0.visit = 0;
     pst.bounds = &target_inspect_rect;
     pst.flags = SP1_PSSFLAG_INVALIDATE;
     pst.visit = 0;
 }
+
+// void print_num(struct sp1_pss &ps, char num) {
+//     return;
+// }
 
 void inspect_ship(ship *ship, struct sp1_Rect *rect) {
     // uch num_holder[3];
@@ -121,38 +135,38 @@ void inspect_bonus(uint16_t bonus) {
     pst.bounds = &target_inspect_rect;
     // sp1_PrintString(&ps0, "\x19\x01");
     print_big_at_inv(3, 25, INK_RED | PAPER_WHITE, bonus);
-    sp1_SetPrintPos(&pst, 5, 21);
+    sp1_SetPrintPos(&pst, 5, 22);
 
     switch (bonus) {
         case ATTACK_TILES: 
-            sp1_PrintString(&pst, "+2 ship    attack");
+            sp1_PrintString(&pst, att_bonus_text);
             break;
         case HP_MOD_TILES:
-            sp1_PrintString(&pst, "+3 ship    hull");
+            sp1_PrintString(&pst, hull_bonus_text);
             break;
         case SPECIAL_TILES:
-            sp1_PrintString(&pst, "+1 ship    special    power");
+            sp1_PrintString(&pst, sp_bonus_text);
             break;
         case TORPEDO_MOD_TILES:
-            sp1_PrintString(&pst, "+1 wing    missile    power");
+            sp1_PrintString(&pst, msl_bonus_text);
             break;
         case SUPPORT_MOD_TILES:
-            sp1_PrintString(&pst, "+1 wing    support    power");
+            sp1_PrintString(&pst, sup_bonus_text);
             break;
         case ARMOR_MOD_TILES:
-            sp1_PrintString(&pst, "Reduce     incoming   damage by 1");
+            sp1_PrintString(&pst, arm_bonus_text);
             break;
         case REBIRTH_MOD_TILES:
-            sp1_PrintString(&pst, "Ressurect  ship once");
+            sp1_PrintString(&pst, reb_bonus_text);
             break;
         case UPGRADE_TILES:
-            sp1_PrintString(&pst, "Upgrade    ship");
+            sp1_PrintString(&pst, upg_bonus_text);
             break;
         case ADD_SHIP_TILES:
-            sp1_PrintString(&pst, "Add tier-1 ship to     wing");
+            sp1_PrintString(&pst, add_bonus_text);
             break;
         case HEAL_TILES:
-            sp1_PrintString(&pst, "Repair     wing");
+            sp1_PrintString(&pst, rep_bonus_text);
             break;
     }
 }

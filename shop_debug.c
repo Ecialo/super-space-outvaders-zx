@@ -19,27 +19,29 @@ int main() {
     wing our;
     bonus b[] = {
         ATK,
-        ATK,
+        REB,
         HEAL,
         UPG,
         NEW
     }; // 5
     init_wing(&our);
-    add_ship(&our, "LOL", DESTROYER);
+    add_ship(&our, DESTROYER);
     init_sp1();
     init_inspector();
     init_bonus_wing();
     init_all_tilesets();
     init_cursor();
     init_ship_sprites();
+    init_shield_sprites();
     // sp1_Invalidate(&full_screen);        // invalidate entire screen so that it is all initially drawn
     
     
     render_wing(&our, 0);
+    MONEY = 99;
     collect_bonuses(b, 5, &our, 1);
     // render_wing(&their,  1);
     // sp1_Invalidate(&full_screen);
     // select_from_wing(&our, 1);
-    while(1);
+    // while(1);
     return 0;
 }

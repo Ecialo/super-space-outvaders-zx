@@ -16,26 +16,30 @@
 int main() {
     struct sp1_ss *s;
 
-    wing our, their;
+    wing our;
 
     init_wing(&our);
     // init_wing(&their);
     // add_ship(&their, "KEK", INTERCEPTOR);
-    add_ship(&our, "KEK", INTERCEPTOR);
-    add_ship(&our, "LOL", BOMBER);
-    add_ship(&our, "LOL", SUPPORT);
-    add_ship(&our, "LOL", DESTROYER);
-    add_ship(&our, "LOL", DESTROYER);
+    // add_ship(&our, INTERCEPTOR);
+    // add_ship(&our, BOMBER);
+    // add_ship(&our, SUPPORT);
+    // add_ship(&our, DESTROYER);
+    // add_ship(&our, DESTROYER);
 
+    fill_wing_with_rand_ships(&our, 1, 1, 1);
+
+    our.protector = 2;
     init_sp1();
     // s = sp1_CreateSpr(SP1_DRAW_MASK2LB, SP1_TYPE_2BYTE, 4, 0, 0);
     init_ship_sprites();
+    init_shield_sprites();
     
     // sp1_AddColSpr(s, SP1_DRAW_MASK2, 0, 48, 0);
     // sp1_AddColSpr(s, SP1_DRAW_MASK2RB, 0, 0, 0);
     // sp1_IterateSprChar(s, color_ship);
     render_wing(&our, OUR_SIDE);
-    render_wing(&our, THEIR_SIDE);
+    // render_wing(&our, THEIR_SIDE);
     // sp1_MoveSprPix(s, &cr, interceptor, 16, 16);
 
 

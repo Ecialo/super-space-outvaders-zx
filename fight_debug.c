@@ -205,28 +205,28 @@ void perform_fight(game_state *state) {
     action player_action, enemy_action; 
     char player_choice, enemy_choice;
     fight_result fight_result;
-    wing player_wing;
-    player_wing = state->player_wing;
+    wing PLAYER_WING;
+    PLAYER_WING = state->player_wing;
     
     wing enemy_wing;
     init_enemy_wing(&enemy_wing);
 
     for(;;) {
-        render_wing(&player_wing, OUR_SIDE);
+        render_wing(&PLAYER_WING, OUR_SIDE);
         render_wing(&enemy_wing, THEIR_SIDE);
-        inspect_ship(get_leader(&player_wing), 18, 10);
+        inspect_ship(get_leader(&PLAYER_WING), 18, 10);
         inspect_ship(get_leader(&enemy_wing), 18, 3);
 
         player_action = (action) read_action();
 //         printf("%d", (int) player_action);
         if (player_action == SPECIAL) {
-            switch (get_leader(&player_wing)->type) {
+            switch (get_leader(&PLAYER_WING)->type) {
                 case BOMBER:
                 case INTERCEPTOR:
                     player_choice = read_ship_i(&enemy_wing, THEIR_SIDE);
                     break;
                 case SUPPORT:
-                    player_choice = read_ship_i(&player_wing, OUR_SIDE);
+                    player_choice = read_ship_i(&PLAYER_WING, OUR_SIDE);
                     break;
                 default:
                     player_choice = NO_CHOICE;
@@ -238,9 +238,9 @@ void perform_fight(game_state *state) {
 
         enemy_action = (action) (rnd() % NUM_OF_ACTIONS);
         if (enemy_action == SPECIAL) {
-            switch (get_leader(&player_wing)->type) {
+            switch (get_leader(&PLAYER_WING)->type) {
                 case BOMBER:
-                    enemy_choice = (char) (rnd() % player_wing.size);
+                    enemy_choice = (char) (rnd() % PLAYER_WING.size);
                     break;
                 case SUPPORT:
                 case INTERCEPTOR:
@@ -255,7 +255,7 @@ void perform_fight(game_state *state) {
         }
 
         perform_round(
-            &player_wing,
+            &PLAYER_WING,
             &enemy_wing,
             (state->combat_round / 10) + 1,
             player_action,
@@ -263,9 +263,9 @@ void perform_fight(game_state *state) {
             enemy_action,
             enemy_choice
         );
-        scrap_dead_ships(&player_wing);
+        scrap_dead_ships(&PLAYER_WING);
         scrap_dead_ships(&enemy_wing);
-        fight_result = check_fight_result(&player_wing, &enemy_wing);
+        fight_result = check_fight_result(&PLAYER_WING, &enemy_wing);
         if (fight_result == CONTINUE) {
             state->combat_round++;
         } else if (fight_result == WE) {

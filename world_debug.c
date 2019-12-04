@@ -19,18 +19,28 @@ int main() {
     init_all_tilesets();
     // init_map_tiles();
     init_cursor();
+    select_map(rand() % MAPS_COUNT);
+    generate_world();
     // init_icons();
-    while (1){
-        select_map(i);
-        i = 1 - i;
-        generate_world();
+    // while (1){
+    //     select_map(i);
+    //     i = 1 - i;
+    //     generate_world();
+    //     draw_map();
+    //     sp1_UpdateNow();
+    //     v = 5000;
+    //     while(v--);
+    // }
+    while (world[current_world].num_of_next_worlds > 0) {
+        clear_screen_from_map();
         draw_map();
         sp1_UpdateNow();
-        v = 5000;
-        while(v--);
+        select_destination();
+        clear_screen_from_cursor();
+        current_world = world[current_world].next_worlds[CURSOR_POS];
+        world_x_offset = nodes_x[current_world];
+        // sp1_PrintAtInv(22, 20, INK_WHITE | PAPER_BLACK, '0' + world_x_offset);
     }
-    select_destination();
-
     // sp1_UpdateNow();
 
     while(1);

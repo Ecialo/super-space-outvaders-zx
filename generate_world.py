@@ -15,27 +15,27 @@ def printe(*args, **kwargs):
 
 template = """
 #define WORLD_SIZE_{world_id} {world_size}
-char max_map_depth_{world_id} = {world_depth};
-char nodes_x_{world_id}[]   = {node_xs};
-char nodes_y_{world_id}[]   = {node_ys};
-char nodes_out_{world_id}[] = {node_out};
-char nodes_in_{world_id}[]  = {node_in};
-char num_of_links_{world_id} = {num_of_links};
-char links_{world_id}[] = {links};
-content_type nodes_content_{world_id}[] = {node_content};
-char node_args_{world_id}[] = {node_args};
+uch max_map_depth_{world_id} = {world_depth};
+uch nodes_x_{world_id}[]   = {node_xs};
+uch nodes_y_{world_id}[]   = {node_ys};
+uch nodes_out_{world_id}[] = {node_out};
+uch nodes_in_{world_id}[]  = {node_in};
+uch num_of_links_{world_id} = {num_of_links};
+uch links_{world_id}[] = {links};
+uch nodes_content_{world_id}[] = {node_content};
+uch node_args_{world_id}[] = {node_args};
 """
 
-definitions = """char world_size;
-char max_map_depth;
-char *nodes_x;
-char *nodes_y;
-char *nodes_out;
-char *nodes_in;
-char num_of_links;
-char *links;
-content_type *nodes_content;
-char *node_args;
+definitions = """uch world_size;
+uch max_map_depth;
+uch *nodes_x;
+uch *nodes_y;
+uch *nodes_out;
+uch *nodes_in;
+uch num_of_links;
+uch *links;
+uch *nodes_content;
+uch *node_args;
 """
 
 select_template = """
@@ -107,6 +107,12 @@ world_1 = """
 n . 2 - = - $ L n . 6 L n
 0 E 3 b 4 - 1 - 0 K n . 9
 n . = - 8 p 5 Г n . $ Г n
+"""
+
+world_2 = """
+n . 2 - = - $ L n . 6 L n . n . n
+0 E 3 b 4 - 1 - 0 K n . 9 - 1 - 1
+n . = - 8 p 5 Г n . $ Г n . n . n
 """
 
 
@@ -265,7 +271,7 @@ def format_world(world_d, world_id):
     return world_size
 
 def gen_select(n):
-    print("void select_pointers(char id) {")
+    print("void select_pointers(uch id) {")
     for i in range(n):
         print("if (id == ", i, ") {")
         formatted_template = select_template.format(world_id = i)
@@ -278,7 +284,8 @@ if __name__ == "__main__":
 
     map_list = [
         # world_0, 
-        world_1
+        # world_1,
+        world_2,
     ]
     for ind, i in enumerate(map_list):
         world_c = i

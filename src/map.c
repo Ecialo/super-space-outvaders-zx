@@ -17,7 +17,9 @@
 #include "cursor.c"
 
 uch compute_node_x(uch node_i) {
-    return nodes_x[node_i] * 3;
+    // return (nodes_x[node_i] - nodes_x[current_world]) * 3;
+    return (nodes_x[node_i] - world_x_offset) * 3;
+    // return (nodes_x[node_i] - 0) * 3;
 }
 
 uch compute_node_y(uch node_i) {
@@ -57,7 +59,7 @@ void draw_map() {
     uch i;
     uch x, y, power;
     uch color;
-    sp1_ClearRectInv(&map_rect, 0, ' ', SP1_IFLAG_OVERWRITE_TILES);
+    sp1_ClearRectInv(&map_rect, INK_BLACK | PAPER_RED, ' ', SP1_IFLAG_OVERWRITE_TILES);
 
     // sp1_GetTiles(&map_rect, env_tiles);
     for (i = 0; i < world_size; i++) {
@@ -65,6 +67,9 @@ void draw_map() {
             color = INK_MAGENTA | PAPER_RED;
         } else {
             color = INK_BLACK | PAPER_RED;
+        }
+        if (nodes_x[i] < world_x_offset || (nodes_x[i] - world_x_offset) > 6) {
+            continue;
         }
         x = compute_node_x(i);
         y = compute_node_y(i);
@@ -97,7 +102,7 @@ void draw_map() {
             sp1_PrintAtInv(y - 1, x + 1, color, ' ');
             sp1_PrintAtInv(y + 2, x + 1, color, ' ');
         }
-        if (nodes_x[i]) {
+        if (nodes_x[i] - world_x_offset) {
             print_arr(y, x - 1, INK_BLACK | PAPER_RED, nodes_in[i], nodes_out[i]);
             if (nodes_y[i] == 1) {
                 sp1_PrintAtInv(y - 1, x - 1, color, NO_BOT + NO_OUT);
@@ -116,9 +121,11 @@ void select_destination() {
     
     CURSOR_POS = 0;
     cwn = &world[current_world];
-    
+
+
     s = cwn->num_of_next_worlds - 1;
     nwi = cwn->next_worlds[CURSOR_POS];
+    
     x = compute_node_x(nwi);
     y = compute_node_y(nwi);
     draw_ramka_at(y, x, 2, 2);
@@ -130,12 +137,16 @@ void select_destination() {
             CURSOR_POS--;
         } else if (in_key_pressed(IN_KEY_SCANCODE_d) && CURSOR_POS < s) {
             CURSOR_POS++;
+        } else if (in_key_pressed(IN_KEY_SCANCODE_1)) {
+            CURSOR_POS = CURSOR_CANCEL;
+            break;
         } else if (in_key_pressed(IN_KEY_SCANCODE_SPACE)) {
             break;
         }
         nwi = cwn->next_worlds[CURSOR_POS];
         x = compute_node_x(nwi);
         y = compute_node_y(nwi);
+
         draw_ramka_at(y, x, 2, 2);
         sp1_UpdateNow();
     }

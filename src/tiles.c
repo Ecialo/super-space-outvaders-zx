@@ -2,26 +2,27 @@
 #define __SUP_SP_TILES__
 
 // #include "../data/rebirth.h"
-#include "../data/attack.h"
-#include "../data/boss_tile.h"
-#include "../data/compact_arr_tile.h"
-#include "../data/money_tile.h"
-#include "../data/retreat.h"
-#include "../data/hp_mod.h"
-#include "../data/torpedo.h"
-#include "../data/armor.h"
+// #include "../data/attack.h"
+// #include "../data/boss_tile.h"
+// #include "../data/compact_arr_tile.h"
+// #include "../data/money_tile.h"
+// #include "../data/retreat.h"
+// #include "../data/hp_mod.h"
+// #include "../data/torpedo.h"
 // #include "../data/armor.h"
-#include "../data/repair_mod.h"
-#include "../data/special.h"
-#include "../data/ship_tile.h"
-#include "../data/heal.h"
-#include "../data/upgrade.h"
-#include "../data/skip_node_tile.h"
-#include "../data/easy_tile.h"
-#include "../data/norm_tile.h"
-#include "../data/hard_tile.h"
-#include "../data/spy_tile.h"
+// #include "../data/armor.h"
+// #include "../data/repair_mod.h"
+// #include "../data/special.h"
+// #include "../data/ship_tile.h"
+// #include "../data/heal.h"
+// #include "../data/upgrade.h"
+// #include "../data/skip_node_tile.h"
+// #include "../data/easy_tile.h"
+// #include "../data/norm_tile.h"
+// #include "../data/hard_tile.h"
+// #include "../data/spy_tile.h"
 #include "../data/star_tile.h"
+#include "ship.c"
 
 #include "types.h"
 #include "base_sp1.c"
@@ -58,7 +59,18 @@
 #define SKIP_NODE_TILES (144+4*16) // heal all bonus techno-heart.png
 #define SPY_TILES (144+4*17) // heal all bonus techno-heart.png
 
-#define STAR_TILES (144 + 4 * 17 + 1)
+#define SHIP_TILES_C (144 + 4*18 + 6)
+// #define I2 (216 + 9*1)
+// #define B1 (216 + 9*3)
+// #define B2 (216 + 9*4)
+// #define S1 (216 + 9*5)
+// #define S2 (216 + 9*6)
+// #define D1 (216 + 9*7)
+// #define D2 (216 + 9*8)
+// #define BOSS1 (216 + 9*9)
+// #define BOSS2 (216 + 9*10)
+
+#define STAR_TILES (144 + 4*18)
 
 
 #define LEFT_TOP_TILE 0
@@ -67,6 +79,35 @@
 #define RIGHT_BOT_TILE 3
 
 extern uch rebirth_ic[];
+extern uch attack_ic[];
+extern uch boss[];
+extern uch money_ic[];
+extern uch compact_arr[];
+extern uch retreat_ic[];
+extern uch hp_mod_ic[];
+extern uch torpedo_ic[];
+extern uch armor_ic[];
+extern uch repair_mod_ic[];
+extern uch special_ic[];
+extern uch ship_ic[];
+extern uch heal_ic[];
+extern uch upgrade_ic[];
+extern uch skip_node[];
+extern uch easy[];
+extern uch norm[];
+extern uch hard[];
+extern uch spy_ic[];
+
+extern unsigned char interceptor_1[];
+extern unsigned char interceptor_2[];
+extern unsigned char bomber_1[];
+extern unsigned char bomber_2[];
+extern unsigned char support_1[];
+extern unsigned char support_2[];
+extern unsigned char destroyer_1[];
+extern unsigned char destroyer_2[];
+extern unsigned char boss_1[];
+extern unsigned char boss_2[];
 
 uint16_t tiles_for_bonus[] = {
     ATTACK_TILES, 
@@ -119,6 +160,17 @@ void init_all_tilesets() {
     init_tileset(ship_ic, ADD_SHIP_TILES, 4);
     init_tileset(heal_ic, HEAL_TILES, 4);
 
+    // init_tileset(interceptor_1, I1, 9);
+    // init_tileset(interceptor_2, I2, 9);
+    // init_tileset(bomber_1, B1, 9);
+    // init_tileset(bomber_2, B2, 9);
+    // init_tileset(destroyer_1, D1, 9);
+    // init_tileset(destroyer_2, D2, 9);
+    // init_tileset(support_1, S1, 9);
+    // init_tileset(support_2, S2, 9);
+    // init_tileset(boss_1, BOSS1, 9);
+    // init_tileset(boss_2, BOSS2, 9);
+
     init_tileset(stars, STAR_TILES, STAR_TILE_TYPES);
 }
 
@@ -128,6 +180,99 @@ void print_big_at_inv(uint16_t row, uint16_t col, uint16_t colour, uint16_t tile
     sp1_PrintAtInv(row + 1, col, colour, tile + LEFT_BOT_TILE);
     sp1_PrintAtInv(row + 1, col + 1, colour, tile + RIGHT_BOT_TILE);
 }
+
+
+extern uch flip_buffer[];
+uch* flip(uch *sprite) {
+    //  uch i, column, column_offset, j;
+    //  for (column = 0; column < 3; column++) {
+    //      column_offset = column * 24;
+    //      for (i = 0; i < 24; i++) {
+    //          j = column_offset + 24 - i;
+    //          flip_buffer[column_offset + i] = sprite[j - 1];
+    //      }
+    //  }
+    // return flip_buffer;
+    return sprite;
+}
+
+
+uch *last_ship = NULL;
+void print_ship_at_inv(uint16_t row, uint16_t col, ship *ship, uch is_flash, uch is_flip) {
+    uch i, j, tier, color;
+    uch *ship_sp;
+    tier = ship->tier;
+    switch (ship->type) {
+        case INTERCEPTOR:
+            ship_sp = (tier == 2) ? interceptor_2 : interceptor_1;
+            color = INTERCEPTOR_COLOR;
+            break;
+        case BOMBER:
+            ship_sp = (tier == 2) ? bomber_2 : bomber_1;
+            color = BOMBER_COLOR;
+            break;
+        case DESTROYER:
+            ship_sp = (tier == 2) ? destroyer_2 : destroyer_1;
+            color = DESTROYER_COLOR;
+            break;
+        case SUPPORT:
+            ship_sp = (tier == 2) ? support_2 : support_1;
+            color = SUPPORT_COLOR;
+            break;
+        case BOSS:
+            ship_sp = (tier == 2) ? boss_2 : boss_1;
+            color = BOSS_COLOR;
+        default:
+            break;
+    }
+    if (is_flash) {
+        color = FLASH_COLOR;
+    }
+    if (is_flip) {
+        ship_sp = flip(ship_sp);
+    } 
+    // if (ship_sp != last_ship) {
+    //     init_tileset(
+    //         ship_sp,
+    //         SHIP_TILES_C,
+    //         9
+    //     );
+    //     last_ship = ship_sp;
+    // }
+    for (i=0; i < 3; i++) {
+        for (j = 0; j < 3; j++) {
+            sp1_PrintAtInv(row + j, col + i, color, (uint16_t)(ship_sp + i*3 + j));
+        }
+    }
+    // sp1_UpdateNow();
+}
+
+// uch *actual_ship;
+// uch actual_color;
+// uch cx, cy;
+// void print_ship(struct sp1_update *u)
+// {
+//    unsigned char *p;
+
+//    // locate character square on screen
+
+//    p = zx_cxy2saddr(csx, csy);
+
+//    // store graphic location and colour in struct update
+
+//    u->tile = (unsigned int)csdst;
+//    u->colour = *zx_saddr2aaddr(p);
+
+//    // copy screen graphics to screen buffer
+
+//    // next character square
+
+//    if (++csx == 3)
+//    {
+//       csx = 0;
+//       ++csy;
+//    }
+// }
 
 void print_big_empty(uint16_t row, uint16_t col, uint16_t colour) {
     sp1_PrintAtInv(row, col, colour, ' ');

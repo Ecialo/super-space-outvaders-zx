@@ -28,6 +28,7 @@ typedef enum State {
     FIGHT,
     VICTORY,
     DEFEAT,
+    EXIT,
 } state;
 
 // typedef enum Action {
@@ -42,23 +43,14 @@ typedef enum FightResults {
     WE,
 } fight_result;
 
-// #define FIGHT_CONTINUE 0;
-// #define FIGHT_WE 2;
-// #define FIGHT_THEY 1;
-
-// GLOBAL GAME STATE
-// typedef struct GameState
-// {
-//     uch state;
-//     wing player_wing;
-//     uch combat_round;
-//     uch money;
-// } game_state;
+extern uch bullet1[];
 
 state state;
-wing PLAYER_WING;
-wing ENEMY_WING;
+wing BOTH_WINGS[2];
+#define PLAYER_WING BOTH_WINGS[0]
+#define ENEMY_WING BOTH_WINGS[1]
 uch COMBAT_ROUND;
+
 
 uch ENEMY_CHOICE[3];   // action, most damaged enemy, most damaged player
 
@@ -73,6 +65,66 @@ void init_state() {
     // MONEY = 0;
 }
 
+void shoot_bullet_r(int x1, int y1, int x2, int y2)
+{
+    uch i;
+    int dx, dy;
+    dx = (x2 - x1) / 10;
+    dy = (y2 - y1) / 10;
+    for (i = 0; i < 9; ++i){
+        sp1_MoveSprPix(
+            cursor_sprites[0], 
+            &full_screen, 
+            bullet1, 
+            x1 + i * dx, 
+            y1 + i * dy
+        );
+        sp1_UpdateNow();
+    }
+    vsync(3000);
+    sp1_MoveSprPix(
+        cursor_sprites[0], 
+        &full_screen, 
+        bullet1, 
+        x2, 
+        y2
+    );
+    sp1_UpdateNow();
+    vsync(3000);
+}
+
+void shoot_bullet(uch f, uch t, uch side) {
+    if (side == OUR_SIDE) {
+        shoot_bullet_r(
+            our_wing_pos_x[f] + SHIP_SIZE / 2, our_wing_pos_y[f],  
+            their_wing_pos_x[t] + SHIP_SIZE / 2, their_wing_pos_y[t] + SHIP_SIZE
+        );
+    } else {
+        shoot_bullet_r(
+            their_wing_pos_x[f] + SHIP_SIZE / 2, their_wing_pos_y[f] + SHIP_SIZE,
+            our_wing_pos_x[t] + SHIP_SIZE / 2, our_wing_pos_y[t]
+        );
+    }
+    // sp1_PrintAtInv(l_t_y, l_t_x, BACK_COLOR, ' ');
+}
+
+void flash(ship *ship, uch i, uch side) {
+    uch x, y, c;
+    if (side == OUR_SIDE) {
+        x = our_wing_pos_x[i] / 8;
+        y = our_wing_pos_y[i] / 8;
+    } else {
+        x = their_wing_pos_x[i] / 8;
+        y = their_wing_pos_y[i] / 8;
+    }
+    for (c = 0; c < 11; c++) {
+        print_ship_at_inv(y, x, ship, c % 2, side == THEIR_SIDE);
+        vsync(1500);
+    }
+}
+
+
+
 // // READ
 uch read_action() {
     select_from_battle_options();
@@ -84,14 +136,14 @@ uch read_ship_i(wing *wing, uch side) {
     return CURSOR_POS;
 }
 
-// void swap_ships_with_anim(wing *wing, uch a, uch b, uch side) {
-    // swap_ships_sprites(side, a, b);
-    // swap_ships(wing, a, b);
-// }
 
 void gen_ai() {
     ship *leader = get_leader(&ENEMY_WING);
-    if (leader->attack > get_leader(&PLAYER_WING)->health) {
+    if (leader->type == BOSS && leader->tier == 1) {
+        ENEMY_CHOICE[0] = RETREAT;
+        ENEMY_CHOICE[1] = NO_CHOICE;
+        ENEMY_CHOICE[2] = NO_CHOICE;
+    } else if (leader->attack > get_leader(&PLAYER_WING)->health) {
         ENEMY_CHOICE[0] = ATTACK;
         ENEMY_CHOICE[1] = NO_CHOICE;
         ENEMY_CHOICE[2] = NO_CHOICE;
@@ -144,21 +196,24 @@ void perform_action(uch action, uch choice, uch damage_multiplier, uch side) {
     
     switch (action) {
         case ATTACK:
-            // shoot_bullet(0, 0, side);
             if (oppose->protector == NO_SLOT) {
+                shoot_bullet(0, 0, side);
                 take_damage(
                     oppose_leader, 
                     you_leader->attack, 
                     damage_multiplier,
                     you_leader->type
                 );
+                flash(oppose_leader, 0, 1 - side);
             } else {
+                shoot_bullet(0, oppose->protector, side);
                 take_damage(
                     get_ship(oppose, oppose->protector),
                     you_leader->attack, 
                     damage_multiplier,
                     you_leader->type
                 );
+                flash(get_ship(oppose, oppose->protector), oppose->protector, 1 - side);
                 oppose->protector = NO_SLOT;
             }
             break;
@@ -171,7 +226,8 @@ void perform_action(uch action, uch choice, uch damage_multiplier, uch side) {
                     get_leader(you)->special, 
                     damage_multiplier,
                     INTERCEPTOR
-                );  
+                );
+                flash(oppose_leader, 0, 1 - side);
             }
             break;
         case SPECIAL:
@@ -187,7 +243,8 @@ void perform_action(uch action, uch choice, uch damage_multiplier, uch side) {
                         damage_multiplier,
                         BOMBER
                     );
-                    // shoot_bullet(0, choice, side);
+                    shoot_bullet(0, choice, side);
+                    flash(get_ship(oppose, choice), choice, 1 - side);
                     break;
                 case DESTROYER:
                     if (you->size > 1) {
@@ -201,14 +258,26 @@ void perform_action(uch action, uch choice, uch damage_multiplier, uch side) {
                             you_leader->special, 
                             damage_multiplier,
                             INTERCEPTOR
-                        );  
+                        );
+                        flash(oppose_leader, 0, 1 - side);
                     }
                     break;  
                 case SUPPORT:
+                    flash(you_leader, 0, side);
                     heal(
                         get_ship(you, choice),
                         you_leader->special
                     );
+                    flash(get_ship(you, choice), choice, side);
+                    break;
+                case BOSS:
+                    take_damage(
+                        get_ship(oppose, choice),
+                        get_ship(oppose, choice)->attack,
+                        damage_multiplier,
+                        get_ship(oppose, choice)->type
+                    );
+                    flash(get_ship(oppose, choice), choice, 1 - side);
                     break;
                 default:
                     // assert(0);
@@ -223,13 +292,17 @@ void perform_action(uch action, uch choice, uch damage_multiplier, uch side) {
 
 void perform_summoner_boss_action(uch damage_mulipler) {
     if (ENEMY_WING.size <= MAX_WING_SIZE - 2) {
-        fill_wing_with_rand_ships(&ENEMY_WING, 2, 0, 0);
+        add_ship(&ENEMY_WING, INTERCEPTOR);
+        fill_wing_with_rand_ships(&ENEMY_WING, 1, 0, 0);
     } else if (ENEMY_WING.size == MAX_WING_SIZE - 1) {
-        fill_wing_with_rand_ships(&ENEMY_WING, 1, 0, 1);
+        add_ship(&ENEMY_WING, INTERCEPTOR);
+        fill_wing_with_rand_ships(&ENEMY_WING, 0, 0, 1);
     } else {
         fill_wing_with_rand_ships(&ENEMY_WING, 0, 0, 2);
     }
-    cycle_ships(&ENEMY_WING);
+    ENEMY_CHOICE[0] = RETREAT;
+    ENEMY_CHOICE[1] = NO_CHOICE;
+    ENEMY_CHOICE[2] = NO_CHOICE;
 }
 
 void perform_round(
@@ -241,59 +314,106 @@ void perform_round(
     uch enemy_action,
     uch enemy_choice
 ) {
-    uch i, wing_size;
+    uch i, side, wing_size;
+    ship *tmp;
     // int result_effect;
     // ship *player_leader, *enemy_leader;
 
-    wing_size = PLAYER_WING.size;
-    for (i = 1; i < wing_size; i++) {
-        heal(
-            get_ship(&PLAYER_WING, i), 
-            PLAYER_WING.heal
-        );
+    // wing_size = PLAYER_WING.size;
+    // for (i = 1; i < wing_size; i++) {
+    //     tmp = get_ship(&PLAYER_WING, i);
+    //     heal(
+    //         get_ship(tmp, i), 
+    //         PLAYER_WING.heal
+    //     );
+    // }
+    // wing_size = ENEMY_WING.size;
+    // for (i = 1; i < wing_size; i++) {
+    //     tmp = get_ship(&ENEMY_WING, i);
+    //     heal(
+    //         tmp, 
+    //         ENEMY_WING.heal
+    //     );
+    // }
+
+    for (side = OUR_SIDE; side < 2; side++) {
+        wing_size = BOTH_WINGS[side].size;
+        for (i = 1; i < wing_size; i++) {
+            heal(
+                get_ship(&BOTH_WINGS[side], i), 
+                BOTH_WINGS[side].heal
+            );
+        }
     }
-    wing_size = ENEMY_WING.size;
-    for (i = 1; i < wing_size; i++) {
-        heal(
-            get_ship(&ENEMY_WING, i), 
-            ENEMY_WING.heal
-        );
+
+    for (side = OUR_SIDE; side < 2; side++) {
+        wing_size = BOTH_WINGS[side].size;
+        for (i = 0; i < wing_size; i++) {
+            tmp = get_ship(&BOTH_WINGS[side], i);
+            if (tmp->mods & TORPEDO || tmp->type == BOMBER) {
+                shoot_bullet(i, 0, side);
+                render_scene();
+            }
+            if (tmp->mods & REMTECH || tmp->type == SUPPORT) {
+                flash(tmp, i, side);
+                render_scene();
+            }
+        }
     }
 
     // result_effect = PLAYER_WING.heal - (ENEMY_WING.missile);
-    if (PLAYER_WING.heal > ENEMY_WING.missile) {
-        heal(
-            get_leader(&PLAYER_WING), 
-            PLAYER_WING.heal - ENEMY_WING.missile
-        );
-    } else if (PLAYER_WING.heal < ENEMY_WING.missile) {
-        take_damage(
-            get_leader(&PLAYER_WING), 
-            ENEMY_WING.missile - PLAYER_WING.heal,
-            damage_multiplier,
-            BOMBER
-        );
+    for (side = OUR_SIDE; side < 2; side++) {
+        if(BOTH_WINGS[side].heal > BOTH_WINGS[1 - side].missile) {
+            heal(
+                get_leader(&BOTH_WINGS[side]), 
+                BOTH_WINGS[side].heal - BOTH_WINGS[1 - side].missile
+            ); 
+        } else if (BOTH_WINGS[side].heal < BOTH_WINGS[1 - side].missile) {
+            take_damage(
+                get_leader(&BOTH_WINGS[side]), 
+                BOTH_WINGS[1 - side].missile - BOTH_WINGS[side].heal,
+                damage_multiplier,
+                BOMBER
+            );
+        }
     }
+    // if (PLAYER_WING.heal > ENEMY_WING.missile) {
+    //     heal(
+    //         get_leader(&PLAYER_WING), 
+    //         PLAYER_WING.heal - ENEMY_WING.missile
+    //     );
+    // } else if (PLAYER_WING.heal < ENEMY_WING.missile) {
+    //     take_damage(
+    //         get_leader(&PLAYER_WING), 
+    //         ENEMY_WING.missile - PLAYER_WING.heal,
+    //         damage_multiplier,
+    //         BOMBER
+    //     );
+    // }
 
-    // result_effect = ENEMY_WING.heal - (PLAYER_WING.missile);
-    if (ENEMY_WING.heal > (PLAYER_WING.missile)) {
-        heal(
-            get_leader(&ENEMY_WING), 
-            ENEMY_WING.heal - PLAYER_WING.missile
-        );
-    } else if (ENEMY_WING.heal < (PLAYER_WING.missile)) {
-        take_damage(
-            get_leader(&ENEMY_WING), 
-            PLAYER_WING.missile - ENEMY_WING.heal,
-            damage_multiplier,
-            BOMBER
-        );
-    }
+    // // result_effect = ENEMY_WING.heal - (PLAYER_WING.missile);
+    // if (ENEMY_WING.heal > (PLAYER_WING.missile)) {
+    //     heal(
+    //         get_leader(&ENEMY_WING), 
+    //         ENEMY_WING.heal - PLAYER_WING.missile
+    //     );
+    // } else if (ENEMY_WING.heal < (PLAYER_WING.missile)) {
+    //     take_damage(
+    //         get_leader(&ENEMY_WING), 
+    //         PLAYER_WING.missile - ENEMY_WING.heal,
+    //         damage_multiplier,
+    //         BOMBER
+    //     );
+    // }
     // player_leader = get_leader(&PLAYER_WING);
     // enemy_leader = get_leader(&ENEMY_WING);
-
+    render_scene();
     perform_action(player_action, player_choice, damage_multiplier, OUR_SIDE);
+    if (get_leader(&ENEMY_WING)->type == BOSS && get_leader(&ENEMY_WING)->tier == 1) {
+        perform_summoner_boss_action(damage_multiplier);
+    }
     perform_action(enemy_action, enemy_choice, damage_multiplier, THEIR_SIDE);
+    render_scene();
     // TODO COMPLETE PERFORMER
 }
 
@@ -301,7 +421,7 @@ void render_ours() {
     render_wing(&PLAYER_WING, OUR_SIDE);
     inspect_wing(&PLAYER_WING, &our_inspect_wing_rect, &our_inspect_ship_rect);
     inspect_money(MONEY);
-    update_screen();
+    sp1_UpdateNow();
 }
 
 void render_scene() {
@@ -323,36 +443,72 @@ void prepare() {
             swap_ships(&PLAYER_WING, ship_a, ship_b);
         } else if (CURSOR_POS == SPY_OPTION) {
             read_ship_i(&ENEMY_WING, THEIR_SIDE);
+        } else if (CURSOR_POS == CURSOR_CANCEL) {
+            state = EXIT;
+            break;
         } else {
             break;
         }
     }
 }
 
+void steal_player_strongest() {
+    uch strongest_i;
+    ship *strongest_ship, *new_enemy;
+    uch mods, i;
+    
+    strongest_i = get_strongest_ship(&PLAYER_WING);
+    strongest_ship = get_ship(&PLAYER_WING, strongest_i);
+    mods = strongest_ship->mods;
+
+    add_ship(&ENEMY_WING, INTERCEPTOR);
+    swap_ships(&ENEMY_WING, 0, ENEMY_WING.size - 1);
+    new_enemy = get_leader(&ENEMY_WING);
+    new_enemy->name = strongest_ship->name;
+    new_enemy->attack = strongest_ship->attack;
+    new_enemy->health = strongest_ship->health;
+    new_enemy->max_health = strongest_ship->max_health;
+    new_enemy->special = strongest_ship->special;
+    new_enemy->type = strongest_ship->type;
+    new_enemy->tier = strongest_ship->tier;
+    for (i = 0; i < 7; i++) {
+        if (!(ALL_MODS[i] & mods)) {
+            install_mod(&ENEMY_WING, new_enemy, ALL_MODS[i]);
+        }
+    }
+    remove_ship(&PLAYER_WING, strongest_i);
+
+}
+
 void perform_fight() {
     uch player_action, enemy_action; 
     uch player_choice, enemy_choice;
     fight_result fight_result;
-    // wing player_wing;
-    // wing enemy_wing;
-
-    // player_wing = &state->player_wing;
     
     init_enemy_wing(
         &ENEMY_WING, 
-        // node_args[current_world]
-        1
+        node_args[current_world]
     );
     COMBAT_ROUND = 0;
 
     render_scene();
     prepare();
+    if (state == EXIT) {
+        return;
+    }
+
+    if (get_leader(&ENEMY_WING)->type == BOSS && get_leader(&ENEMY_WING)->tier == 2) {
+        steal_player_strongest();
+    }
 
     for (;;) {
 
         render_scene();
 
         player_action = read_action();
+        if (state == EXIT) {
+            return;
+        }
         if (player_action == SPECIAL) {
             switch (get_leader(&PLAYER_WING)->type) {
                 case BOMBER:
@@ -400,7 +556,7 @@ void perform_fight() {
         scrap_dead_ships(&ENEMY_WING);
         fight_result = check_fight_result();
         render_scene();
-        update_screen();
+        sp1_UpdateNow();
         
         if (fight_result == CONTINUE) {
             COMBAT_ROUND++;
@@ -409,7 +565,7 @@ void perform_fight() {
             PLAYER_WING.protector = NO_SLOT;
             MONEY = MONEY + node_args[current_world] + 1;
             inspect_money(MONEY);
-            collect_scrap();
+            get_bonuses(collect_scrap() / 20, &PLAYER_WING);
             break;
         } else if (fight_result == THEY) {
             state = DEFEAT;
@@ -429,32 +585,54 @@ void perform_flight() {
     draw_map();
     sp1_UpdateNow();
     current_world = read_next_node();
-    clear_screen_from_map();
-    // into_the_hyperspace(player_wing.size);
-    sp1_UpdateNow();
+    if (CURSOR_POS != CURSOR_CANCEL) {
+        world_x_offset = nodes_x[current_world];
+        clear_screen_from_map();
+        draw_stars();
+        // into_the_hyperspace(player_wing.size);
+        sp1_UpdateNow();
+    } else {
+        state = EXIT;
+    }
 }
 
+bonus shop[4];
 void perform_shopping() {
-    bonus shop[4];
     uch i;
     shop[0] = HEAL;
     shop[1] = ATK;
-    render_wing(&PLAYER_WING, OUR_SIDE);
+    render_ours();
     // for (i = 0; i < 3; i++) {
     //     shop[i + 1] = (bonus) (rand() % (NUM_OF_MOD_TYPES - 1));
     // }
     // collect_bonuses(shop, 4, &state->player_wing, True);
     collect_bonuses(shop, 2, &PLAYER_WING, True);
     sp1_ClearRectInv(&costs_rect, INK_WHITE | PAPER_BLACK, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR);
+    CURSOR_POS = 0;
+    render_ours();
+}
+
+extern uch launch_text[];
+void launch_screen() {
+    ps0.attr = INK_GREEN | PAPER_BLACK;
+    // sp1_PrintString(&ps0, "\x14\x50");
+    sp1_SetPrintPos(&ps0, 0, 0);
+    sp1_PrintString(&ps0, launch_text);
+    sp1_UpdateNow();
+    select_seed();
+    sp1_ClearRectInv(&full_screen, INK_WHITE | PAPER_BLACK, ' ', SP1_RFLAG_TILE | SP1_RFLAG_COLOUR);
+
 }
 
 // MAIN
 void main() {
-    init_state();
-    select_map(0);
-    generate_world();
-
     init_all();
+
+    launch_screen();
+
+    init_state();
+    select_map(rand() % MAPS_COUNT);
+    generate_world();
     render_ours();
 
     // for(;;) {
@@ -463,14 +641,16 @@ void main() {
     //         break;
     //     }
     // }
-    while (world[current_world].num_of_next_worlds > 0) {
+    while (world[current_world].num_of_next_worlds > 0 && state != EXIT) {
         
         perform_flight();
         heal_wing(&PLAYER_WING, 4);
 
-        if (nodes_content[current_world] == ENEMY) {
+        if (state == EXIT) {
+            break;
+        } else if (nodes_content[current_world] == ENEMY) {
             perform_fight();
-            if (state == DEFEAT) {
+            if (state == DEFEAT || state == EXIT) {
                 break;
             }
         } else if (nodes_content[current_world] == SHOP) {
@@ -481,10 +661,12 @@ void main() {
     sp1_SetPrintPos(&ps0, 10, 10);
     if (state == DEFEAT) {
         sp1_PrintString(&ps0, "GAME OVER :o(");
-    } else {
+    } else if (state == VICTORY) {
         sp1_PrintString(&ps0, "YOU WIN :o)");
+    } else {
+        sp1_PrintString(&ps0, "GAME OVER");
     }
-    update_screen();
+    sp1_UpdateNow();
 
 }
 

@@ -9,8 +9,9 @@ void init_all() {
     init_sp1();
     init_bonus_wing();
     // init_bullet();
+    // init_ship_sprites();
+    // init_shield_sprites();
     init_cursor();
-    init_ship_sprites();
     init_inspector();
     init_all_tilesets();
 }
